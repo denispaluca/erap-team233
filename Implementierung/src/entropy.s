@@ -7,7 +7,7 @@ entropy_asm:
 	// rsi is the pointer to the array
 
 	test rdi,rdi
-	je .Lzer
+	je .Lzero
 
 
 	pxor xmm2,xmm2 // store the temporary entropy sum.
@@ -17,7 +17,7 @@ entropy_asm:
 	// rsi is the length of the array
 	mov rax,rdi
 	mov rdi,rsi
-	mov rsi,rdi
+	mov rsi,rax
 
 	.Lloop
 
@@ -32,7 +32,7 @@ entropy_asm:
 	sub rsi,1
 	ja .Lloop
 
-	movsd xmm0,xmm2
+	movss xmm0,xmm2
 	ret
 
 	.Lzero:

@@ -3,9 +3,6 @@
 #include <stdint.h>
 #include <math.h>
 
-
-
-
 // Error Margin
 #define UPPER_LIMIT 1.000005
 #define LOWER_LIMIT 0.999995
@@ -23,7 +20,7 @@ int size_file(const char* file_name)
 		return 0;
 	}
 
-	uint32_t len = 0;
+	size_t len = 0;
 	float tmp = 0;
 	float sum = 0;
 
@@ -54,7 +51,7 @@ int size_file(const char* file_name)
 	return len;
 }
 
-float* read_file(uint32_t len, const char* file_name) {
+float* read_file(size_t len, const char* file_name) {
 
 	// allocate enough spaces to store every input.
 	float* inputs = malloc(len * sizeof(float));
@@ -62,8 +59,8 @@ float* read_file(uint32_t len, const char* file_name) {
 	if (inputs == NULL)
 	{
 		printf("Could not allocated enough memory to store every input.\n");
-		printf("Number of elements to store: %u.\n", len);
-		printf("Skipping the file %s. \n", file_name);
+		printf("Number of elements to store: %zu.\n", len);
+		printf("Skipping the file %s.\n", file_name);
 		return NULL;
 	}
 
@@ -100,6 +97,31 @@ float scalar_entropy(size_t len,  float* data)
 	return entropy;
 }
 
+float file_entropy_c(const char* file_name)
+{
+	size_t len = size_file(file_name);
+	float* data = NULL;
+	if (len != 0)
+	{
+		data = read_file(len, file_name);
+	}
+	if (data != NULL)
+	{
+
+		/*for (size_t j = 0 ; j < len ; ++j)
+		{
+			printf("Number is: %f \n", data[j]);
+		}*/
+
+		float entropy = scalar_entropy(len, data);
+		free(data);
+		return entropy;
+	}
+
+	// Since entropy is always positive in case of an error returns -1.
+	return -1;
+}
+
 
 
 int main(int argc, char *argv[])
@@ -113,29 +135,11 @@ int main(int argc, char *argv[])
 
 	for (int32_t i = 1; i < argc ; ++i)
 	{
-		const char* file_name = argv[i];
-		uint32_t len = size_file(file_name);
-		float* data = NULL;
-		if (len != 0)
+		float entropy = file_entropy_c(argv[i]);
+		if(entropy != -1)
 		{
-			data = read_file(len, file_name);
+			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
 		}
-		if (data != NULL)
-		{
-
-			/*for (size_t j = 0 ; j < len ; ++j)
-			{
-				printf("Number is: %f \n", data[j]);
-			}*/
-
-			float entropy = scalar_entropy(len, data);
-			printf("Entropy of a given probabilty distribution in file %s is : %f.\n", file_name, entropy);
-			// free resources
-			free(data);
-		}
-
-		
-		
 	}
 	return 0;
 }

@@ -5,9 +5,11 @@
 
 
 
+
 // Error Margin
 #define UPPER_LIMIT 1.000005
 #define LOWER_LIMIT 0.999995
+
 // This function determines the size of inputs in the given file name.
 int size_file(const char* file_name)
 {
@@ -26,12 +28,14 @@ int size_file(const char* file_name)
 	float sum = 0;
 
 	// First reading the file until an error occurs or until reach the end of line.
-	while (fscanf(input_file, "%f", &tmp) == 1) {
+	while (fscanf(input_file, "%f", &tmp) == 1)
+	{
 		++len;
-		if (tmp < 0)
+		if (tmp < 0 || tmp > 1)
 		{
 			printf("There are negative values in your input file: %s.\n", file_name);
-			printf("Skipping the file %s.\n",file_name);
+			printf("Skipping the file %s.\n", file_name);
+			fclose(input_file);
 			return 0;
 		}
 		sum += tmp;
@@ -43,8 +47,10 @@ int size_file(const char* file_name)
 		printf("Given inputs does not represent probability distribution.\n");
 		printf("Sum of the inputs is: %f but expected it was between %f and %f.\n", sum, LOWER_LIMIT, UPPER_LIMIT);
 		printf("Skipping the file %s.\n", file_name);
+		fclose(input_file);
 		return 0;
 	}
+	fclose(input_file);
 	return len;
 }
 
@@ -124,10 +130,12 @@ int main(int argc, char *argv[])
 
 			float entropy = scalar_entropy(len, data);
 			printf("Entropy of a given probabilty distribution in file %s is : %f.\n", file_name, entropy);
+			// free resources
+			free(data);
 		}
 
-		// free resources
-		free(data);
+		
+		
 	}
 	return 0;
 }

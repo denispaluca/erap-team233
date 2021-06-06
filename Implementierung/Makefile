@@ -15,11 +15,14 @@ TEST = test
 
 .PHONY: all clean
 
-$(PROGRAM):
+$(PROGRAM): build_dir
 	$(CC) $(CFLAGS) $(LIB_FILES) $(SRC_DIR)/main.c -o $(BUILD_DIR)/$(PROGRAM)
 
-test:
+test: build_dir
 	$(CC) $(CFLAGS) $(LIB_FILES) test.c -o $(BUILD_DIR)/$(TEST)
+
+build_dir:
+	@mkdir -p build	
 
 clean:
 	rm -rf $(BUILD_DIR)/*

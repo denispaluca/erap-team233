@@ -2,6 +2,9 @@
 #define ENTROPY_H
 
 #include <stddef.h>
+#include <math.h>
+
+#include "io_operations.h"
 
 //===============C functions===================
 float scalar_entropy(size_t len,  float* data);

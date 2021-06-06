@@ -2,6 +2,7 @@
 #define IO_OPERATIONS_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 // Error Margin
 #define UPPER_LIMIT 1.000005

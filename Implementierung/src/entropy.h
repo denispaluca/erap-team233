@@ -12,6 +12,7 @@ float file_entropy_c(const char* file_name);
 
 //===============Asm Functions==================
 extern float entropy_asm (size_t len, float* data);
-// extern float log2(float val); // We may wanna use it later
+extern float entropy_simd (size_t len, float* data);
+extern float log2_asm(float val);
 
 #endif

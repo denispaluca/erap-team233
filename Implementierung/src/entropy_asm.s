@@ -1,10 +1,11 @@
 .intel_syntax noprefix
 .global entropy_asm
-// .global log2 // We may wanna use it later
+// .extern log2 // We will use it when implemented
 .extern log2f // you can use C libray function in assembly for testing
+
 .text
 
-// float (size_t len, float* data);
+// float entropy_asm(size_t len, float* data);
 entropy_asm:
 	// rdi is the length of the array
 	// rsi is the pointer to the array
@@ -41,9 +42,3 @@ entropy_asm:
 	.Lzero:
 		pxor xmm0,xmm0
 		ret
-
-
-
-// float (float val)
-log2:
-	ret

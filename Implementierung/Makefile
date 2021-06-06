@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -O3 $(LDLIBS) -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined $(WARNING_FLAGS)
-WARNING_FLAGS = -Wall -Wextra -Wpedantic -pedantic-errors -Wfatal-errors -Werror -Wcast-align -Wunused -Wshadow -Wcast-qual  -Wno-missing-braces
+WARNING_FLAGS = -Wall -Wextra -Wpedantic -pedantic-errors -Wfatal-errors -Wcast-align -Wunused -Wshadow -Wcast-qual  -Wno-missing-braces
 LDLIBS = -lm # Math Library
 
 SRC_DIR = src

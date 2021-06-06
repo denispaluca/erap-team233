@@ -44,7 +44,8 @@ int size_file(const char* file_name)
 	return len;
 }
 
-float* read_file(size_t len, const char* file_name) {
+float* read_file(size_t len, const char* file_name)
+{
 
 	// allocate enough spaces to store every input.
 	float* inputs = malloc(len * sizeof(float));

@@ -48,7 +48,8 @@ float* read_file(size_t len, const char* file_name)
 {
 
 	// allocate enough spaces to store every input.
-	float* inputs = malloc(len * sizeof(float));
+	size_t align = len + (4-len % 4) % 4;
+	float* inputs = aligned_alloc(16,align * sizeof(float));
 
 	if (inputs == NULL)
 	{
@@ -72,6 +73,10 @@ float* read_file(size_t len, const char* file_name)
 	for (size_t i = 0 ; i < len; ++i)
 	{
 		fscanf(input_file, "%f", &inputs[i]);
+	}
+	for(size_t i = len ; i < align ; ++i)
+	{
+		inputs[i] = 1;
 	}
 
 	// free resources

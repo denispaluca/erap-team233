@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	for (int32_t i = 1; i < argc ; ++i)
+	for (int  i = 1; i < argc ; ++i)
 	{
 
 		size_t len = size_file(argv[i]);
@@ -33,7 +33,9 @@ int main(int argc, char *argv[])
 			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
 			entropy = entropy_asm(len, data);
 			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
-			entropy = entropy_asm_simd(len, data);
+			len = len+ (4-len%4)%4;
+			printf("%zu \n",len);
+			entropy = entropy_simd(len, data);
 			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
 			free(data);
 			return entropy;

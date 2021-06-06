@@ -4,7 +4,7 @@
 .extern log2f // you can use C libray function in assembly for testing
 
 .text
-
+.align 16
 // float entropy_asm(size_t len, float* data);
 entropy_asm:
 	// rdi is the length of the array
@@ -12,6 +12,7 @@ entropy_asm:
 
 	test rdi,rdi
 	je .Lzero
+
 	push r12
 	push r13
 	push r14

@@ -11,31 +11,39 @@ entropy_asm:
 
 	test rdi,rdi
 	je .Lzero
+	push r12
+	push r13
+	push r14
+
+	// store entropy temporarily on xmm2
+	pxor xmm2,xmm2 
+	
+	// preserve rdi,rsi across function calls.
+	mov r12,rdi
+	mov r13,rsi
+
+	.Lloop:
+	// preserve temporary xmm2 register across function call.
+	movq r14,xmm2
 
 
-	pxor xmm2,xmm2 // store the temporary entropy sum.
+	movss xmm0,[r13];
+	call log2f
 
-	// Switch places between rdi and rsi because log2 function takes input from rdi
-	// rdi is the pointer to the array
-	// rsi is the length of the array
-	mov rax,rdi
-	mov rdi,rsi
-	mov rsi,rax
-
-	.Lloop
-
-	movss xmm1,[rdi]
-
-	call log2
+	movss xmm1,[r13]
+	movq xmm2,r14
 
 	mulss xmm0,xmm1
 	subss xmm2,xmm0
 
-	add rdi,4
-	sub rsi,1
+	add r13,4
+	sub r12,1
 	ja .Lloop
 
 	movss xmm0,xmm2
+	pop r14
+	pop r13
+	pop r12
 	ret
 
 	.Lzero:

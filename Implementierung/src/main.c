@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
 			entropy = entropy_asm(len, data);
 			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
 			len = len+ (4-len%4)%4;
-			printf("%zu \n",len);
 			entropy = entropy_simd(len, data);
 			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
 			free(data);

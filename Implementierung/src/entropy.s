@@ -26,9 +26,9 @@ entropy_asm:
 	// preserve temporary xmm2 register across function call.
 	movq r14,xmm2
 
-
 	movss xmm0,[r13];
 	call log2f
+
 
 	movss xmm1,[r13]
 	movq xmm2,r14

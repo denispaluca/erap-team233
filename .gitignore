@@ -50,3 +50,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# extra stuff for IDE's and Mac :)
+.vscode
+.idea
+.DS_Store

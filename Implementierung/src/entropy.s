@@ -22,7 +22,7 @@ entropy_asm:
 	mov rdi,rsi
 	mov rsi,rax
 
-	.Lloop
+	.Lloop:
 
 	movss xmm1,[rdi]
 

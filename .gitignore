@@ -50,3 +50,11 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# exclude build directory
+Implementierung/build
+
+# extra stuff for IDE's and Mac :)
+.vscode
+.idea
+.DS_Store

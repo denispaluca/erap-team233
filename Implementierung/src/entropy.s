@@ -1,6 +1,9 @@
 .intel_syntax noprefix
 .global entropy_asm
+// .global log2 // We may wanna use it later
+.extern log2f // you can use C libray function in assembly for testing
 .text
+
 // float (size_t len, float* data);
 entropy_asm:
 	// rdi is the length of the array
@@ -19,7 +22,7 @@ entropy_asm:
 	mov rdi,rsi
 	mov rsi,rax
 
-	.Lloop
+	.Lloop:
 
 	movss xmm1,[rdi]
 
@@ -41,8 +44,6 @@ entropy_asm:
 
 
 
-// float (float *data)
+// float (float val)
 log2:
 	ret
-
-	

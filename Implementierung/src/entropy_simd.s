@@ -10,7 +10,6 @@ entropy_simd:
     // rdi is the length of the array
     // rsi is the pointer to the array
     // PREREQUISITE:  len must be a multiple of 4.
-    
 
     // swap values because log2f_simd takes value from rdi register.
     mov rax,rdi
@@ -18,6 +17,7 @@ entropy_simd:
     mov rsi,rax
     // rdi is the pointer to the array
     // rsi is the length of the array.
+
 
 
 
@@ -38,12 +38,11 @@ entropy_simd:
 
 
     jae .Lsimdloop
-    .Lscalar:
-    //TODO:
 
-    //TODO sum every value on xmm0 register
+
     movaps xmm0,xmm2
     haddps xmm0,xmm0
     haddps xmm0,xmm0
+    
     ret
 

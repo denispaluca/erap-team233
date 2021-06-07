@@ -76,7 +76,7 @@ float* read_file(size_t len, const char* file_name)
 	}
 	for(size_t i = len ; i < align ; ++i)
 	{
-		inputs[i] = 1;
+		inputs[i] = 0;
 	}
 
 	// free resources

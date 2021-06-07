@@ -28,11 +28,11 @@ entropy_asm:
 
 	mov r8,rdi
 	mov r9,rsi
-	movss xmm3,[rip+.Lupperlimit]
-	movss xmm4,[rip+.Llowerlimit]
+	movss xmm3,[rip+.Lconstupperlimit]
+	movss xmm4,[rip+.Lconstlowerlimit]
 	pxor xmm5,xmm5
 	movss xmm6,[rip+.Lconst1]
-	pxor xmm7,xmm7
+	pxor xmm8,xmm8
 
 	.Lcheck:
 		movss xmm7,[r9]
@@ -97,9 +97,10 @@ entropy_asm:
 		pxor xmm0,xmm0
 		ret
 	.Lerror:
-		movaps xmm0,[rip+.Lconstminus1]
+		movss xmm0,[rip+.Lconstminus1]
 		ret
 
+// Constants
 .align 16
 .Lconstminus1:
 	.4byte 0xBF800000
@@ -107,12 +108,8 @@ entropy_asm:
 .Lconst1:
 	.4byte 0x3F800000
 .align 16
-.Lupperlimit:
+.Lconstupperlimit:
 	.4byte 0x3F80002A
 .align 16
-.Llowerlimit:
+.Lconstlowerlimit:
 	.4byte 0x3F7FFFAC
-
-
-
-

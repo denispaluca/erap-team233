@@ -4,14 +4,15 @@
 #include "entropy.h"
 #include "io_operations.h"
 
-const char* optstring = "-m:ta";
+const char* optstring = ":-m:tah";
 
 /*
 	JUST A DRAFT
 
-	-m => run mode asm|simd|c
-	-t => calculate time that program takes
-	-a => accuracy
+	-m, --mode => run mode asm|simd|c
+	-t, --time => calculate time that program takes
+	-a, --accuracy => accuracy
+	-h, --help 
 */
 
 int main(int argc, char *argv[]) {
@@ -34,20 +35,37 @@ int main(int argc, char *argv[]) {
 	// If the first character of optstring is '-', then each nonoption argv-element is handled as if it were the argument
 	// of an option with character code 1.
 
+	// Long option names may be abbreviated if the abbreviation is unique or is an exact match for some defined option.
+	// The last element of the array has to be filled with zeros.
+
 	int opt;
 
+	static struct option long_options[] = {
+                   {"mode", required_argument, 0,  'm' },
+				   {"help", no_argument, 0,  'h' },
+				   {"accuracy", no_argument, 0,  'a' },
+				   {"time", no_argument, 0,  't' },
+                   {0, 0, 0, 0 }
+               };
+
+	int optindex = 0;
+
 	// Fetching option arguments
-	while( (opt = getopt(argc, argv, optstring)) != -1 ) {
+	while( (opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1 ) {
 
 		switch (opt)
 		{
 		case 'm' :
-		case 't' :
-		case 'a' :
+			printf("mode : %s\n", optarg);
 			break;
-
-		case 1 : 
-			printf("%s \n", optarg);
+		case 't' :
+			printf("time \n");
+			break;
+		case 'a' :
+			printf("accuracy \n");
+			break;
+		case 'h' :
+			printf("help \n");
 			break;
 
 		// ===========================================================
@@ -55,8 +73,8 @@ int main(int argc, char *argv[]) {
 		// ===========================================================
 		
 		case ':' :
-			fprintf(stderr, "Missing argumant for option %c\n", optopt);
-			break;
+			fprintf(stderr, "Missing argumant for option -%c\n", optopt);
+			__attribute__ ((fallthrough)); // Let fallthrough
 
 		default:
 			fprintf(stderr, "USAGE HERE\n");
@@ -74,8 +92,7 @@ int main(int argc, char *argv[]) {
 
 
 	for (; optind < argc ; ++optind) {
-		int size = size_file(argv[optind]);
-		float entropy = scalar_entropy(size, read_file(size, argv[optind]));
+		float entropy = file_entropy_c(argv[optind]);
 		if(entropy != -1) {
 			fprintf(stderr, "Entropy of a given probabilty distribution in file %s is: %f\n", argv[optind], entropy);
 		}

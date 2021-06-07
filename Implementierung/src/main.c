@@ -12,13 +12,36 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	for (int32_t i = 1; i < argc ; ++i)
+	for (int  i = 1; i < argc ; ++i)
 	{
-		float entropy = file_entropy_c(argv[i]);
-		if(entropy != -1)
+
+		size_t len = size_file(argv[i]);
+		float* data = NULL;
+		if (len != 0)
 		{
-			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
+			data = read_file(len, argv[i]);
 		}
+		if (data != NULL)
+		{
+
+			/*for (size_t j = 0 ; j < len ; ++j)
+			{
+				printf("Number is: %f \n", data[j]);
+			}*/
+
+			float entropy = scalar_entropy(len, data);
+			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
+			entropy = entropy_asm(len, data);
+			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
+			len = len+ (4-len%4)%4;
+			entropy = entropy_simd(len, data);
+			printf("Entropy of a given probabilty distribution in file %s is: %f.\n", argv[i], entropy);
+			free(data);
+			return entropy;
+		}
+		
+		
+
 	}
 	return 0;
 }

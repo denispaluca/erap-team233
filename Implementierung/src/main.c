@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 		int size = size_file(argv[optind]);
 		float entropy = scalar_entropy(size, read_file(size, argv[optind]));
 		if(entropy != -1) {
-			fprintf(stderr, "Entropy of a given probabilty distribution in file %s is: %f.\n", argv[optind], entropy);
+			fprintf(stderr, "Entropy of a given probabilty distribution in file %s is: %f\n", argv[optind], entropy);
 		}
 	
 	}

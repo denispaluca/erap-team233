@@ -10,6 +10,8 @@
 //===============C functions===================
 float scalar_entropy(size_t len,  float* data);
 float simd_entropy(size_t len, float* data);
+float file_entropy_c(const char* file_name);
+
 //===============Asm Functions==================
 extern float entropy_asm (size_t len, float* data);
 extern float entropy_simd (size_t len, float* data);

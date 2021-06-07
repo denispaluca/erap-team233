@@ -16,7 +16,6 @@ entropy_asm:
 	push r12
 	push r13
 	push r14
-	sub rsp,0x08
 
 	// store entropy temporarily on xmm2
 	pxor xmm2,xmm2 
@@ -32,7 +31,6 @@ entropy_asm:
 	movss xmm0,[r13];
 	call log2f
 
-
 	movss xmm1,[r13]
 	movq xmm2,r14
 
@@ -44,7 +42,7 @@ entropy_asm:
 	ja .Lloop
 
 	movss xmm0,xmm2
-	add rsp,0x08
+
 	pop r14
 	pop r13
 	pop r12

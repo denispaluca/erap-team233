@@ -1,9 +1,9 @@
 CC = gcc
 
 #					   limit to sse4.2 /             C11 / No x87 FPU / No MMX
-CFLAGS = -O3 $(LDLIBS) -march=nehalem -mtune=generic -std=c11 -mno-80387 -mno-mmx -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined $(WARNING_FLAGS)
+CFLAGS = -O3 $(MATHLIB) -march=nehalem -mtune=generic -std=c11 -mno-80387 -mno-mmx -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined $(WARNING_FLAGS)
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -pedantic-errors -Wfatal-errors -Wcast-align -Wunused -Wshadow -Wcast-qual  -Wno-missing-braces
-LDLIBS = -lm # Math Library
+MATHLIB = -lm -no-pie # Math Library, without no-pie fails to use math library functions in assembly
 
 SRC_DIR = src
 BUILD_DIR = build

@@ -29,9 +29,7 @@ entropy_asm:
 	movq r14,xmm2
 
 	movss xmm0,[r13];
-
-	//  TODO:Not working on gcc 7.5 lxhalle, "Symbol `log2f' causes overflow in R_X86_64_PC32 relocation"
-	// call log2f
+	call log2f
 
 	movss xmm1,[r13]
 	movq xmm2,r14

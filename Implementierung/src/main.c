@@ -4,7 +4,7 @@
 #include "entropy.h"
 #include "io_operations.h"
 
-const char* optstring = ":+m:ta";
+const char* optstring = "-m:ta";
 
 /*
 	JUST A DRAFT
@@ -44,7 +44,11 @@ int main(int argc, char *argv[]) {
 		case 'm' :
 		case 't' :
 		case 'a' :
-		break;
+			break;
+
+		case 1 : 
+			printf("%s \n", optarg);
+			break;
 
 		// ===========================================================
 		// TODO: implement functionality

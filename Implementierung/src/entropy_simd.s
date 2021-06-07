@@ -15,12 +15,10 @@ entropy_simd:
     mov rax,rdi
     mov rdi,rsi 
     mov rsi,rax
+
+
     // rdi is the pointer to the array
     // rsi is the length of the array.
-
-
-
-
 
     pxor xmm2,xmm2
 
@@ -28,14 +26,15 @@ entropy_simd:
     
     movaps xmm1,[rdi]
 
+    sub rsp,0x08
     call log2_simd
+    add rsp,0x08
 
     mulps xmm0,xmm1
     subps xmm2,xmm0
 
     add rdi,16
     sub rsi,4
-
 
     jae .Lsimdloop
 

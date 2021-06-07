@@ -1,6 +1,6 @@
 .intel_syntax noprefix
 .global entropy_asm
-// .extern log2 // We will use it when implemented
+// .extern log2_asm // We will use it when implemented
 .extern log2f // you can use C libray function in assembly for testing
 
 .text

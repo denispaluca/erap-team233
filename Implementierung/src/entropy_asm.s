@@ -32,7 +32,6 @@ entropy_asm:
 	movss xmm0,[r13];
 	call log2f
 
-
 	movss xmm1,[r13]
 	movq xmm2,r14
 

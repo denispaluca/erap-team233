@@ -3,7 +3,7 @@
 
 .text
 
-// __m128 log2(__m128 val);
+// __m128 log2_simd(__m128 val);
 log2_simd:
     movaps xmm0,[rip+.Lconst1]
     ret

@@ -1,6 +1,5 @@
 .intel_syntax noprefix
 .global entropy_simd
-// .extern log2 // We will use it when implemented
 .extern log2_simd
 
 .text

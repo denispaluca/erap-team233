@@ -56,14 +56,14 @@ entropy_simd:
 
 
     // sum 4 floating points into 1 floating point.
-    haddps xmm8,xmm8
+    haddps xmm8,xmm8 
     haddps xmm8,xmm8
 
     comiss xmm8,xmm3
-	jl .Lerror
+    jl .Lerror
 
 	comiss xmm8,xmm4
-	jg .Lerror
+    jg .Lerror
 
     // swap values because log2f_simd takes value from rdi register.
     mov rax,rdi

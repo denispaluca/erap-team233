@@ -84,3 +84,20 @@ float log2approx_artanh(float x){
     y = y*q*ln2_2 + exponent;
     return y;
 }
+
+//TODO: Move to entropy_simd.c below
+__m128 log2deg2_sse(__m128 x){
+    __m128i expi = _mm_set1_epi32(0x7f800000);
+    expi &= (__m128i) x;
+    expi >>= 23;
+    expi = _mm_sub_epi32(expi, _mm_set1_epi32(127));
+    __m128 exponent = _mm_cvtepi32_ps(expi);
+
+    __m128 m = (__m128) _mm_set1_epi32(0x7fffff);
+    m = _mm_and_ps(m, x);
+    m = (__m128) _mm_add_epi32((__m128i) m, _mm_set1_epi32(0x3f800000));
+
+    __m128 y = _mm_set1_ps(-0.344845f)*m + _mm_set1_ps(2.024658f);
+    y = y*m + (exponent - _mm_set1_ps(1.674873f));
+    return y;
+}

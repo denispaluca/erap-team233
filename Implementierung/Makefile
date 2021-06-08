@@ -9,7 +9,7 @@ WARNING_FLAGS = -Wall -Wextra -Wpedantic -pedantic-errors -Wfatal-errors -Wcast-
 
 SRC_DIR = src
 BUILD_DIR = build
-TEST_DIR = test
+TEST_DIR = tests
 
 LIB_FILES = $(shell find $(SRC_DIR) -name "*.c" -not -name "main.c" -o -name "*.S" -o -name "*.s")
 HEADERS = $(wildcard $(SRC_DIR)/*.h)

@@ -1,4 +1,7 @@
 #include "entropy.h"
+#include <stdint.h>
+float log2approx_deg2(float);
+
 
 float scalar_entropy(size_t len,  float* data)
 {
@@ -29,4 +32,19 @@ float file_entropy_c(const char* file_name)
 
 	// Since entropy is always positive in case of an error returns -1.
 	return -1;
+}
+
+
+
+float log2approx_deg2(float x){
+    uint32_t ix, iz;
+    int exponent;
+    float m, y, a1 = -0.344845f, a2 = 2.024658f, a3 = 1.674873f;
+    ix = *(uint32_t *)&x;
+    exponent = ((int32_t) ix >> 23) - 127;
+    iz = (ix & 0x7fffff) + 0x3f800000;
+    m = *(float *) &iz;
+
+    y = a1*m*m + a2*m + (exponent - a3);
+    return y;
 }

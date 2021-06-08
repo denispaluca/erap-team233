@@ -3,6 +3,7 @@
 
 float log2approx_deg2(float);
 float log2approx_deg4(float);
+float log2approx_artanh(float);
 
 float scalar_entropy(size_t len,  float* data)
 {
@@ -10,7 +11,7 @@ float scalar_entropy(size_t len,  float* data)
 	float entropy = 0;
 	for (size_t i = 0 ; i < len ; ++i)
 	{
-		entropy -= data[i] * log2approx_deg4(data[i]);
+		entropy -= data[i] * log2approx_artanh(data[i]);
 	}
 	return entropy;
 }
@@ -65,5 +66,21 @@ float log2approx_deg4(float x){
     m2 = m*m;
     y = a1*m2 + a2 * m;
     y = y*m2 + a3*m2 + a4*m + (a5 + exponent);
+    return y;
+}
+
+float log2approx_artanh(float x){
+    uint32_t ix, iz;
+    int exponent;
+    float m, y, q, q2, ln2_2 = 2.88539008178f, third = 0.33333333333f;
+
+    ix = *(uint32_t *)&x;
+    exponent = ((int32_t) ix >> 23) - 127;
+    iz = (ix & 0x7fffff) + 0x3f800000;
+    m = *(float *) &iz;
+    q = (m-1)/(m+1);
+    q2 = q*q;
+    y = (third + q2*0.2f)*q2 + 1;
+    y = y*q*ln2_2 + exponent;
     return y;
 }

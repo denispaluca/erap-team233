@@ -1,7 +1,8 @@
 #include "entropy.h"
 #include <stdint.h>
-float log2approx_deg2(float);
 
+float log2approx_deg2(float);
+float log2approx_deg4(float);
 
 float scalar_entropy(size_t len,  float* data)
 {

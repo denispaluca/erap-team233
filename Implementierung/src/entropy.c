@@ -119,3 +119,25 @@ __m128 log2deg4_sse(__m128 x){
     y = (y + _mm_set1_ps(4.0700908f))*m + (exponent - _mm_set1_ps(2.5128546f));
     return y;
 }
+
+
+__m128 log2artanh_sse(__m128 x){
+    __m128i expi = _mm_set1_epi32(0x7f800000);
+    expi &= (__m128i) x;
+    expi >>= 23;
+    expi = _mm_sub_epi32(expi, _mm_set1_epi32(127));
+    __m128 y, m, q, q2, xmm1, exponent = _mm_cvtepi32_ps(expi);
+
+    m = (__m128) _mm_set1_epi32(0x7fffff);
+    m = _mm_and_ps(m, x);
+    m = (__m128) _mm_add_epi32((__m128i) m, _mm_set1_epi32(0x3f800000));
+
+    xmm1 = _mm_set1_ps(1.0f);
+    q = (m - xmm1)/(m + xmm1);
+
+    q2 = q*q;
+    y = (_mm_set1_ps(0.33333333333f) + q2*0.2f)*q2 + 1;
+    y = y*q*2.88539008178f + exponent;
+
+    return y;
+}

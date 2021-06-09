@@ -1,4 +1,3 @@
-#include "entropy_rand.h"
 #include "entropy.h"
 
 int compare_function(const void* a, const void* b)

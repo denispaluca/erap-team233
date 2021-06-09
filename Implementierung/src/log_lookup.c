@@ -15,7 +15,13 @@ void init_table(unsigned n, float* table)
     }
 }
 
-
+union data {float flt; int fix;};
 float log2_lookup(unsigned n, float* table, float x){
+    union data ix;
+    ix.flt = x;
+    int exponent, index;
+    exponent = (ix.fix >> 23) - 127;
+    index = (ix.fix & 0x7FFFFF) >> (23 - n);
 
+    return table[index] + exponent;
 }

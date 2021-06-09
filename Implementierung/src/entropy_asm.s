@@ -38,10 +38,10 @@ entropy_asm:
 		movss xmm7,[r9]
 
 		comiss xmm7,xmm5
-		jl .Lerror
+		jb .Lerror
 
 		comiss xmm7,xmm6
-		jg .Lerror
+		ja .Lerror
 
 		addss xmm8,xmm7
 
@@ -50,10 +50,10 @@ entropy_asm:
 		ja .Lcheck
 	
 	comiss xmm8,xmm3
-	jl .Lerror
+	ja .Lerror
 
 	comiss xmm8,xmm4
-	jg .Lerror
+	jb .Lerror
 	
 	// If I reach here that means the array is a proability distrubition.	
 

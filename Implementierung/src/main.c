@@ -93,10 +93,10 @@ int main(int argc, char *argv[]) {
 
 	for (; optind < argc ; ++optind) {
 		float entropy = file_entropy_c(argv[optind]);
-		if(entropy != -1) {
+	
 
 			fprintf(stderr, "Entropy of a given probabilty distribution in file %s is: %f\n", argv[optind], entropy);
-		}
+		
 	
 	}
 

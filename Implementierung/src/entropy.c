@@ -23,7 +23,7 @@ float file_entropy_c(const char* file_name)
 	{
 
 
-		float entropy = scalar_entropy(len, data);
+		float entropy = entropy_simd(len, data);
 		free(data);
 		return entropy;
 	}

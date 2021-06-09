@@ -84,21 +84,23 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	// Fetching arguments
-	if (optind >= argc) {
-		fprintf(stderr, "Need to specify at least one input file!\n");
-		exit(EXIT_FAILURE);
-	}
+	printf("asm: %f  c: %f\n", log2approx_deg2(0.5), log2approx_deg2_asm(0.5));
+
+	// // Fetching arguments
+	// if (optind >= argc) {
+	// 	fprintf(stderr, "Need to specify at least one input file!\n");
+	// 	exit(EXIT_FAILURE);
+	// }
 
 
-	for (; optind < argc ; ++optind) {
-		float entropy = file_entropy_c(argv[optind]);
-		if(entropy != -1) {
+	// for (; optind < argc ; ++optind) {
+	// 	float entropy = file_entropy_c(argv[optind]);
+	// 	if(entropy != -1) {
 
-			fprintf(stderr, "Entropy of a given probabilty distribution in file %s is: %f\n", argv[optind], entropy);
-		}
+	// 		fprintf(stderr, "Entropy of a given probabilty distribution in file %s is: %f\n", argv[optind], entropy);
+	// 	}
 	
-	}
+	// }
 
 	return EXIT_SUCCESS;
 }

@@ -2,46 +2,44 @@
 
 // Normal
 float log2approx_deg2(float x){
-    uint32_t ix, iz;
-    int exponent;
-    float m, y, a1 = -0.344845f, a2 = 2.024658f, a3 = 1.674873f;
-    ix = *(uint32_t *)&x;
-    exponent = ((int32_t) ix >> 23) - 127;
-    iz = (ix & 0x7fffff) + 0x3f800000;
-    m = *(float *) &iz;
+    union num data;
 
-    y = a1*m*m + a2*m + (exponent - a3);
-    return y;
+    float a1 = -0.344845f, a2 = 2.024658f, a3 = 1.674873f;
+    data.flt = x;
+
+    int exponent = ((int32_t) data.fix >> 23) - 127;
+    data.fix = (data.fix & 0x7fffff) + 0x3f800000;
+
+    return a1*data.flt*data.flt + a2*data.flt + (exponent - a3);;
 }
 
 float log2approx_deg4(float x){
-    uint32_t ix, iz;
-    int exponent;
-    float m, m2, y, a1 = -0.081615808f, 
+    union num data;
+    float m2, y, a1 = -0.081615808f, 
 	a2 = 0.64514236f, a3 = -2.1206751f, 
 	a4 = 4.0700908f, a5 = -2.5128546f;
+    data.flt = x;
 
-    ix = *(uint32_t *)&x;
-    exponent = ((int32_t) ix >> 23) - 127;
-    iz = (ix & 0x7fffff) + 0x3f800000;
-    m = *(float *) &iz;
+    int exponent = ((int32_t) data.fix >> 23) - 127;
+    data.fix = (data.fix & 0x7fffff) + 0x3f800000;
 
-    m2 = m*m;
-    y = a1*m2 + a2 * m;
-    y = y*m2 + a3*m2 + a4*m + (a5 + exponent);
+    m2 = data.flt * data.flt;
+    y = a1*m2 + a2 * data.flt;
+    y = y*m2 + a3*m2 + a4*data.flt + (a5 + exponent);
     return y;
 }
 
 float log2approx_arctanh(float x){
-    uint32_t ix, iz;
+    union num data;
     int exponent;
-    float m, y, q, q2, ln2_2 = 2.88539008178f, third = 0.33333333333f;
+    float y, q, q2, ln2_2 = 2.88539008178f, third = 0.33333333333f;
 
-    ix = *(uint32_t *)&x;
-    exponent = ((int32_t) ix >> 23) - 127;
-    iz = (ix & 0x7fffff) + 0x3f800000;
-    m = *(float *) &iz;
-    q = (m-1)/(m+1);
+    data.flt = x;
+
+    exponent = ((int32_t) data.fix >> 23) - 127;
+    data.fix = (data.fix & 0x7fffff) + 0x3f800000;
+
+    q = (data.flt-1)/(data.flt+1);
     q2 = q*q;
     y = (third + q2*0.2f)*q2 + 1;
     y = y*q*ln2_2 + exponent;

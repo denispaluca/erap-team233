@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <immintrin.h>
+#include <math.h>
 
 union num { float flt; int fix; };
 

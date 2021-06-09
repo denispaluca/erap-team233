@@ -7,7 +7,7 @@ float scalar_entropy(size_t len,  float* data)
 	float entropy = 0;
 	for (size_t i = 0 ; i < len ; ++i)
 	{
-		entropy -= data[i] * log2approx_artanh(data[i]);
+		entropy -= data[i] * log2approx_arctanh(data[i]);
 	}
 	return entropy;
 }

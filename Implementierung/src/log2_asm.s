@@ -1,9 +1,10 @@
 .intel_syntax noprefix
-.global log2_asm
+.global log2approx_deg2_asm
 
 .text
 
-// float log2_asm(float val);
-log2_asm:
+// float log2approx_deg2_asm(float val);
+log2approx_deg2_asm:
+	
 	ret
 

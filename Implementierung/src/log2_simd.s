@@ -5,9 +5,7 @@
 
 // __m128 log2_simd(__m128 val);
 log2_simd:
-    sub rsp,0x08
     movaps xmm0,[rip+.Lconst1]
-    add rsp,0x08
     ret
 
     

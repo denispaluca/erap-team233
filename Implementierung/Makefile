@@ -9,10 +9,10 @@ WARNING_FLAGS = -Wall -Wextra -Wpedantic -pedantic-errors -Wfatal-errors -Wcast-
 
 SRC_DIR = src
 BUILD_DIR = build
-TEST_DIR = test
+TEST_DIR = tests
 
 LIB_FILES = $(shell find $(SRC_DIR) -name "*.c" -not -name "main.c" -o -name "*.S" -o -name "*.s")
-HEADERS = $(wildcard $(SRC_DIR)/*.h)
+TEST_FILES = $(shell find $(TEST_DIR) -name "*.c" -not -name "main.c" -o -name "*.S" -o -name "*.s")
 
 PROGRAM = entropy
 TEST = test
@@ -23,7 +23,7 @@ $(PROGRAM): build_dir
 	@$(CC) $(LIB_FILES) $(CFLAGS) $(VERBOSE_FLAGS) $(SRC_DIR)/main.c -o $(BUILD_DIR)/$(PROGRAM)
 
 test: build_dir
-	@$(CC) $(LIB_FILES) $(CFLAGS) $(VERBOSE_FLAGS) $(SRC_DIR)/test.c -o $(BUILD_DIR)/$(TEST)
+	@$(CC) $(TEST_FILES) $(LIB_FILES) $(CFLAGS) $(VERBOSE_FLAGS) -o $(BUILD_DIR)/$(TEST)
 
 release: $(PROGRAM)
 	$(CC) $(LIB_FILES) $(CFLAGS) $(SRC_DIR)/main.c -o $(BUILD_DIR)/$(TEST)

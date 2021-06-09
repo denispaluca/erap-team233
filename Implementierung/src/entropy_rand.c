@@ -1,10 +1,10 @@
 #include "entropy_rand.h"
 #include "entropy.h"
 
-int compare_function(const void *a, const void *b)
+int compare_function(const void* a, const void* b)
 {
-    int x = *(const int *)a;
-    int y = *(const int *)b;
+    int x = *(const int*)a;
+    int y = *(const int*)b;
     return (x > y) - (x < y);
 }
 
@@ -17,8 +17,8 @@ float entropy_c_rand(size_t len)
     }
     srand(time(NULL));
 
-    int *in_array = malloc(len * sizeof(int));
-    float *prob_array = malloc(len * sizeof(float));
+    int* in_array = malloc(len * sizeof(int));
+    float* prob_array = malloc(len * sizeof(float));
 
     if (in_array == NULL || prob_array == NULL)
     {
@@ -50,17 +50,9 @@ float entropy_c_rand(size_t len)
         }
     }
 
-    prob_array[index] = ((float)freq) / len;
+    prob_array[index++] = ((float)freq) / len;
 
-    for (size_t i = 0; i < len; ++i)
-    {
-        printf("Number is: %d\n", in_array[i]);
-    }
-    for (size_t i = 0; i < len; ++i)
-    {
-        printf("Freq is: %f\n", prob_array[i]);
-    }
-    float entropy = scalar_entropy(len, prob_array);
+    float entropy = scalar_entropy(index, prob_array);
 
     free(in_array);
     free(prob_array);
@@ -74,7 +66,7 @@ float entropy_c_urandom(size_t len)
         printf("Length must be a positive number.");
         return -1;
     }
-    FILE *input_file;
+    FILE* input_file;
     input_file = fopen("/dev/urandom", "r");
     if (input_file == NULL)
     {
@@ -82,8 +74,8 @@ float entropy_c_urandom(size_t len)
         return -1;
     }
 
-    int *in_array = malloc(len * sizeof(int));
-    float *prob_array = malloc(len * sizeof(float));
+    int* in_array = malloc(len * sizeof(int));
+    float* prob_array = malloc(len * sizeof(float));
 
     if (in_array == NULL || prob_array == NULL)
     {
@@ -112,9 +104,9 @@ float entropy_c_urandom(size_t len)
         }
     }
 
-    prob_array[index] = ((float)freq) / len;
+    prob_array[index++] = ((float)freq) / len;
 
-    float entropy = scalar_entropy(len, prob_array);
+    float entropy = scalar_entropy(index, prob_array);
 
     fclose(input_file);
     free(in_array);

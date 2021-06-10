@@ -3,52 +3,44 @@
 // Normal
 float log2approx_deg2(float x){
     union num data;
-
-    float a1 = -0.344845f, a2 = 2.024658f, a3 = 1.674873f;
     data.flt = x;
 
-    int exponent = ((int32_t) data.fix >> 23) - 127;
-    data.fix = (data.fix & 0x7fffff) + 0x3f800000;
+    int exponent = (data.fix >> 23) - 127;
+    data.fix |= reduce_mask[0];
 
-    return a1*data.flt*data.flt + a2*data.flt + (exponent - a3);;
+    return deg2_co1[0] * data.flt * data.flt + deg2_co2[0] * data.flt + deg2_co3[0] + exponent;
 }
 
 float log2approx_deg4(float x){
     union num data;
-    float m2, y, a1 = -0.081615808f, 
-	a2 = 0.64514236f, a3 = -2.1206751f, 
-	a4 = 4.0700908f, a5 = -2.5128546f;
     data.flt = x;
 
-    int exponent = ((int32_t) data.fix >> 23) - 127;
-    data.fix = (data.fix & 0x7fffff) + 0x3f800000;
+    int exponent = (data.fix >> 23) - 127;
+    data.fix |= reduce_mask[0];
 
-    m2 = data.flt * data.flt;
-    y = a1*m2 + a2 * data.flt;
-    y = y*m2 + a3*m2 + a4*data.flt + (a5 + exponent);
-    return y;
+    float m2 = data.flt * data.flt;
+    float y = deg4_co1[0] * m2 + deg4_co2[0] * data.flt;
+
+    return y * m2 + deg4_co3[0] * m2 + deg4_co4[0] * data.flt + deg4_co5[0] + exponent;
 }
 
 float log2approx_arctanh(float x){
     union num data;
-    int exponent;
-    float y, q, q2, ln2_2 = 2.8853900817779268f, third = 0.33333333333f;
-
     data.flt = x;
 
-    exponent = ((int32_t) data.fix >> 23) - 127;
-    data.fix = (data.fix & 0x7fffff) + 0x3f800000;
+    int exponent = (data.fix >> 23) - 127;
+    data.fix |= reduce_mask[0];
 
-    q = (data.flt-1)/(data.flt+1);
-    q2 = q*q;
-    y = (third + q2*0.2f)*q2 + 1;
-    y = y*q*ln2_2 + exponent;
-    return y;
+    float q = (data.flt-1)/(data.flt+1);
+    float q2 = q*q;
+    float y = (one_third[0] + q2 * one_fifth[0]) * q2 + 1;
+
+    return y * q * ln2_inverse_2[0] + exponent;
 }
 
 
 // SIMD
-__m128 log2deg2_sse(__m128 x){
+__m128 log2approx_deg2_simd(__m128 x){
     __m128i expi = _mm_set1_epi32(0x7f800000);
     expi &= (__m128i) x;
     expi >>= 23;
@@ -64,7 +56,7 @@ __m128 log2deg2_sse(__m128 x){
     return y;
 }
 
-__m128 log2deg4_sse(__m128 x){
+__m128 log2approx_deg4_simd(__m128 x){
     __m128i expi = _mm_set1_epi32(0x7f800000);
     expi &= (__m128i) x;
     expi >>= 23;
@@ -83,7 +75,7 @@ __m128 log2deg4_sse(__m128 x){
 }
 
 
-__m128 log2arctanh_sse(__m128 x){
+__m128 log2approx_arctanh_simd(__m128 x){
     __m128i expi = _mm_set1_epi32(0x7f800000);
     expi &= (__m128i) x;
     expi >>= 23;

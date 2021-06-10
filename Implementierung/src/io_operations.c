@@ -15,7 +15,6 @@ int size_file(const char* file_name)
 
 	size_t len = 0;
 	float tmp = 0;
-	float sum = 0;
 
 	// First reading the file until an error occurs or until reach the end of line.
 	while (fscanf(input_file, "%f", &tmp) == 1)
@@ -61,7 +60,7 @@ float* read_file(size_t len, const char* file_name)
 	}
 	for(size_t i = len ; i < align ; ++i)
 	{
-		inputs[i] = 0;
+		inputs[i] = 0.0f;
 	}
 
 	// free resources

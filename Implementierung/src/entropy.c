@@ -46,7 +46,7 @@ float simd_entropy(size_t len, float* data,__m128(* log_func) (__m128))
 	uint32_t check_mask;
 
 
-	// Checking validity of data
+	//Checking validity of data
 	for(size_t i = 0 ; i < len ; i+=4)
 	{
 		cur = _mm_load_ps(data+i);
@@ -56,32 +56,32 @@ float simd_entropy(size_t len, float* data,__m128(* log_func) (__m128))
 		mask = _mm_cmplt_ps(cur,zero);
 
 		check_mask = _mm_movemask_epi8( (__m128i)mask);
-		if(unlikely(check_mask == 0)) return -1;
+		if(unlikely(check_mask != 0)) return -1;
 
-		mask = _mm_cmpnlt_ps(cur,one);
+		mask = _mm_cmpnle_ps(cur,one);
 
 		check_mask = _mm_movemask_epi8( (__m128i)mask);
-		if(unlikely(check_mask == 0)) return -1;
+		if(unlikely(check_mask != 0)) return -1;
 	}
 	sum = _mm_hadd_ps(sum,sum);
 	sum = _mm_hadd_ps(sum,sum);
-	float total_sum = sum[0];
-	if(total_sum < LOWER_LIMIT || total_sum > UPPER_LIMIT)
+	if(sum[0] < LOWER_LIMIT || sum[0] > UPPER_LIMIT)
 	{
 		return -1;
 	}
 
 	sum = _mm_setzero_ps();
 
+
 	//Calculating entropy
 	for(size_t i = 0 ; i < len ; i+=4)
 	{
-		cur = _mm_load1_ps(data+i);
+		cur = _mm_load_ps(data+i);
 		sum -= cur * log_func(cur);
 	}
+	sum = _mm_hadd_ps(sum,sum);
+	sum = _mm_hadd_ps(sum,sum);
 	
-	sum = _mm_hadd_ps(sum,sum);
-	sum = _mm_hadd_ps(sum,sum);
 	return sum[0];
 
 }

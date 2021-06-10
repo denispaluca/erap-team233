@@ -83,11 +83,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	// __m128 a = {-0.5, 0.0006, 0.99, 0.0625};
-	// __m128 b = log2approx_arctanh_simd(a);
-	// __m128 c = log2approx_arctanh_simd_asm(a);
+	__m128 a = {-0.5, 0.0006, 0.99, 0.0625};
+	__m128 b = log2approx_arctanh_simd(a);
+	__m128 c = log2approx_arctanh_simd_asm(a);
 
-	// printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
+	printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
 
 	printf("asm: %f  c: %f \n", log2_lookup_asm(0.57), log2_lookup(0.57));
 
@@ -97,13 +97,12 @@ int main(int argc, char *argv[])
 	// 	exit(EXIT_FAILURE);
 	// }
 
-	for (; optind < argc; ++optind)
-	{
-		size_t len = size_file(argv[optind]);
+		char* file_name = "tests/a.txt";
+		size_t len = size_file(file_name);
 		float *data = NULL;
 		if (len != 0)
 		{
-			data = read_file(len, argv[optind]);
+			data = read_file(len, file_name);
 		}
 		if (data != NULL)
 		{
@@ -118,10 +117,7 @@ int main(int argc, char *argv[])
 			free(data);
 			
 		}
-		float entropy = file_entropy_c(argv[optind]);
-
-		fprintf(stderr, "Entropy of a given probabilty distribution in file %s is: %f\n", argv[optind], entropy);
-	}
+	
 
 	// }
 

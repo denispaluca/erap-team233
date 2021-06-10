@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <getopt.h>
+#include <time.h>
 
 #include "entropy.h"
 #include "io_operations.h"
@@ -60,6 +61,28 @@ int main(int argc, char *argv[])
 			break;
 		case 't':
 			printf("time \n");
+			struct timespec start, end;
+			double sec;
+			float entropy;
+			char *file_name = "tests/a.txt";
+			struct Handler handler;
+			handler = handle_file(file_name);
+			if(handler.status == 0)
+			{
+				size_t iterations = 100000000;
+				clock_gettime(CLOCK_MONOTONIC,&start);
+				for(size_t i = 0 ; i < iterations ; ++i)
+				{
+					entropy = scalar_entropy(handler.len,handler.data);
+				}
+				clock_gettime(CLOCK_MONOTONIC,&end);
+				sec = end.tv_sec-start.tv_sec+1e-9*(end.tv_nsec-start.tv_nsec);
+				printf("It took %f seconds to calculate entropy %zu times.\n",sec,iterations);
+				printf("Entropy is: %f \n",entropy);
+
+			}
+			
+
 			break;
 		case 'a':
 			printf("accuracy \n");
@@ -97,27 +120,24 @@ int main(int argc, char *argv[])
 	// 	exit(EXIT_FAILURE);
 	// }
 
-		char* file_name = "tests/a.txt";
-		size_t len = size_file(file_name);
-		float *data = NULL;
-		if (len != 0)
-		{
-			data = read_file(len, file_name);
-		}
-		if (data != NULL)
-		{
+	char *file_name = "tests/a.txt";
+	size_t len = size_file(file_name);
+	float *data = NULL;
+	if (len != 0)
+	{
+		data = read_file(len, file_name);
+	}
+	if (data != NULL)
+	{
 
-			float entropy = scalar_entropy(len, data);
-			printf("Entropy is: %f \n",entropy);
-			len = len + (4-len%4)%4;
-			entropy = simd_entropy(len,data,log2approx_arctanh_simd);
-			printf("Simd Entropy is: %f \n",entropy);
+		float entropy = scalar_entropy(len, data);
+		printf("Entropy is: %f \n", entropy);
+		len = len + (4 - len % 4) % 4;
+		entropy = simd_entropy(len, data, log2approx_arctanh_simd);
+		printf("Simd Entropy is: %f \n", entropy);
 
-
-			free(data);
-			
-		}
-	
+		free(data);
+	}
 
 	// }
 

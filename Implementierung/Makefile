@@ -1,7 +1,7 @@
 CC = gcc
 
-#					   limit to sse4.2 /             C11 / No x87 FPU / No MMX
-CFLAGS = -O3 $(MATHLIB) -march=nehalem -mtune=generic -std=c11 -mno-80387 -mno-mmx
+#					   limit to sse4.2 /             C11 / No x87 FPU / No MMX     //CLOCK_MONOTIC
+CFLAGS = -O3 $(MATHLIB) -march=nehalem -mtune=generic -std=c11 -mno-80387 -mno-mmx -D_POSIX_C_SOURCE=199309L
 MATHLIB = -lm -no-pie # Math Library, without no-pie fails to use math library functions in assembly
 
 VERBOSE_FLAGS = -g -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined $(WARNING_FLAGS)

@@ -1,9 +1,9 @@
 #include "io_operations.h"
 
 // This function determines the size of inputs in the given file name.
-int size_file(const char* file_name)
+size_t size_file(const char *file_name)
 {
-	FILE* input_file;
+	FILE *input_file;
 	input_file = fopen(file_name, "r");
 
 	if (input_file == NULL)
@@ -19,19 +19,19 @@ int size_file(const char* file_name)
 	// First reading the file until an error occurs or until reach the end of line.
 	while (fscanf(input_file, "%f", &tmp) == 1)
 	{
-		++len;	
+		++len;
 	}
-	
+
 	fclose(input_file);
 	return len;
 }
 
-float* read_file(size_t len, const char* file_name)
+float *read_file(size_t len, const char *file_name)
 {
 
 	// allocate enough spaces to store every input.
-	size_t align = len + (4-len % 4) % 4;
-	float* inputs = aligned_alloc(16,align * sizeof(float));
+	size_t align = len + (4 - len % 4) % 4;
+	float *inputs = aligned_alloc(16, align * sizeof(float));
 
 	if (inputs == NULL)
 	{
@@ -41,7 +41,7 @@ float* read_file(size_t len, const char* file_name)
 		return NULL;
 	}
 
-	FILE* input_file;
+	FILE *input_file;
 	input_file = fopen(file_name, "r");
 
 	if (input_file == NULL)
@@ -52,13 +52,12 @@ float* read_file(size_t len, const char* file_name)
 	}
 
 	// take inputs from the file and store it in inputs.
-	for (size_t i = 0 ; i < len; ++i)
+	for (size_t i = 0; i < len; ++i)
 	{
 		if (!fscanf(input_file, "%f", &inputs[i]))
 			return NULL;
-
 	}
-	for(size_t i = len ; i < align ; ++i)
+	for (size_t i = len; i < align; ++i)
 	{
 		inputs[i] = 0.0f;
 	}
@@ -67,4 +66,27 @@ float* read_file(size_t len, const char* file_name)
 	fclose(input_file);
 
 	return inputs;
+}
+
+struct Handler handle_file(const char *file_name)
+{
+	struct Handler handler;
+	handler.len = 0;
+	handler.data = NULL;
+	handler.status = -1;
+	size_t len = size_file(file_name);
+	float *data = NULL;
+	if (len == 0)
+	{
+		return handler;
+	}
+	data = read_file(len, file_name);
+	if (data == NULL)
+	{
+		return handler;
+	}
+	handler.len = len;
+	handler.data = data;
+	handler.status = 0;
+	return handler;
 }

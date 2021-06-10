@@ -25,7 +25,8 @@ log2approx_deg2_asm:
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
 	movd ebx, xmm0
-	or ebx, [reduce_mask]
+	and ebx, [rip + mantissa_mask]
+	or ebx, [rip + reduce_mask]
 
 	movd xmm0, ebx
 
@@ -61,7 +62,8 @@ log2approx_deg4_asm:
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
 	movd ebx, xmm0
-	or ebx, [reduce_mask]
+	and ebx, [rip + mantissa_mask]
+	or ebx, [rip + reduce_mask]
 
 	movd xmm0, ebx
 
@@ -109,7 +111,8 @@ log2approx_arctanh_asm:
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
 	movd ebx, xmm0
-	or ebx, [reduce_mask]
+	and ebx, [rip + mantissa_mask]
+	or ebx, [rip + reduce_mask]
 
 	movd xmm0, ebx
 

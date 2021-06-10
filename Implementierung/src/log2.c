@@ -6,7 +6,7 @@ float log2approx_deg2(float x){
     data.flt = x;
 
     int exponent = (data.fix >> 23) - 127;
-    data.fix |= reduce_mask[0];
+    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     return deg2_co1[0] * data.flt * data.flt + deg2_co2[0] * data.flt + deg2_co3[0] + exponent;
 }
@@ -16,7 +16,7 @@ float log2approx_deg4(float x){
     data.flt = x;
 
     int exponent = (data.fix >> 23) - 127;
-    data.fix |= reduce_mask[0];
+    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     float m2 = data.flt * data.flt;
     float y = deg4_co1[0] * m2 + deg4_co2[0] * data.flt;
@@ -29,7 +29,7 @@ float log2approx_arctanh(float x){
     data.flt = x;
 
     int exponent = (data.fix >> 23) - 127;
-    data.fix |= reduce_mask[0];
+    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     float q = (data.flt-1)/(data.flt+1);
     float q2 = q*q;

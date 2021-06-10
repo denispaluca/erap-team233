@@ -25,6 +25,7 @@ log2approx_deg2_simd_asm:
 	// we have already found k values, so reduce vals to zs
 	// Where 1 <= z < 2
 	// So set exponents to 127 (with bias) where mantissa remains same
+    pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
 
     movaps xmm14, xmm0
@@ -53,6 +54,7 @@ log2approx_deg4_simd_asm:
 	// we have already found k values, so reduce vals to zs
 	// Where 1 <= z < 2
 	// So set exponents to 127 (with bias) where mantissa remains same
+    pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
 
     movaps xmm14, xmm0
@@ -94,6 +96,7 @@ log2approx_arctanh_simd_asm:
 	// we have already found k values, so reduce vals to zs
 	// Where 1 <= z < 2
 	// So set exponents to 127 (with bias) where mantissa remains same
+    pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
 
     movaps xmm14, xmm0

@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <getopt.h>
+#include <time.h>
 
 #include "entropy.h"
 #include "io_operations.h"
 
-const char* optstring = ":-m:tah";
+const char *optstring = ":-m:tah";
 
 /*
 	JUST A DRAFT
@@ -15,22 +16,22 @@ const char* optstring = ":-m:tah";
 	-h, --help 
 */
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
-	
 	// optind -> index of next element to be processed in argv
 	// nextchar -> if finds option character, returns it
 
 	// no more option character, getopt returns -1
 	// Then optind is the index in argv of the first argv-element that is not an option.
 
-	// optstring is a string containing the legitimate option characters. 
+	// optstring is a string containing the legitimate option characters.
 	// If such a character is followed by a colon, the option requires an argument, so getopt() places a pointer to the
-    // following text in the same argv-element, or the text of the following argv-element, in optarg.  
+	// following text in the same argv-element, or the text of the following argv-element, in optarg.
 	// otherwise optarg is set to zero.
 
 	//If an option was successfully found, then getopt() returns the option character.  If all command-line options have been parsed,
-    // then getopt() returns -1.  If getopt() encounters an option character that was not in optstring, then '?' is returned.
+	// then getopt() returns -1.  If getopt() encounters an option character that was not in optstring, then '?' is returned.
 
 	// If the first character of optstring is '-', then each nonoption argv-element is handled as if it were the argument
 	// of an option with character code 1.
@@ -41,64 +42,85 @@ int main(int argc, char *argv[]) {
 	int opt;
 
 	static struct option long_options[] = {
-                   {"mode", required_argument, 0,  'm' },
-				   {"help", no_argument, 0,  'h' },
-				   {"accuracy", no_argument, 0,  'a' },
-				   {"time", no_argument, 0,  't' },
-                   {0, 0, 0, 0 }
-               };
+		{"mode", required_argument, 0, 'm'},
+		{"help", no_argument, 0, 'h'},
+		{"accuracy", no_argument, 0, 'a'},
+		{"time", no_argument, 0, 't'},
+		{0, 0, 0, 0}};
 
 	int optindex = 0;
 
 	// Fetching option arguments
-	while( (opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1 ) {
+	while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1)
+	{
 
 		switch (opt)
 		{
-		case 'm' :
+		case 'm':
 			printf("mode : %s\n", optarg);
 			break;
-		case 't' :
+		case 't':
 			printf("time \n");
+			struct timespec start, end;
+			double sec;
+			float entropy;
+			char *file_name = "tests/a.txt";
+			struct Handler handler;
+			handler = handle_file(file_name);
+			if(handler.status == 0)
+			{
+				size_t iterations = 100000000;
+				clock_gettime(CLOCK_MONOTONIC,&start);
+				for(size_t i = 0 ; i < iterations ; ++i)
+				{
+					entropy = simd_entropy(handler.len,handler.data,log2approx_deg4_simd_asm);
+				}
+				clock_gettime(CLOCK_MONOTONIC,&end);
+				sec = end.tv_sec-start.tv_sec+1e-9*(end.tv_nsec-start.tv_nsec);
+				printf("It took %f seconds to calculate entropy %zu times.\n",sec,iterations);
+				printf("Entropy is: %f \n",entropy);
+				free(handler.data);
+			}
+			
+
 			break;
-		case 'a' :
+		case 'a':
 			printf("accuracy \n");
 			break;
-		case 'h' :
+		case 'h':
 			printf("help \n");
 			break;
 
-		// ===========================================================
-		// TODO: implement functionality
-		// ===========================================================
-		
-		case ':' :
+			// ===========================================================
+			// TODO: implement functionality
+			// ===========================================================
+
+		case ':':
 			fprintf(stderr, "Missing argumant for option -%c\n", optopt);
-			__attribute__ ((fallthrough)); // Let fallthrough
+			__attribute__((fallthrough)); // Let fallthrough
 
 		default:
 			fprintf(stderr, "USAGE HERE\n");
 			exit(EXIT_FAILURE);
 			break;
 		}
-
 	}
 
-	// Fetching arguments
-	if (optind >= argc) {
-		fprintf(stderr, "Need to specify at least one input file!\n");
-		exit(EXIT_FAILURE);
-	}
+	__m128 a = {-0.5, 0.0006, 0.99, 0.0625};
+	__m128 b = log2approx_arctanh_simd(a);
+	__m128 c = log2approx_arctanh_simd_asm(a);
 
+	printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
 
-	for (; optind < argc ; ++optind) {
-		float entropy = file_entropy_c(argv[optind]);
-		if(entropy != -1) {
+	printf("asm: %f  c: %f \n", log2_lookup_asm(0.57), log2_lookup(0.57));
 
-			fprintf(stderr, "Entropy of a given probabilty distribution in file %s is: %f\n", argv[optind], entropy);
-		}
-	
-	}
+	// // Fetching arguments
+	// if (optind >= argc) {
+	// 	fprintf(stderr, "Need to specify at least one input file!\n");
+	// 	exit(EXIT_FAILURE);
+	// }
+
+	// }
 
 	return EXIT_SUCCESS;
 }

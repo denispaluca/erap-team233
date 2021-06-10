@@ -2,55 +2,45 @@
 
 // Normal
 float log2approx_deg2(float x){
-    uint32_t ix, iz;
-    int exponent;
-    float m, y, a1 = -0.344845f, a2 = 2.024658f, a3 = 1.674873f;
-    ix = *(uint32_t *)&x;
-    exponent = ((int32_t) ix >> 23) - 127;
-    iz = (ix & 0x7fffff) + 0x3f800000;
-    m = *(float *) &iz;
+    union num data;
+    data.flt = x;
 
-    y = a1*m*m + a2*m + (exponent - a3);
-    return y;
+    int exponent = (data.fix >> 23) - 127;
+    data.fix |= reduce_mask[0];
+
+    return deg2_co1[0] * data.flt * data.flt + deg2_co2[0] * data.flt + deg2_co3[0] + exponent;
 }
 
 float log2approx_deg4(float x){
-    uint32_t ix, iz;
-    int exponent;
-    float m, m2, y, a1 = -0.081615808f, 
-	a2 = 0.64514236f, a3 = -2.1206751f, 
-	a4 = 4.0700908f, a5 = -2.5128546f;
+    union num data;
+    data.flt = x;
 
-    ix = *(uint32_t *)&x;
-    exponent = ((int32_t) ix >> 23) - 127;
-    iz = (ix & 0x7fffff) + 0x3f800000;
-    m = *(float *) &iz;
+    int exponent = (data.fix >> 23) - 127;
+    data.fix |= reduce_mask[0];
 
-    m2 = m*m;
-    y = a1*m2 + a2 * m;
-    y = y*m2 + a3*m2 + a4*m + (a5 + exponent);
-    return y;
+    float m2 = data.flt * data.flt;
+    float y = deg4_co1[0] * m2 + deg4_co2[0] * data.flt;
+
+    return y * m2 + deg4_co3[0] * m2 + deg4_co4[0] * data.flt + deg4_co5[0] + exponent;
 }
 
 float log2approx_arctanh(float x){
-    uint32_t ix, iz;
-    int exponent;
-    float m, y, q, q2, ln2_2 = 2.88539008178f, third = 0.33333333333f;
+    union num data;
+    data.flt = x;
 
-    ix = *(uint32_t *)&x;
-    exponent = ((int32_t) ix >> 23) - 127;
-    iz = (ix & 0x7fffff) + 0x3f800000;
-    m = *(float *) &iz;
-    q = (m-1)/(m+1);
-    q2 = q*q;
-    y = (third + q2*0.2f)*q2 + 1;
-    y = y*q*ln2_2 + exponent;
-    return y;
+    int exponent = (data.fix >> 23) - 127;
+    data.fix |= reduce_mask[0];
+
+    float q = (data.flt-1)/(data.flt+1);
+    float q2 = q*q;
+    float y = (one_third[0] + q2 * one_fifth[0]) * q2 + 1;
+
+    return y * q * ln2_inverse_2[0] + exponent;
 }
 
 
 // SIMD
-__m128 log2deg2_sse(__m128 x){
+__m128 log2approx_deg2_simd(__m128 x){
     __m128i expi = _mm_set1_epi32(0x7f800000);
     expi &= (__m128i) x;
     expi >>= 23;
@@ -66,7 +56,7 @@ __m128 log2deg2_sse(__m128 x){
     return y;
 }
 
-__m128 log2deg4_sse(__m128 x){
+__m128 log2approx_deg4_simd(__m128 x){
     __m128i expi = _mm_set1_epi32(0x7f800000);
     expi &= (__m128i) x;
     expi >>= 23;
@@ -85,7 +75,7 @@ __m128 log2deg4_sse(__m128 x){
 }
 
 
-__m128 log2arctanh_sse(__m128 x){
+__m128 log2approx_arctanh_simd(__m128 x){
     __m128i expi = _mm_set1_epi32(0x7f800000);
     expi &= (__m128i) x;
     expi >>= 23;
@@ -108,41 +98,30 @@ __m128 log2arctanh_sse(__m128 x){
 
 
 // With Lookup table
-void init_table(unsigned n, float* table)
-{
-    int steps = (1 << n);
-    float x = 1.0f + (1.0f / (float)( 1 <<(n + 1) ));
-    float stepSize = 1.0f / (float)steps;
-    for(int i = 0;  i < steps;  i++ )
-    {
-        table[i] = log2f(x);
-        x += stepSize;
-    }
-}
 
-float log2_lookup(unsigned n, float* table, float x){
+float log2_lookup(float x) {
     union num ix;
     ix.flt = x;
     int exponent, index;
     exponent = (ix.fix >> 23) - 127;
-    index = (ix.fix & 0x7FFFFF) >> (23 - n);
+    index = (ix.fix & 0x7FFFFF) >> (23 - LOG_LOOKUP_TABLE_SIZE);
 
-    return table[index] + exponent;
+    return log_lookup_table[index] + exponent;
 }
 
-__m128 log2_lookup_simd(unsigned n, float* table, __m128 x) {
+__m128 log2_lookup_simd(__m128 x) {
     __m128i expi = _mm_srai_epi32((__m128i) x, 23);
     expi = _mm_sub_epi32(expi, _mm_set1_epi32(127));
     __m128 exponent = _mm_cvtepi32_ps(expi);
 
     __m128i m = _mm_set1_epi32(0x7fffff);
     m &= (__m128i) x;
-    m = _mm_srai_epi32(m, (23 - n));
+    m = _mm_srai_epi32(m, (23 - LOG_LOOKUP_TABLE_SIZE));
     __m128 y = _mm_set_ps(
-            table[((__v4si) m)[0]],
-            table[((__v4si) m)[1]],
-            table[((__v4si) m)[2]],
-            table[((__v4si) m)[3]]
+            log_lookup_table[((__v4si) m)[0]],
+            log_lookup_table[((__v4si) m)[1]],
+            log_lookup_table[((__v4si) m)[2]],
+            log_lookup_table[((__v4si) m)[3]]
     );
     y += exponent;
     return y;

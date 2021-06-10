@@ -83,7 +83,13 @@ float entropy_c_urandom(size_t len)
         return -1;
     }
 
-    fread(in_array, len, 4, input_file);
+    if(!fread(in_array, len, 4, input_file)) {
+        printf("Nothing read!\n");
+        fclose(input_file);
+        free(in_array);
+        free(prob_array);
+        return -1;
+    }
 
     qsort(in_array, len, sizeof(int), compare_function);
 

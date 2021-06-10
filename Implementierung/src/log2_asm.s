@@ -2,6 +2,10 @@
 .global log2approx_deg2_asm
 .global log2approx_deg4_asm
 .global log2approx_arctanh_asm
+.global log2_lookup_asm
+
+// Make sure LOG_LOOKUP_TABLE_SIZE in log2.h is the same
+.equ LOG_LOOKUP_TABLE_SIZE, 14
 
 
 // !!! USING CONSTANTS FROM log2.c !!!
@@ -140,3 +144,23 @@ log2approx_arctanh_asm:
 	addss xmm0, xmm15 
 
 	ret
+
+// float log2_lookup(float x)
+log2_lookup_asm:
+
+	// Extract exponent from IEEE Floating Number
+	movd eax, xmm0
+	shr eax, 23
+	sub eax, 127
+
+	// Get first n bits of mantiss to look in table
+	movd ebx, xmm0
+	and ebx, [rip + mantissa_mask]
+	shr ebx, (23 - LOG_LOOKUP_TABLE_SIZE)
+
+	// log_lookup_table[index] + exponent
+	cvtsi2ss xmm0, eax
+	addss xmm0, [log_lookup_table + 4*ebx]
+
+	ret
+

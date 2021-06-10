@@ -84,11 +84,13 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	__m128 a = {-0.5, 0.0006, 0.99, 0.0625};
-	__m128 b = log2approx_arctanh_simd(a);
-	__m128 c = log2approx_arctanh_simd_asm(a);
+	// __m128 a = {-0.5, 0.0006, 0.99, 0.0625};
+	// __m128 b = log2approx_arctanh_simd(a);
+	// __m128 c = log2approx_arctanh_simd_asm(a);
 
-	printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
+	// printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
+
+	printf("asm: %f  c: %f \n", log2_lookup_asm(0.57), log2_lookup(0.57));
 
 	// // Fetching arguments
 	// if (optind >= argc) {

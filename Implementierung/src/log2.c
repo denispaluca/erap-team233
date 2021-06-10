@@ -32,7 +32,7 @@ float log2approx_deg4(float x){
 float log2approx_arctanh(float x){
     union num data;
     int exponent;
-    float y, q, q2, ln2_2 = 2.88539008178f, third = 0.33333333333f;
+    float y, q, q2, ln2_2 = 2.8853900817779268f, third = 0.33333333333f;
 
     data.flt = x;
 

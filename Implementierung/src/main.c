@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	printf("asm: %f  c: %f\n", log2approx_deg2(0.5), log2approx_deg2_asm(0.5));
+	printf("asm: %f  c: %f\n", log2approx_arctanh_asm(0.5), log2approx_arctanh(0.5));
 
 	// // Fetching arguments
 	// if (optind >= argc) {

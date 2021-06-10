@@ -20,26 +20,9 @@ int size_file(const char* file_name)
 	// First reading the file until an error occurs or until reach the end of line.
 	while (fscanf(input_file, "%f", &tmp) == 1)
 	{
-		++len;
-		if (tmp < 0 || tmp > 1)
-		{
-			printf("There are negative values in your input file: %s.\n", file_name);
-			printf("Skipping the file %s.\n", file_name);
-			fclose(input_file);
-			return 0;
-		}
-		sum += tmp;
+		++len;	
 	}
-
-	// Check if sum represents probability distrubtion with given inaccuracy of floating points.
-	if (sum > UPPER_LIMIT || sum < LOWER_LIMIT)
-	{
-		printf("Given inputs does not represent probability distribution.\n");
-		printf("Sum of the inputs is: %f but expected it was between %f and %f.\n", sum, LOWER_LIMIT, UPPER_LIMIT);
-		printf("Skipping the file %s.\n", file_name);
-		fclose(input_file);
-		return 0;
-	}
+	
 	fclose(input_file);
 	return len;
 }

@@ -48,14 +48,17 @@ float *read_file(size_t len, const char *file_name)
 	{
 		printf("Error occured while trying to open the input file: %s.\n", file_name);
 		printf("Skipping the file %s. \n", file_name);
+		free(inputs);
 		return NULL;
 	}
 
 	// take inputs from the file and store it in inputs.
 	for (size_t i = 0; i < len; ++i)
 	{
-		if (!fscanf(input_file, "%f", &inputs[i]))
+		if (!fscanf(input_file, "%f", &inputs[i])){
+			free(inputs);
 			return NULL;
+		}
 	}
 	for (size_t i = len; i < align; ++i)
 	{

@@ -73,13 +73,13 @@ int main(int argc, char *argv[])
 				clock_gettime(CLOCK_MONOTONIC,&start);
 				for(size_t i = 0 ; i < iterations ; ++i)
 				{
-					entropy = scalar_entropy(handler.len,handler.data);
+					entropy = simd_entropy(handler.len,handler.data,log2approx_deg4_simd_asm);
 				}
 				clock_gettime(CLOCK_MONOTONIC,&end);
 				sec = end.tv_sec-start.tv_sec+1e-9*(end.tv_nsec-start.tv_nsec);
 				printf("It took %f seconds to calculate entropy %zu times.\n",sec,iterations);
 				printf("Entropy is: %f \n",entropy);
-
+				free(handler.data);
 			}
 			
 
@@ -119,25 +119,6 @@ int main(int argc, char *argv[])
 	// 	fprintf(stderr, "Need to specify at least one input file!\n");
 	// 	exit(EXIT_FAILURE);
 	// }
-
-	char *file_name = "tests/a.txt";
-	size_t len = size_file(file_name);
-	float *data = NULL;
-	if (len != 0)
-	{
-		data = read_file(len, file_name);
-	}
-	if (data != NULL)
-	{
-
-		float entropy = scalar_entropy(len, data);
-		printf("Entropy is: %f \n", entropy);
-		len = len + (4 - len % 4) % 4;
-		entropy = simd_entropy(len, data, log2approx_arctanh_simd);
-		printf("Simd Entropy is: %f \n", entropy);
-
-		free(data);
-	}
 
 	// }
 

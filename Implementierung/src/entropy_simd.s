@@ -43,8 +43,8 @@ entropy_simd:
         test eax,eax
         jnz .Lerror
 
-        // not less than operand form.
-        cmpps xmm9,xmm6,5
+        // not less or equal operand form.
+        cmpps xmm9,xmm6,6
         pmovmskb eax,xmm9
         test eax,eax
         jnz .Lerror

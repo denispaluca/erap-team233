@@ -2,6 +2,10 @@
 .global log2approx_deg2_simd_asm
 .global log2approx_deg4_simd_asm
 .global log2approx_arctanh_simd_asm
+.global log2_lookup_simd_asm
+
+// Make sure LOG_LOOKUP_TABLE_SIZE in log2.h is the same
+.equ LOG_LOOKUP_TABLE_SIZE, 14
 
 // !!! USING CONSTANTS FROM log2.c !!!
 
@@ -112,5 +116,26 @@ log2approx_arctanh_simd_asm:
     mulps xmm0, xmm14
     mulps xmm0, [rip + ln2_inverse_2]
     addps xmm0, xmm15
+
+    ret
+
+log2_lookup_simd_asm:
+
+    // Extract exponents from IEEE Floating Numbers
+    movaps xmm15, xmm0
+    movaps xmm15, xmm0
+    psrld xmm15, 23
+    psubd xmm15, [rip + f_bias]
+    cvtdq2ps xmm15, xmm15
+
+    // Get first n bits of mantiss to look in table
+    pand xmm0, [rip + mantissa_mask]
+    psrld xmm0, (23 - LOG_LOOKUP_TABLE_SIZE)
+
+    // TODO look into table for each packed mantissa
+    movd eax, xmm0
+    movd xmm0, [log_lookup_table + 4*eax]
+
+    addps xmm0, xmm15 
 
     ret

@@ -11,29 +11,14 @@ float scalar_entropy(size_t len,  float* data)
 	}
 	return entropy;
 }
-
-
-float file_entropy_c(const char* file_name)
-{
-	size_t len = size_file(file_name);
-	float* data = NULL;
-	if (len != 0)
+double precise_entropy(size_t len, float* data){
+	double entropy = 0;
+	for (size_t i = 0 ; i < len ; ++i)
 	{
-		data = read_file(len, file_name);
+		entropy -= data[i] * log2f(data[i]);
 	}
-	if (data != NULL)
-	{
-
-
-		float entropy = entropy_simd(len, data);
-		free(data);
-		return entropy;
-	}
-
-	// Since entropy is always positive in case of an error returns -1.
-	return -1;
+	return entropy;
 }
-
 
 float simd_entropy(size_t len, float* data,__m128(* log_func) (__m128)) 
 {

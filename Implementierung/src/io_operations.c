@@ -75,21 +75,21 @@ struct Handler handle_file(const char *file_name)
 {
 	struct Handler handler;
 	handler.len = 0;
+	handler.simd_len = 0;
 	handler.data = NULL;
 	handler.status = -1;
 	size_t len = size_file(file_name);
-	float *data = NULL;
 	if (len == 0)
 	{
 		return handler;
 	}
-	data = read_file(len, file_name);
-	if (data == NULL)
+	handler.data = read_file(len, file_name);
+	if (handler.data == NULL)
 	{
 		return handler;
 	}
 	handler.len = len;
-	handler.data = data;
+	handler.simd_len = len + (4 - len % 4) % 4;
 	handler.status = 0;
 	return handler;
 }

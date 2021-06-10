@@ -21,7 +21,7 @@
 //===============C functions===================
 float scalar_entropy(size_t len,  float* data);
 float simd_entropy(size_t len, float* data,__m128(* log_func) (__m128));
-float file_entropy_c(const char* file_name);
+double precise_entropy(size_t len, float* data);
 
 //===============Asm Functions==================
 extern float entropy_asm (size_t len, float* data);

@@ -67,21 +67,20 @@ int main(int argc, char *argv[])
 			char *file_name = "tests/a.txt";
 			struct Handler handler;
 			handler = handle_file(file_name);
-			if(handler.status == 0)
+			if (handler.status == 0)
 			{
 				size_t iterations = 100000000;
-				clock_gettime(CLOCK_MONOTONIC,&start);
-				for(size_t i = 0 ; i < iterations ; ++i)
+				clock_gettime(CLOCK_MONOTONIC, &start);
+				for (size_t i = 0; i < iterations; ++i)
 				{
-					entropy = simd_entropy(handler.len,handler.data,log2approx_deg4_simd_asm);
+					entropy = simd_entropy(handler.simd_len, handler.data, log2approx_deg4_simd_asm);
 				}
-				clock_gettime(CLOCK_MONOTONIC,&end);
-				sec = end.tv_sec-start.tv_sec+1e-9*(end.tv_nsec-start.tv_nsec);
-				printf("It took %f seconds to calculate entropy %zu times.\n",sec,iterations);
-				printf("Entropy is: %f \n",entropy);
+				clock_gettime(CLOCK_MONOTONIC, &end);
+				sec = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
+				printf("It took %f seconds to calculate entropy %zu times.\n", sec, iterations);
+				printf("Entropy is: %f \n", entropy);
 				free(handler.data);
 			}
-			
 
 			break;
 		case 'a':
@@ -106,11 +105,22 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	__m128 a = {-0.5, 0.0006, 0.99, 0.0625};
-	__m128 b = log2approx_arctanh_simd(a);
-	__m128 c = log2approx_arctanh_simd_asm(a);
+	struct Handler handler;
+	handler = handle_file(argv[optind]);
+	if (handler.status != -1)
+	{
+		printf("Entropy is %f \n", scalar_entropy(handler.len, handler.data));
+		printf("Entropy is %f \n", precise_entropy(handler.len, handler.data));
+		printf("Entropy simd is %f \n", simd_entropy(handler.simd_len, handler.data, log2_lookup_simd_asm));
+		printf("Entropy simd is %f \n", simd_entropy(handler.simd_len, handler.data, log2approx_arctanh_simd_asm));
+		free(handler.data);
+	}
 
-	printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
+	// __m128 a = {-0.5, 0.0006, 0.99, 0.0625};
+	// __m128 b = log2approx_arctanh_simd(a);
+	// __m128 c = log2approx_arctanh_simd_asm(a);
+
+	// printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
 
 	//printf("asm: %f  c: %f \n", log2_lookup_simd_asm(0.57), log2_lookup_simd(0.57));
 

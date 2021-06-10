@@ -6,7 +6,7 @@ float log2approx_deg2(float x){
     data.flt = x;
 
     int exponent = (data.fix >> 23) - 127;
-    data.fix |= reduce_mask[0];
+    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     return deg2_co1[0] * data.flt * data.flt + deg2_co2[0] * data.flt + deg2_co3[0] + exponent;
 }
@@ -16,7 +16,7 @@ float log2approx_deg4(float x){
     data.flt = x;
 
     int exponent = (data.fix >> 23) - 127;
-    data.fix |= reduce_mask[0];
+    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     float m2 = data.flt * data.flt;
     float y = deg4_co1[0] * m2 + deg4_co2[0] * data.flt;
@@ -29,7 +29,7 @@ float log2approx_arctanh(float x){
     data.flt = x;
 
     int exponent = (data.fix >> 23) - 127;
-    data.fix |= reduce_mask[0];
+    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     float q = (data.flt-1)/(data.flt+1);
     float q2 = q*q;
@@ -110,13 +110,14 @@ float log2_lookup(float x) {
 }
 
 __m128 log2_lookup_simd(__m128 x) {
-    __m128i expi = _mm_srai_epi32((__m128i) x, 23);
+    __m128i expi = _mm_srli_epi32((__m128i) x, 23);
     expi = _mm_sub_epi32(expi, _mm_set1_epi32(127));
     __m128 exponent = _mm_cvtepi32_ps(expi);
 
     __m128i m = _mm_set1_epi32(0x7fffff);
     m &= (__m128i) x;
-    m = _mm_srai_epi32(m, (23 - LOG_LOOKUP_TABLE_SIZE));
+    m = _mm_srli_epi32(m, (23 - LOG_LOOKUP_TABLE_SIZE));
+
     __m128 y = _mm_set_ps(
             log_lookup_table[((__v4si) m)[0]],
             log_lookup_table[((__v4si) m)[1]],

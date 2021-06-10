@@ -25,6 +25,7 @@ log2approx_deg2_simd_asm:
 	// we have already found k values, so reduce vals to zs
 	// Where 1 <= z < 2
 	// So set exponents to 127 (with bias) where mantissa remains same
+    pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
 
     movaps xmm14, xmm0
@@ -53,6 +54,7 @@ log2approx_deg4_simd_asm:
 	// we have already found k values, so reduce vals to zs
 	// Where 1 <= z < 2
 	// So set exponents to 127 (with bias) where mantissa remains same
+    pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
 
     movaps xmm14, xmm0
@@ -94,6 +96,7 @@ log2approx_arctanh_simd_asm:
 	// we have already found k values, so reduce vals to zs
 	// Where 1 <= z < 2
 	// So set exponents to 127 (with bias) where mantissa remains same
+    pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
 
     movaps xmm14, xmm0
@@ -123,7 +126,6 @@ log2_lookup_simd_asm:
 
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0
-    movaps xmm15, xmm0
     psrld xmm15, 23
     psubd xmm15, [rip + f_bias]
     cvtdq2ps xmm15, xmm15
@@ -132,9 +134,42 @@ log2_lookup_simd_asm:
     pand xmm0, [rip + mantissa_mask]
     psrld xmm0, (23 - LOG_LOOKUP_TABLE_SIZE)
 
-    // TODO look into table for each packed mantissa
+
+    // WARNING: this is probably the worst possible solution.
+    // will work on that later
+    movups xmm14, xmm0
+
     movd eax, xmm0
-    movd xmm0, [log_lookup_table + 4*eax]
+    movd xmm13, [log_lookup_table + 4*eax]
+    pshufd xmm0, xmm14, 0x01
+    
+    movd eax, xmm0
+    movd xmm12, [log_lookup_table + 4*eax]
+    pshufd xmm0, xmm14, 0x02
+    
+    movd eax, xmm0
+    movd xmm11, [log_lookup_table + 4*eax]
+    pshufd xmm0, xmm14, 0x03
+
+    movd eax, xmm0
+    movd xmm10, [log_lookup_table + 4*eax]
+
+    pxor xmm0, xmm0
+
+    por xmm0, xmm13
+    movups xmm14, xmm0
+    pshufd xmm0, xmm14, 0b10010011
+
+    por xmm0, xmm12
+    movups xmm14, xmm0
+    pshufd xmm0, xmm14, 0b10010011
+
+    por xmm0, xmm11
+    movups xmm14, xmm0
+    pshufd xmm0, xmm14, 0b10010011
+
+    por xmm0, xmm10
+    movups xmm14, xmm0
 
     addps xmm0, xmm15 
 

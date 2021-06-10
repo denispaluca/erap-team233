@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
 	printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
 
-	printf("asm: %f  c: %f \n", log2_lookup_asm(0.57), log2_lookup(0.57));
+	//printf("asm: %f  c: %f \n", log2_lookup_simd_asm(0.57), log2_lookup_simd(0.57));
 
 	// // Fetching arguments
 	// if (optind >= argc) {

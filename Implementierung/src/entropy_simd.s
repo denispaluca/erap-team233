@@ -1,6 +1,6 @@
 .intel_syntax noprefix
 .global entropy_simd
-.extern log2_simd
+.extern log2approx_deg2_simd_asm
 
 .text
 .align 16
@@ -81,7 +81,7 @@ entropy_simd:
         movaps xmm1,[rdi]
 
         sub rsp,0x08
-        call log2_simd
+        call log2approx_deg2_simd_asm
         add rsp,0x08
 
         mulps xmm0,xmm1

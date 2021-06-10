@@ -110,13 +110,14 @@ float log2_lookup(float x) {
 }
 
 __m128 log2_lookup_simd(__m128 x) {
-    __m128i expi = _mm_srai_epi32((__m128i) x, 23);
+    __m128i expi = _mm_srli_epi32((__m128i) x, 23);
     expi = _mm_sub_epi32(expi, _mm_set1_epi32(127));
     __m128 exponent = _mm_cvtepi32_ps(expi);
 
     __m128i m = _mm_set1_epi32(0x7fffff);
     m &= (__m128i) x;
-    m = _mm_srai_epi32(m, (23 - LOG_LOOKUP_TABLE_SIZE));
+    m = _mm_srli_epi32(m, (23 - LOG_LOOKUP_TABLE_SIZE));
+
     __m128 y = _mm_set_ps(
             log_lookup_table[((__v4si) m)[0]],
             log_lookup_table[((__v4si) m)[1]],

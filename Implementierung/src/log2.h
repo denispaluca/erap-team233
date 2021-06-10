@@ -23,6 +23,8 @@ extern const float deg4_co3[];
 extern const float deg4_co4[];
 extern const float deg4_co5[];
 
+#define LOG_LOOKUP_TABLE_SIZE 14
+
 
 //===========C Functions==========
 float log2approx_deg2(float);

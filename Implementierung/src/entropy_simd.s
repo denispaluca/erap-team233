@@ -37,14 +37,14 @@ entropy_simd:
 
         addps xmm8,xmm7
 
-        //less than operand form. 
+        // less than operand form. 
         cmpps xmm7,xmm5,1
         pmovmskb eax,xmm7
         test eax,eax
         jnz .Lerror
 
-        // not less than operand form.
-        cmpps xmm9,xmm6,5
+        // not less or equal operand form.
+        cmpps xmm9,xmm6,6
         pmovmskb eax,xmm9
         test eax,eax
         jnz .Lerror
@@ -60,10 +60,10 @@ entropy_simd:
     haddps xmm8,xmm8
 
     comiss xmm8,xmm3
-    jl .Lerror
+    ja .Lerror
 
 	comiss xmm8,xmm4
-    jg .Lerror
+    jb .Lerror
 
     // swap values because log2f_simd takes value from rdi register.
     mov rax,rdi
@@ -96,7 +96,7 @@ entropy_simd:
     movaps xmm0,xmm2
     haddps xmm0,xmm0
     haddps xmm0,xmm0
-    
+    xorps xmm0,[rip+.Ltest]
     ret
     .Lerror:
         movaps xmm0,[rip+.Lconstminus1]
@@ -118,3 +118,10 @@ entropy_simd:
 .align 16
 .Lconstlowerlimit:
 	.4byte 0x3F7FFFAC
+
+.align 16
+.Ltest:
+        .long   -2147483648
+        .long   0
+        .long   0
+        .long   0

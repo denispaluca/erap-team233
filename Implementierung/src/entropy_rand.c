@@ -7,22 +7,23 @@ int compare_function(const void* a, const void* b)
     return (x > y) - (x < y);
 }
 
-float entropy_c_rand(size_t len)
+float* entropy_c_rand(size_t len)
 {
     if (len == 0)
     {
         printf("Length must be a positive number.");
-        return -1;
+        return NULL;
     }
     srand(time(NULL));
 
+    size_t align = len + (4 - len % 4) % 4;
     int* in_array = malloc(len * sizeof(int));
-    float* prob_array = malloc(len * sizeof(float));
+    float* prob_array = aligned_alloc(16, align * sizeof(float));
 
     if (in_array == NULL || prob_array == NULL)
     {
         printf("Could not allocate enough space for given length: %zu. \n", len);
-        return -1;
+        return NULL;
     }
 
     for (size_t i = 0; i < len; ++i)
@@ -50,37 +51,40 @@ float entropy_c_rand(size_t len)
     }
 
     prob_array[index++] = ((float)freq) / len;
-
-    float entropy = scalar_entropy(index, prob_array);
+    for (size_t i = len; i < align; ++i)
+    {
+        prob_array[i] = 0.0f;
+    }
 
     free(in_array);
-    free(prob_array);
-    return entropy;
+    return prob_array;
 }
 
-float entropy_c_urandom(size_t len)
+float* entropy_c_urandom(size_t len)
 {
     if (len == 0)
     {
         printf("Length must be a positive number.");
-        return -1;
+        return NULL;
     }
     FILE* input_file;
     input_file = fopen("/dev/urandom", "r");
     if (input_file == NULL)
     {
         printf("Error occurred while trying to open  /dev/urandom");
-        return -1;
+        return NULL;
     }
 
+
+    size_t align = len + (4 - len % 4) % 4;
     int* in_array = malloc(len * sizeof(int));
-    float* prob_array = malloc(len * sizeof(float));
+    float* prob_array = aligned_alloc(16,align * sizeof(float));
 
     if (in_array == NULL || prob_array == NULL)
     {
         printf("Could not allocate enough space for given length: %zu. \n", len);
         fclose(input_file);
-        return -1;
+        return NULL;
     }
 
     if(!fread(in_array, len, 4, input_file)) {
@@ -88,7 +92,7 @@ float entropy_c_urandom(size_t len)
         fclose(input_file);
         free(in_array);
         free(prob_array);
-        return -1;
+        return NULL;
     }
 
     qsort(in_array, len, sizeof(int), compare_function);
@@ -110,11 +114,12 @@ float entropy_c_urandom(size_t len)
     }
 
     prob_array[index++] = ((float)freq) / len;
-
-    float entropy = scalar_entropy(index, prob_array);
+    for (size_t i = len; i < align; ++i)
+    {
+        prob_array[i] = 0.0f;
+    }
 
     fclose(input_file);
     free(in_array);
-    free(prob_array);
-    return entropy;
+    return prob_array;
 }

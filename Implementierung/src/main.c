@@ -8,11 +8,11 @@
 const char *optstring = ":-m:tah";
 
 /*
-	JUST A DRAFT
-
-	-m, --mode => run mode asm|simd|c
+    -l, --language => implementation language c|asm
+	-m, --mode => run mode scalar|simd
+    -i, --implementation => deg2|deg4|artanh|lookup
 	-t, --time => calculate time that program takes
-	-a, --accuracy => accuracy
+	-a, --accuracy => difference with double precision scalar entropy
 	-h, --help 
 */
 
@@ -42,7 +42,9 @@ int main(int argc, char *argv[])
 	int opt;
 
 	static struct option long_options[] = {
+	    {"language", required_argument, 0, 'l'},
 		{"mode", required_argument, 0, 'm'},
+        {"implementation", required_argument, 0, 'i'},
 		{"help", no_argument, 0, 'h'},
 		{"accuracy", no_argument, 0, 'a'},
 		{"time", no_argument, 0, 't'},
@@ -87,12 +89,15 @@ int main(int argc, char *argv[])
 			printf("accuracy \n");
 			break;
 		case 'h':
-			printf("help \n");
-			break;
-
-			// ===========================================================
-			// TODO: implement functionality
-			// ===========================================================
+			printf("Usage: entropy [options] file\n"
+                   "\t-l, --language => implementation language c|asm\n"
+                   "\t-m, --mode => run mode scalar|simd\n"
+                   "\t-i, --implementation => deg2|deg4|artanh|lookup\n"
+                   "\t-t, --time => calculate time that program takes\n"
+                   "\t-a, --accuracy => difference with double precision scalar entropy\n"
+                   "\t-h, --help\n"
+                   );
+			return EXIT_SUCCESS;
 
 		case ':':
 			fprintf(stderr, "Missing argumant for option -%c\n", optopt);
@@ -109,7 +114,7 @@ int main(int argc, char *argv[])
 	handler = handle_file(argv[optind]);
 	if (handler.status != -1)
 	{
-		printf("Entropy is %f \n", scalar_entropy(handler.len, handler.data));
+		printf("Entropy is %f \n", scalar_entropy(handler.len, handler.data, log2approx_deg4));
 		printf("Entropy is %f \n", precise_entropy(handler.len, handler.data));
 		printf("Entropy simd is %f \n", simd_entropy(handler.simd_len, handler.data, log2_lookup_simd_asm));
 		printf("Entropy simd is %f \n", simd_entropy(handler.simd_len, handler.data, log2approx_arctanh_simd_asm));

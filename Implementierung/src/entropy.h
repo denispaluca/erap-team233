@@ -19,7 +19,7 @@
 #include "log2.h"
 
 //===============C functions===================
-float scalar_entropy(size_t len,  float* data);
+float scalar_entropy(size_t len,  float* data, float (* log2_func) (float));
 float simd_entropy(size_t len, float* data,__m128(* log_func) (__m128));
 double precise_entropy(size_t len, float* data);
 

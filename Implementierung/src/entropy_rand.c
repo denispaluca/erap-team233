@@ -51,7 +51,7 @@ float entropy_c_rand(size_t len)
 
     prob_array[index++] = ((float)freq) / len;
 
-    float entropy = scalar_entropy(index, prob_array);
+    float entropy = scalar_entropy(index, prob_array, log2approx_deg4);
 
     free(in_array);
     free(prob_array);
@@ -111,7 +111,7 @@ float entropy_c_urandom(size_t len)
 
     prob_array[index++] = ((float)freq) / len;
 
-    float entropy = scalar_entropy(index, prob_array);
+    float entropy = scalar_entropy(index, prob_array, log2approx_arctanh);
 
     fclose(input_file);
     free(in_array);

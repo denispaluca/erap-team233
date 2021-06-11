@@ -22,6 +22,62 @@ enum Implementation { DEG2, DEG4, ARTANH, LOOKUP };
 	-h, --help 
 */
 
+float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode, enum Implementation impl){
+    switch(language){
+    case C:
+        switch(mode){
+        case SCALAR:
+            switch (implem) {
+            case DEG2:
+                return scalar_entropy(n, data, log2approx_deg2);
+            case DEG4:
+                return scalar_entropy(n, data, log2approx_deg4);
+            case ARTANH:
+                return scalar_entropy(n, data, log2approx_arctanh);
+            case LOOKUP:
+                return scalar_entropy(n, data, log2_lookup);
+            }
+        case SIMD:
+            switch (implem) {
+            case DEG2:
+                return simd_entropy(n, data, log2approx_deg2_simd);
+            case DEG4:
+                return simd_entropy(n, data, log2approx_deg4_simd);
+            case ARTANH:
+                return simd_entropy(n, data, log2approx_arctanh_simd);
+            case LOOKUP:
+                return simd_entropy(n, data, log2_lookup_simd);
+            }
+        }
+    }
+    case ASM:
+        switch(mode){
+        case SCALAR:
+            switch (implem) {
+            case DEG2:
+                return entropy_asm(n, data, log2approx_deg2_asm);
+            case DEG4:
+                return entropy_asm(n, data, log2approx_deg4_asm);
+            case ARTANH:
+                return entropy_asm(n, data, log2approx_arctanh_asm);
+            case LOOKUP:
+                return entropy_asm(n, data, log2_lookup_asm);
+            }
+        case SIMD:
+            switch (implem) {
+            case DEG2:
+                return entropy_simd(n, data, log2approx_deg2_simd_asm);
+            case DEG4:
+                return entropy_simd(n, data, log2approx_deg4_simd_asm);
+            case ARTANH:
+                return entropy_simd(n, data, log2approx_arctanh_simd_asm);
+            case LOOKUP:
+                return entropy_simd(n, data, log2_lookup_simd_asm);
+            }
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -59,10 +115,10 @@ int main(int argc, char *argv[])
 
 	int optindex = 0;
 
-	enum Language language = C;
+	enum Language lan = C;
 	enum Mode mode = SCALAR;
-	enum Implementation implem = DEG2;
-	int randLen = 0;
+	enum Implementation impl = DEG2;
+	size_t randLen = 0;
 	bool time = false;
 	bool accuracy = false;
 	// Fetching option arguments
@@ -73,9 +129,9 @@ int main(int argc, char *argv[])
 		{
 		case 'l':
 		    if(strcmp("c", optarg) == 0)
-		        language = C;
+		        lan = C;
 		    else if(strcmp("asm", optarg) == 0)
-		        language = ASM;
+		        lan = ASM;
 		    else {
                 printf("Wrong language option!\n");
                 exit(EXIT_FAILURE);
@@ -93,19 +149,24 @@ int main(int argc, char *argv[])
             break;
         case 'i':
             if(strcmp("deg2", optarg) == 0)
-                implem = DEG2;
+                impl = DEG2;
             else if(strcmp("deg4", optarg) == 0)
-                implem = DEG4;
+                impl = DEG4;
             else if(strcmp("artanh", optarg) == 0)
-                implem = ARTANH;
+                impl = ARTANH;
             else if(strcmp("lookup", optarg) == 0)
-                implem = LOOKUP;
+                impl = LOOKUP;
             else {
                 printf("Wrong implementation option!\n");
                 exit(EXIT_FAILURE);
             }
             break;
+        case 'r':
+            randLen = atoi(optarg);
+            break;
 		case 't':
+		    time = true;
+            break;
 			printf("time \n");
 			struct timespec start, end;
 			double sec;
@@ -130,7 +191,7 @@ int main(int argc, char *argv[])
 
 			break;
 		case 'a':
-			printf("accuracy \n");
+		    accuracy = true;
 			break;
 		case 'h':
 			printf("Usage: entropy [options] file\n"
@@ -151,36 +212,15 @@ int main(int argc, char *argv[])
 		default:
 			fprintf(stderr, "USAGE HERE\n");
 			exit(EXIT_FAILURE);
-			break;
 		}
 	}
 
 	struct Handler handler;
 	handler = handle_file(argv[optind]);
-	if (handler.status != -1)
-	{
-		printf("Entropy is %f \n", scalar_entropy(handler.len, handler.data, log2approx_deg4));
-		printf("Entropy is %f \n", precise_entropy(handler.len, handler.data));
-		printf("Entropy simd is %f \n", simd_entropy(handler.simd_len, handler.data, log2_lookup_simd_asm));
-		printf("Entropy simd is %f \n", simd_entropy(handler.simd_len, handler.data, log2approx_arctanh_simd_asm));
-		free(handler.data);
-	}
+	if(handler.status == -1)
+	    exit(EXIT_FAILURE);
 
-	// __m128 a = {-0.5, 0.0006, 0.99, 0.0625};
-	// __m128 b = log2approx_arctanh_simd(a);
-	// __m128 c = log2approx_arctanh_simd_asm(a);
+	float entropy = evaluate_entropy(handler.len, handler.data, lan, mode, impl);
 
-	// printf("asm: %f %f %f %f  c: %f %f %f %f\n", c[0], c[1], c[2], c[3], b[0], b[1], b[2], b[3]);
-
-	//printf("asm: %f  c: %f \n", log2_lookup_simd_asm(0.57), log2_lookup_simd(0.57));
-
-	// // Fetching arguments
-	// if (optind >= argc) {
-	// 	fprintf(stderr, "Need to specify at least one input file!\n");
-	// 	exit(EXIT_FAILURE);
-	// }
-
-	// }
-
-	return EXIT_SUCCESS;
+	exit(EXIT_SUCCESS);
 }

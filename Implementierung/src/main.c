@@ -284,6 +284,11 @@ int main(int argc, char *argv[])
 	    handler.data = entropy_c_rand(randLen);
 	}
 
+	if(handler.data == NULL){
+        printf("Bruh you check your pointers!!");
+        exit(EXIT_FAILURE);
+	}
+
     double preciseEntropy = 0.0;
 	if(accuracy){
         preciseEntropy = precise_entropy(handler.len, handler.data);

@@ -248,8 +248,16 @@ int main(int argc, char *argv[])
 	if(handler.status == -1)
 	    exit(EXIT_FAILURE);
 
-	float entropy = evaluate_entropy(handler.len, handler.data, lan, mode, impl);
+
+	clock_t start;
+	start = clock();
+	float entropy =	evaluate_entropy(handler.len, handler.data, lan, mode, impl);
+    double time_secs = (clock() - start)/(double)CLOCKS_PER_SEC;
+
     printEntropy(lan, mode, impl, entropy);
+    if(time){
+        printf("Calculation took: \t%f seconds\n", time_secs);
+    }
     if(accuracy){
         float preciseEntropy = precise_entropy(handler.len, handler.data);
         printMistake(entropy, preciseEntropy);

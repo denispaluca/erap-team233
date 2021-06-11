@@ -1,14 +1,22 @@
 #include "entropy.h"
 #include <stdint.h>
 
-float scalar_entropy(size_t len,  float* data)
+float scalar_entropy(size_t len,  float* data, float (* log2_func) (float))
 {
-
 	float entropy = 0;
+	float sum = 0;
 	for (size_t i = 0 ; i < len ; ++i)
 	{
-		entropy -= data[i] * log2approx_arctanh(data[i]);
+	    float x = data[i];
+	    if(x < 0 || x > 1){
+	        return -1;
+	    }
+	    sum += x;
+		entropy -= x * log2_func(data[i]);
 	}
+
+	if(sum > 1) return -1;
+
 	return entropy;
 }
 double precise_entropy(size_t len, float* data){

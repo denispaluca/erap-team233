@@ -1,18 +1,24 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <time.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include "entropy.h"
 #include "io_operations.h"
 
-const char *optstring = ":-m:tah";
+const char *optstring = ":l:m:i:r:tah";
 
+enum Language { C, ASM };
+enum Mode { SCALAR, SIMD };
+enum Implementation { DEG2, DEG4, ARTANH, LOOKUP };
 /*
     -l, --language => implementation language c|asm
 	-m, --mode => run mode scalar|simd
     -i, --implementation => deg2|deg4|artanh|lookup
 	-t, --time => calculate time that program takes
 	-a, --accuracy => difference with double precision scalar entropy
+    -r, --random => test with random data
 	-h, --help 
 */
 
@@ -48,19 +54,57 @@ int main(int argc, char *argv[])
 		{"help", no_argument, 0, 'h'},
 		{"accuracy", no_argument, 0, 'a'},
 		{"time", no_argument, 0, 't'},
+        {"random", required_argument, 0, 'r'},
 		{0, 0, 0, 0}};
 
 	int optindex = 0;
 
+	enum Language language = C;
+	enum Mode mode = SCALAR;
+	enum Implementation implem = DEG2;
+	int randLen = 0;
+	bool time = false;
+	bool accuracy = false;
 	// Fetching option arguments
 	while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1)
 	{
 
 		switch (opt)
 		{
-		case 'm':
-			printf("mode : %s\n", optarg);
+		case 'l':
+		    if(strcmp("c", optarg) == 0)
+		        language = C;
+		    else if(strcmp("asm", optarg) == 0)
+		        language = ASM;
+		    else {
+                printf("Wrong language option!\n");
+                exit(EXIT_FAILURE);
+		    }
 			break;
+        case 'm':
+            if(strcmp("scalar", optarg) == 0)
+                mode = SCALAR;
+            else if(strcmp("simd", optarg) == 0)
+                mode = SIMD;
+            else {
+                printf("Wrong mode option!\n");
+                exit(EXIT_FAILURE);
+            }
+            break;
+        case 'i':
+            if(strcmp("deg2", optarg) == 0)
+                implem = DEG2;
+            else if(strcmp("deg4", optarg) == 0)
+                implem = DEG4;
+            else if(strcmp("artanh", optarg) == 0)
+                implem = ARTANH;
+            else if(strcmp("lookup", optarg) == 0)
+                implem = LOOKUP;
+            else {
+                printf("Wrong implementation option!\n");
+                exit(EXIT_FAILURE);
+            }
+            break;
 		case 't':
 			printf("time \n");
 			struct timespec start, end;
@@ -96,7 +140,8 @@ int main(int argc, char *argv[])
                    "\t-t, --time => calculate time that program takes\n"
                    "\t-a, --accuracy => difference with double precision scalar entropy\n"
                    "\t-h, --help\n"
-                   );
+                   "\t-r, --random => run with random data\n"
+            );
 			return EXIT_SUCCESS;
 
 		case ':':

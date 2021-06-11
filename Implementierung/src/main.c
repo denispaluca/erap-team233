@@ -245,9 +245,14 @@ int main(int argc, char *argv[])
 
 	struct Handler handler;
 	handler = handle_file(argv[optind]);
-	if(handler.status == -1)
+	if(handler.status == -1 && randLen == 0)
 	    exit(EXIT_FAILURE);
 
+	if(randLen != 0){
+	    printf("Calculating entropy of random data.\n");
+	    handler.len = randLen;
+	    handler.data = entropy_c_rand(randLen);
+	}
 
 	clock_t start;
 	start = clock();
@@ -262,5 +267,7 @@ int main(int argc, char *argv[])
         float preciseEntropy = precise_entropy(handler.len, handler.data);
         printMistake(entropy, preciseEntropy);
     }
+
+    free(handler.data);
 	exit(EXIT_SUCCESS);
 }

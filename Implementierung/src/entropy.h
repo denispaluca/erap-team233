@@ -28,7 +28,7 @@ extern float entropy_asm (size_t len, float* data, float (* log2_func) (float));
 extern float entropy_simd (size_t len, float* data, __m128(* log_func) (__m128));
 
 //===============Rand Functions===========
-float entropy_c_rand(size_t len);
-float entropy_c_urandom(size_t len);
+float* entropy_c_rand(size_t len);
+float* entropy_c_urandom(size_t len);
 
 #endif

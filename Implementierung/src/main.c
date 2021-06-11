@@ -8,7 +8,7 @@
 #include "entropy.h"
 #include "io_operations.h"
 
-const char *optstring = ":l:m:i:r:tahf";
+const char *optstring = ":-l:m:i:r:tahf";
 
 enum Language { C, ASM };
 enum Mode { SCALAR, SIMD };
@@ -20,6 +20,7 @@ enum Implementation { DEG2, DEG4, ARTANH, LOOKUP };
 	-t, --time => calculate time that program takes
 	-a, --accuracy => difference with double precision scalar entropy
     -r, --random => test with random data
+    -f, --full => run tests for the data with all possible configurations
 	-h, --help 
 */
 
@@ -38,6 +39,7 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
             case LOOKUP:
                 return scalar_entropy(n, data, log2_lookup);
             }
+        break;
         case SIMD:
             switch (impl) {
             case DEG2:
@@ -49,7 +51,9 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
             case LOOKUP:
                 return simd_entropy(n, data, log2_lookup_simd);
             }
+            break;
         }
+        break;
     case ASM:
         switch(mode){
         case SCALAR:
@@ -63,6 +67,7 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
             case LOOKUP:
                 return entropy_asm(n, data, log2_lookup_asm);
             }
+            break;
         case SIMD:
             switch (impl) {
             case DEG2:
@@ -74,8 +79,11 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
             case LOOKUP:
                 return entropy_simd(n, data, log2_lookup_simd_asm);
             }
+            break;
         }
+        break;
     }
+    return -1.0f;
 }
 
 void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy){
@@ -119,6 +127,8 @@ void evaluate_args(size_t n, float* data, enum Language lan, enum Mode mode,
     if(time){
         printf("Calculation took: \t%f seconds\n", time_secs);
     }
+    if(time || accuracy)
+        printf("\n");
 }
 
 void runFull(size_t n, float* data, float preciseEntropy, bool accuracy, bool time){
@@ -183,7 +193,7 @@ int main(int argc, char *argv[])
 
 	enum Language lan = C;
 	enum Mode mode = SCALAR;
-	enum Implementation impl = DEG2;
+	enum Implementation impl = DEG4;
 	size_t randLen = 0;
 	bool time = false;
 	bool accuracy = false;
@@ -247,8 +257,9 @@ int main(int argc, char *argv[])
                    "\t-i, --implementation => deg2|deg4|artanh|lookup\n"
                    "\t-t, --time => calculate time that program takes\n"
                    "\t-a, --accuracy => difference with double precision scalar entropy\n"
-                   "\t-h, --help\n"
                    "\t-r, --random => run with random data\n"
+                   "\t-f, --full => run tests for the data with all possible configurations\n"
+                   "\t-h, --help\n"
             );
 			return EXIT_SUCCESS;
 
@@ -273,7 +284,7 @@ int main(int argc, char *argv[])
 	    handler.data = entropy_c_rand(randLen);
 	}
 
-    float preciseEntropy;
+    double preciseEntropy = 0.0;
 	if(accuracy){
         preciseEntropy = precise_entropy(handler.len, handler.data);
         printf("Precise Entropy:\t%f\n", preciseEntropy);

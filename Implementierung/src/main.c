@@ -77,6 +77,27 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
     }
 }
 
+void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy){
+    char* lans = lan == C ? "C" : "ASM";
+    char* modes = mode == SCALAR ? "scalar" : "simd";
+    char* impls;
+    switch(impl){
+    case DEG2:
+        impls = "DEG2";
+        break;
+    case DEG4:
+        impls = "DEG4";
+        break;
+    case ARTANH:
+        impls = "ARTANH";
+        break;
+    case LOOKUP:
+        impls = "LOOKUP";
+        break;
+    }
+    printf("Entropy: %f\t( %s | %s | %s )\n", entropy, lans, modes,impls);
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -220,6 +241,6 @@ int main(int argc, char *argv[])
 	    exit(EXIT_FAILURE);
 
 	float entropy = evaluate_entropy(handler.len, handler.data, lan, mode, impl);
-
+    printEntropy(lan, mode, impl, entropy);
 	exit(EXIT_SUCCESS);
 }

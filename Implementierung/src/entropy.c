@@ -15,7 +15,7 @@ double precise_entropy(size_t len, float* data){
 	double entropy = 0;
 	for (size_t i = 0 ; i < len ; ++i)
 	{
-		entropy -= data[i] * log2f(data[i]);
+		entropy -= data[i] * log2(data[i]);
 	}
 	return entropy;
 }

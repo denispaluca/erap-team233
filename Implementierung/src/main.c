@@ -101,9 +101,24 @@ void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, f
 
 void printMistake(float entropy, double preciseEntropy){
     double absMistake = fabs(preciseEntropy - entropy);
-    printf("Precise Entropy:\t%f\n", preciseEntropy);
     printf("Absolute Mistake:\t%f\n", absMistake);
     printf("Relative Mistake:\t%f\n", absMistake/preciseEntropy);
+}
+
+void evaluate_args(size_t n, float* data, enum Language lan, enum Mode mode,
+        enum Implementation impl, float preciseEntropy, bool accuracy, bool time){
+    clock_t start;
+    start = clock();
+    float entropy =	evaluate_entropy(n, data, lan, mode, impl);
+    double time_secs = (clock() - start)/(double)CLOCKS_PER_SEC;
+
+    printEntropy(lan, mode, impl, entropy);
+    if(accuracy){
+        printMistake(entropy, preciseEntropy);
+    }
+    if(time){
+        printf("Calculation took: \t%f seconds\n", time_secs);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -195,29 +210,6 @@ int main(int argc, char *argv[])
 		case 't':
 		    time = true;
             break;
-			printf("time \n");
-			struct timespec start, end;
-			double sec;
-			float entropy;
-			char *file_name = "tests/a.txt";
-			struct Handler handler;
-			handler = handle_file(file_name);
-			if (handler.status == 0)
-			{
-				size_t iterations = 100000000;
-				clock_gettime(CLOCK_MONOTONIC, &start);
-				for (size_t i = 0; i < iterations; ++i)
-				{
-					entropy = simd_entropy(handler.simd_len, handler.data, log2approx_deg4_simd_asm);
-				}
-				clock_gettime(CLOCK_MONOTONIC, &end);
-				sec = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
-				printf("It took %f seconds to calculate entropy %zu times.\n", sec, iterations);
-				printf("Entropy is: %f \n", entropy);
-				free(handler.data);
-			}
-
-			break;
 		case 'a':
 		    accuracy = true;
 			break;
@@ -254,20 +246,12 @@ int main(int argc, char *argv[])
 	    handler.data = entropy_c_rand(randLen);
 	}
 
-	clock_t start;
-	start = clock();
-	float entropy =	evaluate_entropy(handler.len, handler.data, lan, mode, impl);
-    double time_secs = (clock() - start)/(double)CLOCKS_PER_SEC;
-
-    printEntropy(lan, mode, impl, entropy);
-    if(time){
-        printf("Calculation took: \t%f seconds\n", time_secs);
+    float preciseEntropy;
+	if(accuracy){
+        preciseEntropy = precise_entropy(handler.len, handler.data);
+        printf("Precise Entropy:\t%f\n", preciseEntropy);
     }
-    if(accuracy){
-        float preciseEntropy = precise_entropy(handler.len, handler.data);
-        printMistake(entropy, preciseEntropy);
-    }
-
+    evaluate_args(handler.len, handler.data, lan, mode, impl, preciseEntropy, accuracy, time);
     free(handler.data);
 	exit(EXIT_SUCCESS);
 }

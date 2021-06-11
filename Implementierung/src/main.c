@@ -23,11 +23,11 @@ enum Implementation { DEG2, DEG4, ARTANH, LOOKUP };
 */
 
 float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode, enum Implementation impl){
-    switch(language){
+    switch(lan){
     case C:
         switch(mode){
         case SCALAR:
-            switch (implem) {
+            switch (impl) {
             case DEG2:
                 return scalar_entropy(n, data, log2approx_deg2);
             case DEG4:
@@ -38,7 +38,7 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
                 return scalar_entropy(n, data, log2_lookup);
             }
         case SIMD:
-            switch (implem) {
+            switch (impl) {
             case DEG2:
                 return simd_entropy(n, data, log2approx_deg2_simd);
             case DEG4:
@@ -49,11 +49,10 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
                 return simd_entropy(n, data, log2_lookup_simd);
             }
         }
-    }
     case ASM:
         switch(mode){
         case SCALAR:
-            switch (implem) {
+            switch (impl) {
             case DEG2:
                 return entropy_asm(n, data, log2approx_deg2_asm);
             case DEG4:
@@ -64,7 +63,7 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
                 return entropy_asm(n, data, log2_lookup_asm);
             }
         case SIMD:
-            switch (implem) {
+            switch (impl) {
             case DEG2:
                 return entropy_simd(n, data, log2approx_deg2_simd_asm);
             case DEG4:

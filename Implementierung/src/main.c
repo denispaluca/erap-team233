@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 #include "entropy.h"
 #include "io_operations.h"
@@ -95,7 +96,14 @@ void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, f
         impls = "LOOKUP";
         break;
     }
-    printf("Entropy: %f\t( %s | %s | %s )\n", entropy, lans, modes,impls);
+    printf("%s/%s/%s Entropy:\t%f\n", lans, modes,impls, entropy);
+}
+
+void printMistake(float entropy, double preciseEntropy){
+    double absMistake = fabs(preciseEntropy - entropy);
+    printf("Precise Entropy:\t%f\n", preciseEntropy);
+    printf("Absolute Mistake:\t%f\n", absMistake);
+    printf("Relative Mistake:\t%f\n", absMistake/preciseEntropy);
 }
 
 int main(int argc, char *argv[])
@@ -242,5 +250,9 @@ int main(int argc, char *argv[])
 
 	float entropy = evaluate_entropy(handler.len, handler.data, lan, mode, impl);
     printEntropy(lan, mode, impl, entropy);
+    if(accuracy){
+        float preciseEntropy = precise_entropy(handler.len, handler.data);
+        printMistake(entropy, preciseEntropy);
+    }
 	exit(EXIT_SUCCESS);
 }

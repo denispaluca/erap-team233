@@ -2,20 +2,38 @@
 
 // Normal
 float log2approx_deg2(float x){
-    union num data;
-    data.flt = x;
+    union num data = { .flt = x };
 
-    int exponent = (data.fix >> 23) - 127;
+    int exponent = ((data.fix << 1) >> 24);
+
+    // Special case for denormal floating numbers
+    if (exponent == 0) {
+        data.flt *= 0x1p23f; /* Normalizefloating number */
+        exponent = (data.fix >> 23) - 24; /* Recalculate exponent */
+    }
+    
+    // Subtracting bias
+    exponent -= 127;
+
     data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     return deg2_co1[0] * data.flt * data.flt + deg2_co2[0] * data.flt + deg2_co3[0] + exponent;
 }
 
 float log2approx_deg4(float x){
-    union num data;
-    data.flt = x;
+    union num data = { .flt = x };
 
-    int exponent = (data.fix >> 23) - 127;
+    int exponent = ((data.fix << 1) >> 24);
+
+    // Special case for denormal floating numbers
+    if (exponent == 0) {
+        data.flt *= 0x1p23f; /* Normalizefloating number */
+        exponent = (data.fix >> 23) - 24; /* Recalculate exponent */
+    }
+    
+    // Subtracting bias
+    exponent -= 127;
+
     data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     float m2 = data.flt * data.flt;
@@ -25,10 +43,19 @@ float log2approx_deg4(float x){
 }
 
 float log2approx_arctanh(float x){
-    union num data;
-    data.flt = x;
+    union num data = { .flt = x };
 
-    int exponent = (data.fix >> 23) - 127;
+    int exponent = ((data.fix << 1) >> 24);
+
+    // Special case for denormal floating numbers
+    if (exponent == 0) {
+        data.flt *= 0x1p23f; /* Normalizefloating number */
+        exponent = (data.fix >> 23) - 24; /* Recalculate exponent */
+    }
+    
+    // Subtracting bias
+    exponent -= 127;
+
     data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
 
     float q = (data.flt-1)/(data.flt+1);

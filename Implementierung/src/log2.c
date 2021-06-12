@@ -1,42 +1,37 @@
 #include "log2.h"
 
-// Normal
-float log2approx_deg2(float x){
-    union num data = { .flt = x };
-
+void reduce_float(union num* data, int* exponent){
+    
     // Get exponent omitting sign bit
-    int exponent = ((data.fix << 1) >> 24);
+    *exponent = ((data->fix << 1) >> 24);
 
     // Special case for denormal floating numbers
-    if (exponent == 0) {
-        data.flt *= 0x1p23f; /* Normalizefloating number */
-        exponent = (data.fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
+    if (*exponent == 0) {
+        data->flt *= 0x1p23f; /* Normalizefloating number */
+        *exponent = (data->fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
     }
     
     // Subtracting bias
-    exponent -= 127;
+    *exponent -= f_bias[0];
 
-    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
+    data->fix = (data->fix & mantissa_mask[0]) | reduce_mask[0];
+}
+
+// Normal
+float log2approx_deg2(float x){
+    union num data = { .flt = x };
+    int exponent;
+
+    reduce_float(&data, &exponent);
 
     return deg2_co1[0] * data.flt * data.flt + deg2_co2[0] * data.flt + deg2_co3[0] + exponent;
 }
 
 float log2approx_deg4(float x){
     union num data = { .flt = x };
+    int exponent;
 
-    // Get exponent omitting sign bit
-    int exponent = ((data.fix << 1) >> 24);
-
-    // Special case for denormal floating numbers
-    if (exponent == 0) {
-        data.flt *= 0x1p23f; /* Normalizefloating number */
-        exponent = (data.fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
-    }
-    
-    // Subtracting bias
-    exponent -= 127;
-
-    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
+    reduce_float(&data, &exponent);
 
     float m2 = data.flt * data.flt;
     float y = deg4_co1[0] * m2 + deg4_co2[0] * data.flt;
@@ -46,20 +41,9 @@ float log2approx_deg4(float x){
 
 float log2approx_arctanh(float x){
     union num data = { .flt = x };
+    int exponent;
 
-    // Get exponent omitting sign bit
-    int exponent = ((data.fix << 1) >> 24);
-
-    // Special case for denormal floating numbers
-    if (exponent == 0) {
-        data.flt *= 0x1p23f; /* Normalizefloating number */
-        exponent = (data.fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
-    }
-    
-    // Subtracting bias
-    exponent -= 127;
-
-    data.fix = (data.fix & mantissa_mask[0]) | reduce_mask[0];
+    reduce_float(&data, &exponent);
 
     float q = (data.flt-1)/(data.flt+1);
     float q2 = q*q;
@@ -71,6 +55,16 @@ float log2approx_arctanh(float x){
 
 // SIMD
 __m128 log2approx_deg2_simd(__m128 x){
+    // union num_s data = { .flt = x };
+
+    // // Get exponent omitting sign bit
+    // __m128i exponent = ((data.fix << 1) >> 24);
+
+    // // Special case for denormal floating numbers
+    // __m128i exp_mask = _mm_cmpeq_epi32(exponent, _mm_setzero_si128());
+
+    // data.flt = _mm_mul_ps(data.flt, _mm_and_ps(exponent, exp_mask));
+    
     __m128i expi = _mm_set1_epi32(0x7f800000);
     expi &= (__m128i) x;
     expi >>= 23;

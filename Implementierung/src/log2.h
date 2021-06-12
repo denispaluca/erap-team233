@@ -6,6 +6,7 @@
 #include <math.h>
 
 union num { float flt; uint32_t fix; };
+union num_s { __m128 flt; __m128i fix; };
 
 // Constants
 extern const uint32_t reduce_mask[];

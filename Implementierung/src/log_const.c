@@ -16,6 +16,13 @@ const uint32_t mantissa_mask[] = {
     0x7FFFFF
 };
 
+const float normalize_const[] = {
+    0x1P23f,
+    0x1P23f,
+    0x1P23f,
+    0x1P23f
+};
+
 const uint32_t f_bias[] = {
     127, 127, 127, 127
 };

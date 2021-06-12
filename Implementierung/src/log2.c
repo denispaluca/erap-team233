@@ -4,12 +4,13 @@
 float log2approx_deg2(float x){
     union num data = { .flt = x };
 
+    // Get exponent omitting sign bit
     int exponent = ((data.fix << 1) >> 24);
 
     // Special case for denormal floating numbers
     if (exponent == 0) {
         data.flt *= 0x1p23f; /* Normalizefloating number */
-        exponent = (data.fix >> 23) - 24; /* Recalculate exponent */
+        exponent = (data.fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
     }
     
     // Subtracting bias
@@ -23,12 +24,13 @@ float log2approx_deg2(float x){
 float log2approx_deg4(float x){
     union num data = { .flt = x };
 
+    // Get exponent omitting sign bit
     int exponent = ((data.fix << 1) >> 24);
 
     // Special case for denormal floating numbers
     if (exponent == 0) {
         data.flt *= 0x1p23f; /* Normalizefloating number */
-        exponent = (data.fix >> 23) - 24; /* Recalculate exponent */
+        exponent = (data.fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
     }
     
     // Subtracting bias
@@ -45,12 +47,13 @@ float log2approx_deg4(float x){
 float log2approx_arctanh(float x){
     union num data = { .flt = x };
 
+    // Get exponent omitting sign bit
     int exponent = ((data.fix << 1) >> 24);
 
     // Special case for denormal floating numbers
     if (exponent == 0) {
         data.flt *= 0x1p23f; /* Normalizefloating number */
-        exponent = (data.fix >> 23) - 24; /* Recalculate exponent */
+        exponent = (data.fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
     }
     
     // Subtracting bias

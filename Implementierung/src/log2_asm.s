@@ -12,6 +12,7 @@
 
 .text
 // float log2approx_deg2_asm(float val);
+.align 16
 log2approx_deg2_asm:
 
 	// Extract exponent from IEEE Floating Number
@@ -24,11 +25,11 @@ log2approx_deg2_asm:
 	// we have already found k value, so reduce val to z
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
-	movd edx, xmm0
-	and edx, [rip + mantissa_mask]
-	or edx, [rip + reduce_mask]
+	movd ecx, xmm0
+	and ecx, [rip + mantissa_mask]
+	or ecx, [rip + reduce_mask]
 
-	movd xmm0, edx
+	movd xmm0, ecx
 
 	// Apply approximation
 	// log_2(val) = -0.344845 * z^2 + 2.024658 * z - 1.674873 + exponent
@@ -50,7 +51,6 @@ log2approx_deg2_asm:
 
 // float log2approx_deg4_asm(float val);
 log2approx_deg4_asm:
-
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
 	shr eax, 23
@@ -61,11 +61,11 @@ log2approx_deg4_asm:
 	// we have already found k value, so reduce val to z
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
-	movd edx, xmm0
-	and edx, [rip + mantissa_mask]
-	or edx, [rip + reduce_mask]
+	movd ecx, xmm0
+	and ecx, [rip + mantissa_mask]
+	or ecx, [rip + reduce_mask]
 
-	movd xmm0, edx
+	movd xmm0, ecx
 
 	// Apply approximation
 	// log_2(val) = -0.081615808 * z^4 + 0.64514236 * z^3 + 0.64514236 * z^2 + 4.0700908 * z + -2.5128546 + exponent
@@ -110,11 +110,11 @@ log2approx_arctanh_asm:
 	// we have already found k value, so reduce val to z
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
-	movd edx, xmm0
-	and edx, [rip + mantissa_mask]
-	or edx, [rip + reduce_mask]
+	movd ecx, xmm0
+	and ecx, [rip + mantissa_mask]
+	or ecx, [rip + reduce_mask]
 
-	movd xmm0, edx
+	movd xmm0, ecx
 
 	// x = (z-1) / (z + 1)
 	//log_2(val) = 2 * (x + x^3/3 + x^5/5) / ln2
@@ -157,13 +157,13 @@ log2_lookup_asm:
 	sub eax, 127
 
 	// Get first n bits of mantiss to look in table
-	movd edx, xmm0
-	and edx, [rip + mantissa_mask]
-	shr edx, (23 - LOG_LOOKUP_TABLE_SIZE)
+	movd ecx, xmm0
+	and ecx, [rip + mantissa_mask]
+	shr ecx, (23 - LOG_LOOKUP_TABLE_SIZE)
 
 	// log_lookup_table[index] + exponent
 	cvtsi2ss xmm0, eax
-	addss xmm0, [log_lookup_table + 4*edx]
+	addss xmm0, [log_lookup_table + 4*ecx]
 
 	ret
 

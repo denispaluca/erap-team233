@@ -7,7 +7,6 @@
 struct Handler
 {
     size_t len;
-    size_t simd_len;
     float *data;
     int status;
 };

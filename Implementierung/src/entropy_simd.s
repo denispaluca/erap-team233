@@ -1,10 +1,9 @@
 .intel_syntax noprefix
 .global entropy_simd
-.extern log2approx_deg2_simd_asm
 
 .text
 .align 16
-// float (size_t len, float* data);
+// float(size_t len, float* data, __m128(* log_func) (__m128));
 entropy_simd:
     // rdi is the length of the array
     // rsi is the pointer to the array
@@ -22,11 +21,14 @@ entropy_simd:
 		xmm8 = total sum
         xmm9 = current element
 	*/
-
+    cvtsi2ss xmm9,rdi
+	mulss xmm9,[rip+.Lconst1eminus8]
 	mov r8,rdi
 	mov r9,rsi
 	movss xmm3,[rip+.Lconstupperlimit]
 	movss xmm4,[rip+.Lconstlowerlimit]
+    addss xmm3,xmm9
+    subss xmm4,xmm9
 	pxor xmm5,xmm5
 	movaps xmm6,[rip+.Lconst1]
 	pxor xmm8,xmm8
@@ -79,9 +81,10 @@ entropy_simd:
     .Lsimdloop:
     
         movaps xmm1,[rdi]
+        movaps xmm0,[rdi]
 
         sub rsp,0x08
-        call log2approx_deg2_simd_asm
+        call rdx
         add rsp,0x08
 
         mulps xmm0,xmm1
@@ -96,7 +99,6 @@ entropy_simd:
     movaps xmm0,xmm2
     haddps xmm0,xmm0
     haddps xmm0,xmm0
-    xorps xmm0,[rip+.Ltest]
     ret
     .Lerror:
         movaps xmm0,[rip+.Lconstminus1]
@@ -120,8 +122,6 @@ entropy_simd:
 	.4byte 0x3F7FFFAC
 
 .align 16
-.Ltest:
-        .long   -2147483648
-        .long   0
-        .long   0
-        .long   0
+.Lconst1eminus8:
+	.4byte 0x322BCC77
+

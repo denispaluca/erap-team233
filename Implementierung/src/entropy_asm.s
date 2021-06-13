@@ -5,7 +5,7 @@
 
 .text
 .align 16
-// float entropy_asm(size_t len, float* data);
+//float+ (size_t len, float* data, float (* log2_func) (float));
 entropy_asm:
 	// rdi is the length of the array
 	// rsi is the pointer to the array
@@ -25,11 +25,14 @@ entropy_asm:
 		xmm7 = current element
 		xmm8 = total sum
 	*/
-
+	cvtsi2ss xmm9,rdi
+	mulss xmm9,[rip+.Lconst1eminus8]
 	mov r8,rdi
 	mov r9,rsi
 	movss xmm3,[rip+.Lconstupperlimit]
+	addss xmm3,xmm9
 	movss xmm4,[rip+.Lconstlowerlimit]
+	subss xmm4,xmm9
 	pxor xmm5,xmm5
 	movss xmm6,[rip+.Lconst1]
 	pxor xmm8,xmm8
@@ -37,13 +40,14 @@ entropy_asm:
 	.Lcheck:
 		movss xmm7,[r9]
 
+		addss xmm8,xmm7
+
 		comiss xmm7,xmm5
 		jb .Lerror
 
 		comiss xmm7,xmm6
 		ja .Lerror
 
-		addss xmm8,xmm7
 
 		add r9,4
 		sub r8,1
@@ -57,39 +61,29 @@ entropy_asm:
 	
 	// If I reach here that means the array is a proability distrubition.	
 
-	push r12
-	push r13
-	push r14
 
 	// store entropy temporarily on xmm2
 	pxor xmm2,xmm2 
 	
-	// preserve rdi,rsi across function calls.
-	mov r12,rdi
-	mov r13,rsi
 
 	.Lloop:
-		// preserve temporary xmm2 register across function call.
-		movq r14,xmm2
 
-		movss xmm0,[r13];
-		call log2f
+		movss xmm0,[rsi];
 
-		movss xmm1,[r13]
-		movq xmm2,r14
+		sub rsp,0x08
+		call rdx
+		add rsp,0x08
+
+		movss xmm1,[rsi]
 
 		mulss xmm0,xmm1
 		subss xmm2,xmm0
 
-		add r13,4
-		sub r12,1
-		ja .Lloop
+		add rsi,4
+		sub rdi,1
+	 	ja .Lloop
 
 	movss xmm0,xmm2
-
-	pop r14
-	pop r13
-	pop r12
 	ret
 
 	.Lzero:
@@ -112,3 +106,6 @@ entropy_asm:
 .align 16
 .Lconstlowerlimit:
 	.4byte 0x3F7FFFAC
+.align 16
+.Lconst1eminus8:
+	.4byte 0x322BCC77

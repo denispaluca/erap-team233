@@ -16,15 +16,27 @@ const uint32_t mantissa_mask[] = {
     0x7FFFFF
 };
 
+
+const uint32_t f_bias[] = {
+    127, 127, 127, 127
+};
+
+const uint32_t normalize_mask[] = {
+    0x74800000,
+    0x74800000,
+    0x74800000,
+    0x74800000
+};
+
+const uint32_t normalize_exp[] = {
+    23, 23, 23, 23
+};
+
 const float normalize_const[] = {
     0x1P23f,
     0x1P23f,
     0x1P23f,
     0x1P23f
-};
-
-const uint32_t f_bias[] = {
-    127, 127, 127, 127
 };
 
 const float f_one[] = {

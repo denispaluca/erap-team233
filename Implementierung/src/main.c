@@ -155,6 +155,14 @@ void runFull(size_t n, float* data, float preciseEntropy, bool accuracy, bool ti
 
 int main(int argc, char *argv[])
 {
+    float a;
+    __m128 b, n = { 0.3244, 0, 0, 0};
+
+    a = log2_lookup(n[0]);
+    b = log2_lookup_simd_asm(n);
+    printf("c: %f   our: %f  diff: %f \n", a, b[0], fabs(a - b[0]));
+    
+    return 0;
 
 	// optind -> index of next element to be processed in argv
 	// nextchar -> if finds option character, returns it

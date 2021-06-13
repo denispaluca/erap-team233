@@ -75,7 +75,6 @@ struct Handler handle_file(const char *file_name)
 {
 	struct Handler handler;
 	handler.len = 0;
-	handler.simd_len = 0;
 	handler.data = NULL;
 	handler.status = -1;
 	size_t len = size_file(file_name);
@@ -89,7 +88,6 @@ struct Handler handle_file(const char *file_name)
 		return handler;
 	}
 	handler.len = len;
-	handler.simd_len = len + (4 - len % 4) % 4;
 	handler.status = 0;
 	return handler;
 }

@@ -31,8 +31,8 @@ double precise_entropy(size_t len, float* data){
 	}
 	return entropy;
 }
-
-float simd_entropy(size_t len, float* data,__m128(* log_func) (__m128)) 
+// PREREQUISITE:  data should allocated at least len-(4-len % 4) % 4 memory otherwise it is undefined behaviour.
+float simd_entropy(size_t len, float* data,__m128(* log2_func) (__m128)) 
 {
 	// PREREQUISITE len is a multiple of 4.
     const float error_margin = len*1e-8;
@@ -74,7 +74,7 @@ float simd_entropy(size_t len, float* data,__m128(* log_func) (__m128))
 	for(size_t i = 0 ; i < len ; i+=4)
 	{
 		cur = _mm_load_ps(data+i);
-		sum -= cur * log_func(cur);
+		sum -= cur * log2_func(cur);
 	}
 	sum = _mm_hadd_ps(sum,sum);
 	sum = _mm_hadd_ps(sum,sum);

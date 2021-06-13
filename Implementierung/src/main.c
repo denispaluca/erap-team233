@@ -4,15 +4,30 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include <string.h>
 
 #include "entropy.h"
 #include "io_operations.h"
 
 const char *optstring = ":-l:m:i:r:tahf";
 
-enum Language { C, ASM };
-enum Mode { SCALAR, SIMD };
-enum Implementation { DEG2, DEG4, ARTANH, LOOKUP };
+enum Language
+{
+    C,
+    ASM
+};
+enum Mode
+{
+    SCALAR,
+    SIMD
+};
+enum Implementation
+{
+    DEG2,
+    DEG4,
+    ARTANH,
+    LOOKUP
+};
 /*
     -l, --language => implementation language c|asm
 	-m, --mode => run mode scalar|simd
@@ -24,12 +39,16 @@ enum Implementation { DEG2, DEG4, ARTANH, LOOKUP };
 	-h, --help 
 */
 
-float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode, enum Implementation impl){
-    switch(lan){
+float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode, enum Implementation impl)
+{
+    switch (lan)
+    {
     case C:
-        switch(mode){
+        switch (mode)
+        {
         case SCALAR:
-            switch (impl) {
+            switch (impl)
+            {
             case DEG2:
                 return scalar_entropy(n, data, log2approx_deg2);
             case DEG4:
@@ -39,9 +58,10 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
             case LOOKUP:
                 return scalar_entropy(n, data, log2_lookup);
             }
-        break;
+            break;
         case SIMD:
-            switch (impl) {
+            switch (impl)
+            {
             case DEG2:
                 return simd_entropy(n, data, log2approx_deg2_simd);
             case DEG4:
@@ -55,9 +75,11 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
         }
         break;
     case ASM:
-        switch(mode){
+        switch (mode)
+        {
         case SCALAR:
-            switch (impl) {
+            switch (impl)
+            {
             case DEG2:
                 return entropy_asm(n, data, log2approx_deg2_asm);
             case DEG4:
@@ -69,7 +91,8 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
             }
             break;
         case SIMD:
-            switch (impl) {
+            switch (impl)
+            {
             case DEG2:
                 return entropy_simd(n, data, log2approx_deg2_simd_asm);
             case DEG4:
@@ -86,11 +109,13 @@ float evaluate_entropy(size_t n, float* data, enum Language lan, enum Mode mode,
     return -1.0f;
 }
 
-void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy){
-    char* lans = lan == C ? "C" : "ASM";
-    char* modes = mode == SCALAR ? "scalar" : "simd";
-    char* impls;
-    switch(impl){
+void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy)
+{
+    char *lans = lan == C ? "C" : "ASM";
+    char *modes = mode == SCALAR ? "scalar" : "simd";
+    char *impls = "";
+    switch (impl)
+    {
     case DEG2:
         impls = "DEG2";
         break;
@@ -104,34 +129,54 @@ void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, f
         impls = "LOOKUP";
         break;
     }
-    printf("%s/%s/%s Entropy:\t%f\n", lans, modes,impls, entropy);
+    int len = 20 - (strlen(lans) + strlen(modes) + strlen(impls));
+    printf("%s/%s/%s Entropy:%*s%f\n", lans, modes, impls, len, "", entropy);
 }
 
-void printMistake(float entropy, double preciseEntropy){
+void printMistake(float entropy, double preciseEntropy)
+{
     double absMistake = fabs(preciseEntropy - entropy);
-    printf("Absolute Mistake:\t%f\n", absMistake);
-    printf("Relative Mistake:\t%f\n", absMistake/preciseEntropy);
+    printf("Absolute Mistake:%*s%f\n", 14, "", absMistake);
+    if (preciseEntropy != 0)
+    {
+        printf("Relative Mistake:%*s%f\n", 14, "", absMistake / preciseEntropy);
+    }
+    // else
+    // {
+    //     printf("No relative mistake is calculated because precise entropy is: %f \n",preciseEntropy);
+    // }
 }
 
-void evaluate_args(size_t n, float* data, enum Language lan, enum Mode mode,
-        enum Implementation impl, float preciseEntropy, bool accuracy, bool time){
-    clock_t start;
-    start = clock();
-    float entropy =	evaluate_entropy(n, data, lan, mode, impl);
-    double time_secs = (clock() - start)/(double)CLOCKS_PER_SEC;
+void evaluate_args(size_t n, float *data, enum Language lan, enum Mode mode,
+                   enum Implementation impl, float preciseEntropy, bool accuracy, bool time)
+{
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    float entropy = 0;
+    for (size_t i = 0; i < 1000; ++i)
+    {
+        entropy = evaluate_entropy(n, data, lan, mode, impl);
+    }
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
 
     printEntropy(lan, mode, impl, entropy);
-    if(accuracy){
+    if (accuracy)
+    {
         printMistake(entropy, preciseEntropy);
     }
-    if(time){
-        printf("Calculation took: \t%f seconds\n", time_secs);
+    if (time)
+    {
+        printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
-    if(time || accuracy)
+    if (time || accuracy)
         printf("\n");
 }
 
-void runFull(size_t n, float* data, float preciseEntropy, bool accuracy, bool time){
+void runFull(size_t n, float *data, float preciseEntropy, bool accuracy, bool time)
+{
+    printf("Length is:%*s %zu \n\n", 20, "", n);
     evaluate_args(n, data, C, SCALAR, DEG2, preciseEntropy, accuracy, time);
     evaluate_args(n, data, C, SCALAR, DEG4, preciseEntropy, accuracy, time);
     evaluate_args(n, data, C, SCALAR, ARTANH, preciseEntropy, accuracy, time);
@@ -155,84 +200,88 @@ void runFull(size_t n, float* data, float preciseEntropy, bool accuracy, bool ti
 
 int main(int argc, char *argv[])
 {
-	// optind -> index of next element to be processed in argv
-	// nextchar -> if finds option character, returns it
 
-	// no more option character, getopt returns -1
-	// Then optind is the index in argv of the first argv-element that is not an option.
+    // optind -> index of next element to be processed in argv
+    // nextchar -> if finds option character, returns it
 
-	// optstring is a string containing the legitimate option characters.
-	// If such a character is followed by a colon, the option requires an argument, so getopt() places a pointer to the
-	// following text in the same argv-element, or the text of the following argv-element, in optarg.
-	// otherwise optarg is set to zero.
+    // no more option character, getopt returns -1
+    // Then optind is the index in argv of the first argv-element that is not an option.
 
-	//If an option was successfully found, then getopt() returns the option character.  If all command-line options have been parsed,
-	// then getopt() returns -1.  If getopt() encounters an option character that was not in optstring, then '?' is returned.
+    // optstring is a string containing the legitimate option characters.
+    // If such a character is followed by a colon, the option requires an argument, so getopt() places a pointer to the
+    // following text in the same argv-element, or the text of the following argv-element, in optarg.
+    // otherwise optarg is set to zero.
 
-	// If the first character of optstring is '-', then each nonoption argv-element is handled as if it were the argument
-	// of an option with character code 1.
+    //If an option was successfully found, then getopt() returns the option character.  If all command-line options have been parsed,
+    // then getopt() returns -1.  If getopt() encounters an option character that was not in optstring, then '?' is returned.
 
-	// Long option names may be abbreviated if the abbreviation is unique or is an exact match for some defined option.
-	// The last element of the array has to be filled with zeros.
+    // If the first character of optstring is '-', then each nonoption argv-element is handled as if it were the argument
+    // of an option with character code 1.
 
-	int opt;
+    // Long option names may be abbreviated if the abbreviation is unique or is an exact match for some defined option.
+    // The last element of the array has to be filled with zeros.
 
-	static struct option long_options[] = {
-	    {"language", required_argument, 0, 'l'},
-		{"mode", required_argument, 0, 'm'},
+    int opt;
+
+    static struct option long_options[] = {
+        {"language", required_argument, 0, 'l'},
+        {"mode", required_argument, 0, 'm'},
         {"implementation", required_argument, 0, 'i'},
-		{"help", no_argument, 0, 'h'},
-		{"accuracy", no_argument, 0, 'a'},
-		{"time", no_argument, 0, 't'},
+        {"help", no_argument, 0, 'h'},
+        {"accuracy", no_argument, 0, 'a'},
+        {"time", no_argument, 0, 't'},
         {"random", required_argument, 0, 'r'},
         {"full", no_argument, 0, 'f'},
-		{0, 0, 0, 0}};
+        {0, 0, 0, 0}};
 
-	int optindex = 0;
+    int optindex = 0;
 
-	enum Language lan = C;
-	enum Mode mode = SCALAR;
-	enum Implementation impl = DEG4;
-	size_t randLen = 0;
-	bool time = false;
-	bool accuracy = false;
-	bool full = false;
-	// Fetching option arguments
-	while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1)
-	{
+    enum Language lan = C;
+    enum Mode mode = SCALAR;
+    enum Implementation impl = DEG4;
+    size_t randLen = 0;
+    bool time = false;
+    bool accuracy = false;
+    bool full = false;
+    // Fetching option arguments
+    while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1)
+    {
 
-		switch (opt)
-		{
-		case 'l':
-		    if(strcmp("c", optarg) == 0)
-		        lan = C;
-		    else if(strcmp("asm", optarg) == 0)
-		        lan = ASM;
-		    else {
+        switch (opt)
+        {
+        case 'l':
+            if (strcmp("c", optarg) == 0)
+                lan = C;
+            else if (strcmp("asm", optarg) == 0)
+                lan = ASM;
+            else
+            {
                 printf("Wrong language option!\n");
                 exit(EXIT_FAILURE);
-		    }
-			break;
+            }
+            break;
         case 'm':
-            if(strcmp("scalar", optarg) == 0)
+            if (strcmp("scalar", optarg) == 0)
                 mode = SCALAR;
-            else if(strcmp("simd", optarg) == 0)
+            else if (strcmp("simd", optarg) == 0)
                 mode = SIMD;
-            else {
+            else
+            {
                 printf("Wrong mode option!\n");
                 exit(EXIT_FAILURE);
             }
             break;
         case 'i':
-            if(strcmp("deg2", optarg) == 0)
+            if (strcmp("deg2", optarg) == 0)
                 impl = DEG2;
-            else if(strcmp("deg4", optarg) == 0)
+            else if (strcmp("deg4", optarg) == 0)
                 impl = DEG4;
-            else if(strcmp("artanh", optarg) == 0)
+            else if (strcmp("artanh", optarg) == 0)
                 impl = ARTANH;
-            else if(strcmp("lookup", optarg) == 0)
+            else if (strcmp("lookup", optarg) == 0)
                 impl = LOOKUP;
-            else {
+            else
+            {
                 printf("Wrong implementation option!\n");
                 exit(EXIT_FAILURE);
             }
@@ -240,17 +289,17 @@ int main(int argc, char *argv[])
         case 'r':
             randLen = atoi(optarg);
             break;
-		case 't':
-		    time = true;
+        case 't':
+            time = true;
             break;
-		case 'a':
-		    accuracy = true;
-			break;
+        case 'a':
+            accuracy = true;
+            break;
         case 'f':
             full = true;
             break;
-		case 'h':
-			printf("Usage: entropy [options] file\n"
+        case 'h':
+            printf("Usage: entropy [options] file\n"
                    "\t-l, --language => implementation language c|asm\n"
                    "\t-m, --mode => run mode scalar|simd\n"
                    "\t-i, --implementation => deg2|deg4|artanh|lookup\n"
@@ -258,46 +307,61 @@ int main(int argc, char *argv[])
                    "\t-a, --accuracy => difference with double precision scalar entropy\n"
                    "\t-r, --random => run with random data\n"
                    "\t-f, --full => run tests for the data with all possible configurations\n"
-                   "\t-h, --help\n"
-            );
-			return EXIT_SUCCESS;
+                   "\t-h, --help\n");
+            return EXIT_SUCCESS;
 
-		case ':':
-			fprintf(stderr, "Missing argumant for option -%c\n", optopt);
-			__attribute__((fallthrough)); // Let fallthrough
+        case ':':
+            fprintf(stderr, "Missing argumant for option -%c\n", optopt);
+            __attribute__((fallthrough)); // Let fallthrough
 
-		default:
-			fprintf(stderr, "USAGE HERE\n");
-			exit(EXIT_FAILURE);
-		}
-	}
+        default:
+            fprintf(stderr, "USAGE HERE\n");
+            exit(EXIT_FAILURE);
+        }
+    }
 
-	struct Handler handler;
-	handler = handle_file(argv[optind]);
-	if(handler.status == -1 && randLen == 0)
-	    exit(EXIT_FAILURE);
+    struct Handler handler;
+    handler.data = NULL;
+    handler.len = 0;
+    handler.status = -1;
+    if (argv[optind] != NULL){
+        handler = handle_file(argv[optind]);
+        printf("-----------------------------------------------------\n");
+        printf("       Calculating entropy of %s.\n",argv[optind]);
+        printf("-----------------------------------------------------\n\n");
+    }
+    if (handler.status == -1 && randLen == 0)
+        exit(EXIT_FAILURE);
 
-	if(randLen != 0){
-	    printf("Calculating entropy of random data.\n");
-	    handler.len = randLen;
-	    handler.data = entropy_c_rand(randLen);
-	}
+    if (randLen != 0)
+    {
+        printf("-----------------------------------------------------\n");
+        printf("       Calculating entropy of random data.\n");
+        printf("-----------------------------------------------------\n");
+        handler.len = randLen;
+        handler.data = entropy_c_rand(randLen);
+    }
 
-	if(handler.data == NULL){
+    if (handler.data == NULL)
+    {
         printf("Bruh you check your pointers!!");
         exit(EXIT_FAILURE);
-	}
+    }
 
     double preciseEntropy = 0.0;
-	if(accuracy){
+    if (accuracy)
+    {
         preciseEntropy = precise_entropy(handler.len, handler.data);
-        printf("Precise Entropy:\t%f\n", preciseEntropy);
+        printf("Precise Entropy:%*s%f\n", 15, "", preciseEntropy);
     }
-	if(full)
+    if (full)
         runFull(handler.len, handler.data, preciseEntropy, accuracy, time);
-	else
+    else
         evaluate_args(handler.len, handler.data, lan, mode, impl, preciseEntropy, accuracy, time);
 
+    printf("-----------------------------------------------------\n");
+    printf("                    FINISHED\n");
+    printf("-----------------------------------------------------\n");
     free(handler.data);
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

@@ -2,9 +2,10 @@
 
 void reduce_float(union num* data, int* exponent){
     
-    // Get exponent omitting sign bit
-    *exponent = ((data->fix << 1) >> 24);
+    // Get exponent (omitting sign bit()
+    *exponent = data->fix >> 23;
 
+    // TODO test if it is actually better with bit manipulation
     // Special case for denormal floating numbers
     if (*exponent == 0) {
         data->flt *= normalize_const[0]; /* Normalizefloating number */
@@ -65,8 +66,8 @@ void reduce_float_simd(union num_s* data, __m128i* exponent){
     so that you can easily multiply by 2^23f
     */
 
-    // Get exponent omitting sign bit
-    *exponent = (data->fix << 1) >> 24;
+    // Get exponent (omitting sign bit)
+    *exponent = data->fix >> 23;
 
     // Special case for denormal floating numbers
     union num_s mask;
@@ -82,7 +83,6 @@ void reduce_float_simd(union num_s* data, __m128i* exponent){
     *exponent -= exp_fix;
 
     data->fix = (data->fix & _mm_load_si128((const __m128i*) mantissa_mask)) | _mm_load_si128( (const __m128i*)reduce_mask);
-
 }
 
 
@@ -130,7 +130,8 @@ float log2_lookup(float x) {
     union num data = { .flt = x };
     int exponent, index;
 
-    exponent = (data.fix >> 23) - f_bias[0];
+    reduce_float(&data, &exponent);
+
     index = (data.fix & mantissa_mask[0]) >> (23 - LOG_LOOKUP_TABLE_SIZE);
 
     return log_lookup_table[index] + exponent;
@@ -140,7 +141,7 @@ __m128 log2_lookup_simd(__m128 x) {
     union num_s data = { .flt = x };
     __m128i exponent, index;
 
-    exponent = (data.fix >> 23) - _mm_load_si128((const __m128i*) f_bias);
+    reduce_float_simd(&data, &exponent);
 
     index = (data.fix &  _mm_load_si128((const __m128i*) mantissa_mask)) >> (23 - LOG_LOOKUP_TABLE_SIZE);
 

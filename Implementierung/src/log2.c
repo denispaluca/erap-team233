@@ -67,7 +67,7 @@ void reduce_float_simd(union num_s* data, __m128i* exponent){
     */
 
     // Get exponent (omitting sign bit)
-    *exponent = data->fix >> 23;
+    *exponent = _mm_srli_epi32(data->fix, 23);
 
     // Special case for denormal floating numbers
     union num_s mask;
@@ -78,9 +78,9 @@ void reduce_float_simd(union num_s* data, __m128i* exponent){
 
     data->flt *= mask.flt;
 
-    *exponent = data->fix >> 23;
-    *exponent -= _mm_load_si128((const __m128i*) f_bias);
-    *exponent -= exp_fix;
+    *exponent = _mm_srli_epi32(data->fix, 23);
+    *exponent = _mm_sub_epi32(*exponent, _mm_load_si128((const __m128i*) f_bias));
+    *exponent = _mm_sub_epi32(*exponent, exp_fix);;
 
     data->fix = (data->fix & _mm_load_si128((const __m128i*) mantissa_mask)) | _mm_load_si128( (const __m128i*)reduce_mask);
 }
@@ -143,7 +143,7 @@ __m128 log2_lookup_simd(__m128 x) {
 
     reduce_float_simd(&data, &exponent);
 
-    index = (data.fix &  _mm_load_si128((const __m128i*) mantissa_mask)) >> (23 - LOG_LOOKUP_TABLE_SIZE);
+    index = _mm_srli_epi32(data.fix &  _mm_load_si128((const __m128i*) mantissa_mask), 23 - LOG_LOOKUP_TABLE_SIZE);
 
     __m128 y = _mm_set_ps(
             log_lookup_table[((__v4si) index)[0]],

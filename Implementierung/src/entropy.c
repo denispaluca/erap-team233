@@ -32,6 +32,7 @@ double precise_entropy(size_t len, float* data){
 	    if(x < 0 || x > 1){
 	        return -1;
 	    }
+		sum += x;
         if(x == 0.0f) continue;
 		entropy -= x * log2(x);
 	}

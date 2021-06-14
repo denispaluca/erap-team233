@@ -6,11 +6,15 @@
 #include <math.h>
 
 union num { float flt; uint32_t fix; };
+union num_s { __m128 flt; __m128i fix; };
 
 // Constants
 extern const uint32_t reduce_mask[];
 extern const uint32_t mantissa_mask[];
 extern const uint32_t f_bias[];
+extern const uint32_t normalize_mask[];
+extern const uint32_t normalize_exp[];
+extern const float normalize_const[];
 extern const float f_one[];
 extern const float one_third[];
 extern const float one_fifth[];

@@ -17,7 +17,27 @@ log2approx_deg2_simd_asm:
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0
     psrld xmm15, 23
+
+    // If exponent zero
+    pxor xmm14, xmm14
+    pcmpeqd xmm14, xmm15
+
+    // exp_fix
+    movdqa xmm13, xmm14
+    pand xmm13, [rip + normalize_exp] 
+
+    pand xmm14, [rip + normalize_mask]
+    pxor xmm14, [rip + f_one]
+
+    mulps xmm0, xmm14
+
+    // Recalculate exponents
+    movaps xmm15, xmm0
+    psrld xmm15, 23
+    psubd xmm15, xmm13
+
     psubd xmm15, [rip + f_bias]
+
     cvtdq2ps xmm15, xmm15
 
     // Reduce floating point numbers into
@@ -46,7 +66,27 @@ log2approx_deg4_simd_asm:
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0
     psrld xmm15, 23
+
+    // If exponent zero
+    pxor xmm14, xmm14
+    pcmpeqd xmm14, xmm15
+
+    // exp_fix
+    movdqa xmm13, xmm14
+    pand xmm13, [rip + normalize_exp] 
+
+    pand xmm14, [rip + normalize_mask]
+    pxor xmm14, [rip + f_one]
+
+    mulps xmm0, xmm14
+
+    // Recalculate exponents
+    movaps xmm15, xmm0
+    psrld xmm15, 23
+    psubd xmm15, xmm13
+
     psubd xmm15, [rip + f_bias]
+
     cvtdq2ps xmm15, xmm15
 
     // Reduce floating point numbers into
@@ -88,7 +128,27 @@ log2approx_arctanh_simd_asm:
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0
     psrld xmm15, 23
+
+    // If exponent zero
+    pxor xmm14, xmm14
+    pcmpeqd xmm14, xmm15
+
+    // exp_fix
+    movdqa xmm13, xmm14
+    pand xmm13, [rip + normalize_exp] 
+
+    pand xmm14, [rip + normalize_mask]
+    pxor xmm14, [rip + f_one]
+
+    mulps xmm0, xmm14
+
+    // Recalculate exponents
+    movaps xmm15, xmm0
+    psrld xmm15, 23
+    psubd xmm15, xmm13
+
     psubd xmm15, [rip + f_bias]
+
     cvtdq2ps xmm15, xmm15
 
     // Reduce floating point numbers into
@@ -127,13 +187,32 @@ log2_lookup_simd_asm:
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0
     psrld xmm15, 23
+
+    // If exponent zero
+    pxor xmm14, xmm14
+    pcmpeqd xmm14, xmm15
+
+    // exp_fix
+    movdqa xmm13, xmm14
+    pand xmm13, [rip + normalize_exp] 
+
+    pand xmm14, [rip + normalize_mask]
+    pxor xmm14, [rip + f_one]
+
+    mulps xmm0, xmm14
+
+    // Recalculate exponents
+    movaps xmm15, xmm0
+    psrld xmm15, 23
+    psubd xmm15, xmm13
+
     psubd xmm15, [rip + f_bias]
+
     cvtdq2ps xmm15, xmm15
 
     // Get first n bits of mantiss to look in table
     pand xmm0, [rip + mantissa_mask]
     psrld xmm0, (23 - LOG_LOOKUP_TABLE_SIZE)
-
 
     // WARNING: this is probably the worst possible solution.
     // will work on that later

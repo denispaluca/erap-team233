@@ -18,6 +18,17 @@ log2approx_deg2_asm:
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
 	shr eax, 23
+
+	// // Special case for denormal floating numbers
+	cmp eax, 0
+	jnz .Lnormal_deg2
+
+	mulss xmm0, [rip + normalize_const]
+	movd eax, xmm0
+	shr eax, 23
+	sub eax, 23
+
+	.Lnormal_deg2:
 	sub eax, 127
 
 	// Reduce floating point number into
@@ -54,6 +65,17 @@ log2approx_deg4_asm:
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
 	shr eax, 23
+
+	// // Special case for denormal floating numbers
+	cmp eax, 0
+	jnz .Lnormal_deg4
+
+	mulss xmm0, [rip + normalize_const]
+	movd eax, xmm0
+	shr eax, 23
+	sub eax, 23
+
+	.Lnormal_deg4:
 	sub eax, 127
 
 	// Reduce floating point number into
@@ -99,11 +121,21 @@ log2approx_deg4_asm:
 // float log2approx_deg4_asm(float val);
 log2approx_arctanh_asm:
 
-
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
 	shr eax, 23
-	sub eax, 127
+
+	// // Special case for denormal floating numbers
+	cmp eax, 0
+	jnz .Lnormal_arctanh
+
+	mulss xmm0, [rip + normalize_const]
+	movd eax, xmm0
+	shr eax, 23
+	sub eax, 23
+
+	.Lnormal_arctanh:
+	sub eax, 127	
 
 	// Reduce floating point number into
 	// val = 2^k * z form
@@ -154,6 +186,17 @@ log2_lookup_asm:
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
 	shr eax, 23
+
+	// // Special case for denormal floating numbers
+	cmp eax, 0
+	jnz .Lnormal_lookup
+
+	mulss xmm0, [rip + normalize_const]
+	movd eax, xmm0
+	shr eax, 23
+	sub eax, 23
+
+	.Lnormal_lookup:
 	sub eax, 127
 
 	// Get first n bits of mantiss to look in table

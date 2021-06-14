@@ -153,7 +153,7 @@ void evaluate_args(size_t n, float *data, enum Language lan, enum Mode mode,
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
     float entropy = 0;
-    for (size_t i = 0; i < 1000; ++i)
+    for (size_t i = 0; i < 1; ++i)
     {
         entropy = evaluate_entropy(n, data, lan, mode, impl);
     }
@@ -351,8 +351,13 @@ int main(int argc, char *argv[])
     double preciseEntropy = 0.0;
     if (accuracy)
     {
+        struct timespec start,end;
+        clock_gettime(CLOCK_MONOTONIC,&start);
         preciseEntropy = precise_entropy(handler.len, handler.data);
+        clock_gettime(CLOCK_MONOTONIC,&end);
+        double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
         printf("Precise Entropy:%*s%f\n", 15, "", preciseEntropy);
+        printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
     if (full)
         runFull(handler.len, handler.data, preciseEntropy, accuracy, time);

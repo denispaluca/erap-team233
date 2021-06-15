@@ -38,8 +38,6 @@ log2approx_deg2_simd_asm:
 
     psubd xmm15, [rip + f_bias]
 
-    cvtdq2ps xmm15, xmm15
-
     // Reduce floating point numbers into
 	// val = 2^k * z form
 	// we have already found k values, so reduce vals to zs
@@ -48,15 +46,18 @@ log2approx_deg2_simd_asm:
     pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
 
-    movaps xmm14, xmm0
-    mulps xmm14, xmm14
-    mulps xmm14, [rip + deg2_co1]
+    // Apply approximation
+	// log_2(val) = -0.344845 * z^2 + 2.024658 * z - 1.674873 + exponent
 
-    mulps xmm0, [rip + deg2_co2]
+    cvtdq2ps xmm15, xmm15
+    addps xmm15, [rip + deg2_co3]
 
-    addps xmm0, xmm14
-    addps xmm0, [rip + deg2_co3]
-    addps xmm0, xmm15
+	movaps xmm14, [rip + deg2_co1]
+	mulps xmm14, xmm0
+	addps xmm14, [rip + deg2_co2]
+
+	mulps xmm0, xmm14
+	addps xmm0, xmm15
 
     ret
 
@@ -87,8 +88,6 @@ log2approx_deg4_simd_asm:
 
     psubd xmm15, [rip + f_bias]
 
-    cvtdq2ps xmm15, xmm15
-
     // Reduce floating point numbers into
 	// val = 2^k * z form
 	// we have already found k values, so reduce vals to zs
@@ -97,28 +96,37 @@ log2approx_deg4_simd_asm:
     pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
 
-    movaps xmm14, xmm0
-    mulps xmm14, xmm14
+    
+    // Apply approximation
+	// log_2(val) = -0.081615808 * z^4 + 0.64514236 * z^3 + 0.64514236 * z^2 + 4.0700908 * z + -2.5128546 + exponent
+	
+	// y0
+    cvtdq2ps xmm15, xmm15
+	addps xmm15, [rip + deg4_co5]
 
-    movaps xmm13, xmm14
-    mulps xmm13, [rip + deg4_co1]
+	// x2
+	movaps xmm14, xmm0
+	mulps xmm14, xmm14
 
-    movaps xmm12, xmm0
-    mulps xmm12, [rip + deg4_co2]
+	// y
+	movaps xmm13, [rip + deg4_co2]
+	mulps xmm13, xmm0
+	addps xmm13, [rip + deg4_co3]
 
-    addps xmm13, xmm12
+	movaps xmm12, [rip + deg4_co1]
+	mulps xmm12, xmm14
 
-    addps xmm13, [rip + deg4_co3]
-    mulps xmm13, xmm14
+	addps xmm13, xmm12
+	// y
 
-    movaps xmm11, xmm0
-    mulps xmm11, [rip + deg4_co4]
+	// z
+	movaps xmm11, [rip + deg4_co4]
+	mulps xmm11, xmm0
+	addps xmm11, xmm15
 
-    addps xmm13, xmm11
-    addps xmm13, [rip + deg4_co5]
-    addps xmm13, xmm15
-
-    movaps xmm0, xmm13
+	movaps xmm0, xmm13
+	mulps xmm0, xmm14
+	addps xmm0, xmm11
 
     ret
 
@@ -149,8 +157,6 @@ log2approx_arctanh_simd_asm:
 
     psubd xmm15, [rip + f_bias]
 
-    cvtdq2ps xmm15, xmm15
-
     // Reduce floating point numbers into
 	// val = 2^k * z form
 	// we have already found k values, so reduce vals to zs
@@ -178,6 +184,8 @@ log2approx_arctanh_simd_asm:
 
     mulps xmm0, xmm14
     mulps xmm0, [rip + ln2_inverse_2]
+
+    cvtdq2ps xmm15, xmm15
     addps xmm0, xmm15
 
     ret

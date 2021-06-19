@@ -35,7 +35,7 @@ extern const float deg4_co5[];
 extern const float log_lookup_table[];
 
 // Lookup table size
-#define LOG_LOOKUP_TABLE_SIZE 14
+#define LOG_LOOKUP_TABLE_SIZE 16
 
 
 //===========C Functions==========

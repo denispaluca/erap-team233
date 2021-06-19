@@ -153,7 +153,7 @@ void evaluate_args(size_t n, float *data, enum Language lan, enum Mode mode,
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
     float entropy = 0;
-    for (size_t i = 0; i < 1000; ++i)
+    for (size_t i = 0; i < 10000; ++i)
     {
         entropy = evaluate_entropy(n, data, lan, mode, impl);
     }

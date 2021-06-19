@@ -5,7 +5,7 @@
 .global log2_lookup_asm
 
 // Make sure LOG_LOOKUP_TABLE_SIZE in log2.h is the same
-.equ LOG_LOOKUP_TABLE_SIZE, 14
+.equ LOG_LOOKUP_TABLE_SIZE, 16
 
 
 // !!! USING CONSTANTS FROM log2.c !!!

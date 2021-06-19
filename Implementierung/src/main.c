@@ -9,8 +9,6 @@
 #include "entropy.h"
 #include "io_operations.h"
 
-const char *optstring = ":-l:m:i:r:tahf";
-
 enum Language
 {
     C,
@@ -26,13 +24,14 @@ enum Implementation
     DEG2,
     DEG4,
     ARTANH,
-    LOOKUP
+    LOOKUP,
+    LOG2F
 };
 /*
     -l, --language => implementation language c|asm
 	-m, --mode => run mode scalar|simd
     -i, --implementation => deg2|deg4|artanh|lookup
-	-t, --time => calculate time that program takes
+	-t, --time => calculate time that program takes [optional iterations]
 	-a, --accuracy => difference with double precision scalar entropy
     -r, --random => test with random data
     -f, --full => run tests for the data with all possible configurations
@@ -57,6 +56,8 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
                 return scalar_entropy(n, data, log2approx_arctanh);
             case LOOKUP:
                 return scalar_entropy(n, data, log2_lookup);
+            case LOG2F:
+                return scalar_entropy(n, data, log2f);
             }
             break;
         case SIMD:
@@ -70,6 +71,8 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
                 return simd_entropy(n, data, log2approx_arctanh_simd);
             case LOOKUP:
                 return simd_entropy(n, data, log2_lookup_simd);
+            default:
+                break;
             }
             break;
         }
@@ -88,6 +91,8 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
                 return entropy_asm(n, data, log2approx_arctanh_asm);
             case LOOKUP:
                 return entropy_asm(n, data, log2_lookup_asm);
+            default:
+                break;
             }
             break;
         case SIMD:
@@ -101,6 +106,8 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
                 return entropy_simd(n, data, log2approx_arctanh_simd_asm);
             case LOOKUP:
                 return entropy_simd(n, data, log2_lookup_simd_asm);
+            default:
+                break;
             }
             break;
         }
@@ -128,6 +135,9 @@ void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, f
     case LOOKUP:
         impls = "LOOKUP";
         break;
+    case LOG2F:
+        impls = "LOG2F";
+        break; 
     }
     int len = 20 - (strlen(lans) + strlen(modes) + strlen(impls));
     printf("%s/%s/%s Entropy:%*s%f\n", lans, modes, impls, len, "", entropy);
@@ -148,54 +158,74 @@ void printMistake(float entropy, double preciseEntropy)
 }
 
 void evaluate_args(size_t n, float *data, enum Language lan, enum Mode mode,
-                   enum Implementation impl, float preciseEntropy, bool accuracy, bool time)
+                   enum Implementation impl, float preciseEntropy, bool accuracy, bool time, size_t iterations)
 {
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    float entropy = 0;
-    for (size_t i = 0; i < 10000; ++i)
-    {
-        entropy = evaluate_entropy(n, data, lan, mode, impl);
-    }
-    clock_gettime(CLOCK_MONOTONIC, &end);
-
-    double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
+    float entropy = evaluate_entropy(n, data, lan, mode, impl);
 
     printEntropy(lan, mode, impl, entropy);
+
     if (accuracy)
     {
         printMistake(entropy, preciseEntropy);
     }
+
     if (time)
     {
+        struct timespec start, end;
+        clock_gettime(CLOCK_MONOTONIC, &start);
+
+        // Need more than 1 iterations to measure time
+        for (size_t i = 0; i < iterations; ++i)
+        {
+            evaluate_entropy(n, data, lan, mode, impl);
+        }
+
+        clock_gettime(CLOCK_MONOTONIC, &end);
+
+        double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
         printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
+    
     if (time || accuracy)
         printf("\n");
 }
 
-void runFull(size_t n, float *data, float preciseEntropy, bool accuracy, bool time)
+void runFull(size_t n, float *data, float preciseEntropy, bool accuracy, bool time, size_t iterations)
 {
     printf("Length is:%*s %zu \n\n", 20, "", n);
-    evaluate_args(n, data, C, SCALAR, DEG2, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, C, SCALAR, DEG4, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, C, SCALAR, ARTANH, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, C, SCALAR, LOOKUP, preciseEntropy, accuracy, time);
+    evaluate_args(n, data, C, SCALAR, LOG2F, preciseEntropy, accuracy, time, iterations);
 
-    evaluate_args(n, data, C, SIMD, DEG2, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, C, SIMD, DEG4, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, C, SIMD, ARTANH, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, C, SIMD, LOOKUP, preciseEntropy, accuracy, time);
+    evaluate_args(n, data, C, SCALAR, DEG2, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SCALAR, DEG4, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SCALAR, ARTANH, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SCALAR, LOOKUP, preciseEntropy, accuracy, time, iterations);
 
-    evaluate_args(n, data, ASM, SCALAR, DEG2, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, ASM, SCALAR, DEG4, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, ASM, SCALAR, ARTANH, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, ASM, SCALAR, LOOKUP, preciseEntropy, accuracy, time);
+    evaluate_args(n, data, C, SIMD, DEG2, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, DEG4, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, ARTANH, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, LOOKUP, preciseEntropy, accuracy, time, iterations);
 
-    evaluate_args(n, data, ASM, SIMD, DEG2, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, ASM, SIMD, DEG4, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, ASM, SIMD, ARTANH, preciseEntropy, accuracy, time);
-    evaluate_args(n, data, ASM, SIMD, LOOKUP, preciseEntropy, accuracy, time);
+    evaluate_args(n, data, ASM, SCALAR, DEG2, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SCALAR, DEG4, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SCALAR, ARTANH, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SCALAR, LOOKUP, preciseEntropy, accuracy, time, iterations);
+
+    evaluate_args(n, data, ASM, SIMD, DEG2, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SIMD, DEG4, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SIMD, ARTANH, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SIMD, LOOKUP, preciseEntropy, accuracy, time, iterations);
+}
+
+void printUsage() {
+    printf("Usage: entropy [options] file\n"
+                   "\t-l, --language => implementation language c|asm\n"
+                   "\t-m, --mode => run mode scalar|simd\n"
+                   "\t-i, --implementation => deg2|deg4|artanh|lookup\n"
+                   "\t-t, --time => calculate time that program takes optional [iterations]\n"
+                   "\t-a, --accuracy => difference with double precision scalar entropy\n"
+                   "\t-r, --random => run with random data\n"
+                   "\t-f, --full => run tests for the data with all possible configurations\n"
+                   "\t-h, --help\n");
 }
 
 int main(int argc, char *argv[])
@@ -223,13 +253,15 @@ int main(int argc, char *argv[])
 
     int opt;
 
+    const char *optstring = ":-l:m:i:r:t::ahf";
+
     static struct option long_options[] = {
         {"language", required_argument, 0, 'l'},
         {"mode", required_argument, 0, 'm'},
         {"implementation", required_argument, 0, 'i'},
         {"help", no_argument, 0, 'h'},
         {"accuracy", no_argument, 0, 'a'},
-        {"time", no_argument, 0, 't'},
+        {"time", optional_argument, 0, 't'},
         {"random", required_argument, 0, 'r'},
         {"full", no_argument, 0, 'f'},
         {0, 0, 0, 0}};
@@ -241,8 +273,10 @@ int main(int argc, char *argv[])
     enum Implementation impl = DEG4;
     size_t randLen = 0;
     bool time = false;
+    size_t iterations = 1000;
     bool accuracy = false;
     bool full = false;
+
     // Fetching option arguments
     while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1)
     {
@@ -291,6 +325,9 @@ int main(int argc, char *argv[])
             break;
         case 't':
             time = true;
+            if (optarg != 0) {
+                iterations = atoi(optarg);
+            }
             break;
         case 'a':
             accuracy = true;
@@ -299,15 +336,7 @@ int main(int argc, char *argv[])
             full = true;
             break;
         case 'h':
-            printf("Usage: entropy [options] file\n"
-                   "\t-l, --language => implementation language c|asm\n"
-                   "\t-m, --mode => run mode scalar|simd\n"
-                   "\t-i, --implementation => deg2|deg4|artanh|lookup\n"
-                   "\t-t, --time => calculate time that program takes\n"
-                   "\t-a, --accuracy => difference with double precision scalar entropy\n"
-                   "\t-r, --random => run with random data\n"
-                   "\t-f, --full => run tests for the data with all possible configurations\n"
-                   "\t-h, --help\n");
+            printUsage();
             return EXIT_SUCCESS;
 
         case ':':
@@ -315,7 +344,7 @@ int main(int argc, char *argv[])
             __attribute__((fallthrough)); // Let fallthrough
 
         default:
-            fprintf(stderr, "USAGE HERE\n");
+            printUsage();
             exit(EXIT_FAILURE);
         }
     }
@@ -360,9 +389,9 @@ int main(int argc, char *argv[])
         printf("Precise Entropy:%*s%f\n", 15, "", preciseEntropy);
     }
     if (full)
-        runFull(handler.len, handler.data, preciseEntropy, accuracy, time);
+        runFull(handler.len, handler.data, preciseEntropy, accuracy, time, iterations);
     else
-        evaluate_args(handler.len, handler.data, lan, mode, impl, preciseEntropy, accuracy, time);
+        evaluate_args(handler.len, handler.data, lan, mode, impl, preciseEntropy, accuracy, time, iterations);
 
     printf("-----------------------------------------------------\n");
     printf("                    FINISHED\n");

@@ -13,6 +13,9 @@ float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
 	        return -1;
 	    }
 
+		// needed for log2f
+		if (x == 0) continue;
+
 	    sum += x;
 		entropy -= x * log2_func(x);
 	}

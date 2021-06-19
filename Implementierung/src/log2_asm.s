@@ -23,7 +23,7 @@ log2approx_deg2_asm:
 	cmp eax, 0
 	jnz .Lnormal_deg2
 
-	mulss xmm0, [rip + normalize_const]
+	mulss xmm0, [rip + deg2_consts]
 	movd eax, xmm0
 	shr eax, 23
 	sub eax, 23
@@ -36,9 +36,9 @@ log2approx_deg2_asm:
 	// we have already found k value, so reduce val to z
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
-	movd ecx, xmm0
-	and ecx, [rip + mantissa_mask]
-	or ecx, [rip + reduce_mask]
+	
+	and ecx, 0x7FFFFF
+	or ecx, 0x3F800000
 
 	movd xmm0, ecx
 
@@ -46,11 +46,11 @@ log2approx_deg2_asm:
 	// log_2(val) = -0.344845 * z^2 + 2.024658 * z - 1.674873 + exponent
 
 	cvtsi2ss xmm15, eax
-	addss xmm15, [rip + deg2_co3]
+	addss xmm15, [rip + deg2_consts + 1*4]
 
-	movss xmm14, [rip + deg2_co1]
+	movss xmm14, [rip + deg2_consts + 2*4]
 	mulss xmm14, xmm0
-	addss xmm14, [rip + deg2_co2]
+	addss xmm14, [rip + deg2_consts + 3*4]
 
 	mulss xmm0, xmm14
 	addss xmm0, xmm15
@@ -68,7 +68,7 @@ log2approx_deg4_asm:
 	cmp eax, 0
 	jnz .Lnormal_deg4
 
-	mulss xmm0, [rip + normalize_const]
+	mulss xmm0, [rip + deg4_consts]
 	movd eax, xmm0
 	shr eax, 23
 	sub eax, 23
@@ -82,8 +82,8 @@ log2approx_deg4_asm:
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
 	movd ecx, xmm0
-	and ecx, [rip + mantissa_mask]
-	or ecx, [rip + reduce_mask]
+	and ecx, 0x7FFFFF
+	or ecx, 0x3F800000
 
 	movd xmm0, ecx
 
@@ -92,25 +92,25 @@ log2approx_deg4_asm:
 	
 	// y0
 	cvtsi2ss xmm15, eax
-	addss xmm15, [rip + deg4_co5]
+	addss xmm15, [rip + deg4_consts + 1*4]
 
 	// x2
 	movss xmm14, xmm0
 	mulss xmm14, xmm14
 
 	// y
-	movss xmm13, [rip + deg4_co2]
+	movss xmm13, [rip + deg4_consts + 2*4]
 	mulss xmm13, xmm0
-	addss xmm13, [rip + deg4_co3]
+	addss xmm13, [rip + deg4_consts + 3*4]
 
-	movss xmm12, [rip + deg4_co1]
+	movss xmm12, [rip + deg4_consts + 4*4]
 	mulss xmm12, xmm14
 
 	addss xmm13, xmm12
 	// y
 
 	// z
-	movss xmm11, [rip + deg4_co4]
+	movss xmm11, [rip + deg4_consts + 5*4]
 	mulss xmm11, xmm0
 	addss xmm11, xmm15
 
@@ -131,7 +131,7 @@ log2approx_arctanh_asm:
 	cmp eax, 0
 	jnz .Lnormal_arctanh
 
-	mulss xmm0, [rip + normalize_const]
+	mulss xmm0, [rip + artanh_consts]
 	movd eax, xmm0
 	shr eax, 23
 	sub eax, 23
@@ -145,20 +145,23 @@ log2approx_arctanh_asm:
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
 	movd ecx, xmm0
-	and ecx, [rip + mantissa_mask]
-	or ecx, [rip + reduce_mask]
+	and ecx, 0x7FFFFF
+	or ecx, 0x3F800000
 
 	movd xmm0, ecx
 
 	// x = (z-1) / (z + 1)
 	//log_2(val) = 2 * (x + x^3/3 + x^5/5) / ln2
 
+	// xmm13 = 1.0
+	movss xmm13, [rip + artanh_consts + 1*4]
+
 	// q
 	movss xmm15, xmm0
-	subss xmm15, [rip + f_one]
+	subss xmm15, xmm13
 
 	movss xmm14, xmm0
-	addss xmm14, [rip + f_one]
+	addss xmm14, xmm13
 
 	// xmm15 = q
 	divss xmm15, xmm14
@@ -169,13 +172,13 @@ log2approx_arctanh_asm:
 
 	// y
 	movss xmm0, xmm14
-	mulss xmm0, [rip + one_fifth]
-	addss xmm0, [rip + one_third]
+	mulss xmm0, [rip + artanh_consts + 2*4]
+	addss xmm0, [rip + artanh_consts + 3*4]
 	mulss xmm0, xmm14
-	addss xmm0, [rip + f_one]
+	addss xmm0, xmm13
 
 	mulss xmm0, xmm15
-	mulss xmm0, [rip + ln2_inverse_2]
+	mulss xmm0, [rip + artanh_consts + 4*4]
 
 	cvtsi2ss xmm15, eax
 	addss xmm0, xmm15 
@@ -203,7 +206,7 @@ log2_lookup_asm:
 
 	// Get first n bits of mantiss to look in table
 	movd ecx, xmm0
-	and ecx, [rip + mantissa_mask]
+	and ecx, 0x7FFFFF
 	shr ecx, (23 - LOG_LOOKUP_TABLE_SIZE)
 
 	// log_lookup_table[index] + exponent

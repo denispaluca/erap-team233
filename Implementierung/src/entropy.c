@@ -1,9 +1,9 @@
 #include "entropy.h"
 #include <stdint.h>
 
-float scalar_entropy(size_t len,  float* data, float (* log2_func) (float))
+float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
 {
-    const float error_margin = len*1e-8;
+    const float error_margin = len*1e-7;
 	float entropy = 0;
 	float sum = 0;
 	for (size_t i = 0 ; i < len ; ++i)
@@ -22,7 +22,7 @@ float scalar_entropy(size_t len,  float* data, float (* log2_func) (float))
 
 	return entropy;
 }
-double precise_entropy(size_t len, float* data){
+double precise_entropy(size_t len, const float* data){
 	double entropy = 0;
 	for (size_t i = 0 ; i < len ; ++i)
 	{
@@ -31,8 +31,9 @@ double precise_entropy(size_t len, float* data){
 	}
 	return entropy;
 }
+
 // PREREQUISITE:  data should allocated at least len-(4-len % 4) % 4 memory otherwise it is undefined behaviour.
-float simd_entropy(size_t len, float* data,__m128(* log2_func) (__m128)) 
+float simd_entropy(size_t len, const float* data, __m128(* log2_func) (__m128)) 
 {
 	// PREREQUISITE len is a multiple of 4.
     const float error_margin = len*1e-8;
@@ -82,4 +83,3 @@ float simd_entropy(size_t len, float* data,__m128(* log2_func) (__m128))
 	return sum[0];
 
 }
-

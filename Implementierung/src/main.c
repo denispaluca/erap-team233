@@ -324,14 +324,19 @@ int main(int argc, char *argv[])
     handler.data = NULL;
     handler.len = 0;
     handler.status = -1;
+
     if (argv[optind] != NULL){
         handler = handle_file(argv[optind]);
         printf("-----------------------------------------------------\n");
         printf("       Calculating entropy of %s.\n",argv[optind]);
         printf("-----------------------------------------------------\n\n");
     }
-    if (handler.status == -1 && randLen == 0)
+
+    if (handler.status == -1 && randLen == 0) {
+        // TODO Calculating... text should not be displayed
+        printf("Invalid Data Input! \n");
         exit(EXIT_FAILURE);
+    }
 
     if (randLen != 0)
     {
@@ -344,7 +349,7 @@ int main(int argc, char *argv[])
 
     if (handler.data == NULL)
     {
-        printf("Bruh you check your pointers!!");
+        printf("Bruh you check your pointers!!\n");
         exit(EXIT_FAILURE);
     }
 

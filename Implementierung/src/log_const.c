@@ -2,6 +2,36 @@
 
 // CONSTANTS
 
+// For scalar version
+/*
+storing in access-order for faster cache performance
+*/
+const float deg2_consts[] = {
+    0x1P23f, // Normalize const
+    -1.674873, // deg2_co3
+    -0.344845, // deg2_co1
+    2.024658 // deg2_co2
+};
+
+const float deg4_consts[] = {
+    0x1P23f, // Normalize const
+    -2.5128546, // deg4_co5
+    0.64514236, // deg4_co2
+    -2.1206751, // deg4_co3
+    -0.081615808, // deg4_co1
+    4.0700908, // deg4_co4
+};
+
+const float artanh_consts[] = {
+    0x1P23f, // Normalize const
+    1.0, // f_one
+    0.2, // one_fifth
+    0.3333333333333333, // one_third
+    2.8853900817779268, // ln2_inverse_2
+};
+
+
+// For SIMD Version
 const uint32_t reduce_mask[] = {
     0x3F800000,
     0x3F800000,
@@ -15,7 +45,6 @@ const uint32_t mantissa_mask[] = {
     0x7FFFFF,
     0x7FFFFF
 };
-
 
 const uint32_t f_bias[] = {
     127, 127, 127, 127

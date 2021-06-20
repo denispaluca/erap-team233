@@ -3,7 +3,7 @@
 
 float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
 {
-    const float error_margin = len*1e-7;
+    const float error_margin = len*1e-8;
 	float entropy = 0;
 	float sum = 0;
 	for (size_t i = 0 ; i < len ; ++i)

@@ -139,7 +139,7 @@ void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, f
         break;
     case LOG2F:
         impls = "LOG2F";
-        break; 
+        break;
     }
     int len = 20 - (strlen(lans) + strlen(modes) + strlen(impls));
     printf("%s/%s/%s Entropy:%*s%f\n", lans, modes, impls, len, "", entropy);
@@ -187,7 +187,7 @@ void evaluate_args(size_t n, float *data, enum Language lan, enum Mode mode,
         double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
         printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
-    
+
     if (time || accuracy)
         printf("\n");
 }
@@ -218,16 +218,19 @@ void runFull(size_t n, float *data, float preciseEntropy, bool accuracy, bool ti
     evaluate_args(n, data, ASM, SIMD, LOOKUP, preciseEntropy, accuracy, time, iterations);
 }
 
-void printUsage() {
+void printUsage()
+{
     printf("Usage: entropy [options] file\n"
-                   "\t-l, --language => implementation language c|asm\n"
-                   "\t-m, --mode => run mode scalar|simd\n"
-                   "\t-i, --implementation => deg2|deg4|artanh|lookup\n"
-                   "\t-t, --time => calculate time that program takes optional [iterations]\n"
-                   "\t-a, --accuracy => difference with double precision scalar entropy\n"
-                   "\t-r, --random => run with random data\n"
-                   "\t-f, --full => run tests for the data with all possible configurations\n"
-                   "\t-h, --help\n");
+           "\t-l, --language => implementation language c|asm\n"
+           "\t-m, --mode => run mode scalar|simd\n"
+           "\t-i, --implementation => deg2|deg4|artanh|lookup\n"
+           "\t-t, --time => calculate time that program takes optional [iterations]\n"
+           "\t-a, --accuracy => difference with double precision scalar entropy\n"
+           "\t-r, --random => run with random data\n"
+           "\t-g, --generator => selects random generator rand|urand"
+           "\t-u, --non-uniform => makes the random distribution nonuniform"
+           "\t-f, --full => run tests for the data with all possible configurations\n"
+           "\t-h, --help\n");
 }
 
 int main(int argc, char *argv[])
@@ -280,6 +283,8 @@ int main(int argc, char *argv[])
     size_t iterations = 1000;
     bool accuracy = false;
     bool full = false;
+    bool generator = false;
+    bool non_uniform = false;
 
     // Fetching option arguments
     while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1)
@@ -289,9 +294,13 @@ int main(int argc, char *argv[])
         {
         case 'l':
             if (strcmp("c", optarg) == 0)
+            {
                 lan = C;
+            }
             else if (strcmp("asm", optarg) == 0)
+            {
                 lan = ASM;
+            }
             else
             {
                 printf("Wrong language option!\n");
@@ -300,9 +309,13 @@ int main(int argc, char *argv[])
             break;
         case 'm':
             if (strcmp("scalar", optarg) == 0)
+            {
                 mode = SCALAR;
+            }
             else if (strcmp("simd", optarg) == 0)
+            {
                 mode = SIMD;
+            }
             else
             {
                 printf("Wrong mode option!\n");
@@ -311,13 +324,21 @@ int main(int argc, char *argv[])
             break;
         case 'i':
             if (strcmp("deg2", optarg) == 0)
+            {
                 impl = DEG2;
+            }
             else if (strcmp("deg4", optarg) == 0)
+            {
                 impl = DEG4;
+            }
             else if (strcmp("artanh", optarg) == 0)
+            {
                 impl = ARTANH;
+            }
             else if (strcmp("lookup", optarg) == 0)
+            {
                 impl = LOOKUP;
+            }
             else
             {
                 printf("Wrong implementation option!\n");
@@ -327,9 +348,28 @@ int main(int argc, char *argv[])
         case 'r':
             randLen = atoi(optarg);
             break;
+        case 'g':
+            if (strcmp("rand", optarg) == 0)
+            {
+                generator = false;
+            }
+            else if (strcmp("urandom", optarg) == 0)
+            {
+                generator = true;
+            }
+            else
+            {
+                printf("Wrong generator mode! \n");
+                exit(EXIT_FAILURE);
+            }
+            break;
+        case 'u':
+            non_uniform = true;
+            break;
         case 't':
             time = true;
-            if (optarg != 0) {
+            if (optarg != 0)
+            {
                 iterations = atoi(optarg);
             }
             break;
@@ -358,14 +398,16 @@ int main(int argc, char *argv[])
     handler.len = 0;
     handler.status = -1;
 
-    if (argv[optind] != NULL){
+    if (argv[optind] != NULL)
+    {
         handler = handle_file(argv[optind]);
         printf("-----------------------------------------------------\n");
-        printf("       Calculating entropy of %s.\n",argv[optind]);
+        printf("       Calculating entropy of %s.\n", argv[optind]);
         printf("-----------------------------------------------------\n\n");
     }
 
-    if (handler.status == -1 && randLen == 0) {
+    if (handler.status == -1 && randLen == 0)
+    {
         // TODO Calculating... text should not be displayed
         printf("Invalid Data Input! \n");
         exit(EXIT_FAILURE);
@@ -377,7 +419,28 @@ int main(int argc, char *argv[])
         printf("       Calculating entropy of random data.\n");
         printf("-----------------------------------------------------\n");
         handler.len = randLen;
-        handler.data = entropy_c_rand(randLen);
+        if (non_uniform)
+        {
+            if (generator)
+            {
+                handler.data = entropy_c_rand_non_uniform(randLen);
+            }
+            else
+            {
+                handler.data = entropy_c_urandom_non_uniform(randLen);
+            }
+        }
+        else
+        {
+            if (generator)
+            {
+                handler.data = entropy_c_rand(randLen);
+            }
+            else
+            {
+                handler.data = entropy_c_urandom(randLen);
+            }
+        }
     }
 
     if (handler.data == NULL)
@@ -389,10 +452,10 @@ int main(int argc, char *argv[])
     double preciseEntropy = 0.0;
     if (accuracy)
     {
-        struct timespec start,end;
-        clock_gettime(CLOCK_MONOTONIC,&start);
+        struct timespec start, end;
+        clock_gettime(CLOCK_MONOTONIC, &start);
         preciseEntropy = precise_entropy(handler.len, handler.data);
-        clock_gettime(CLOCK_MONOTONIC,&end);
+        clock_gettime(CLOCK_MONOTONIC, &end);
         double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
         printf("Precise Entropy:%*s%f\n", 15, "", preciseEntropy);
         printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);

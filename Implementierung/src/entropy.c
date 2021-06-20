@@ -3,7 +3,7 @@
 
 float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
 {
-    const float error_margin = len*1e-8;
+    const float error_margin = len*1e-7;
 	float entropy = 0;
 	float sum = 0;
 	for (size_t i = 0 ; i < len ; ++i)
@@ -25,14 +25,22 @@ float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
 
 	return entropy;
 }
-
 double precise_entropy(size_t len, const float* data){
+	const double error_margin = len*1e-7;
+	double sum = 0;
 	double entropy = 0;
 	for (size_t i = 0 ; i < len ; ++i)
 	{
-        if(data[i] == 0.0f) continue;
-		entropy -= data[i] * log2(data[i]);
+		double x = data[i];
+	    if(x < 0 || x > 1){
+	        return -1;
+	    }
+		sum += x;
+        if(x == 0.0f) continue;
+		entropy -= x * log2(x);
 	}
+	if(sum > (UPPER_LIMIT + error_margin) || sum < (LOWER_LIMIT - error_margin))
+	    return -1;
 	return entropy;
 }
 
@@ -85,5 +93,4 @@ float simd_entropy(size_t len, const float* data, __m128(* log2_func) (__m128))
 	sum = _mm_hadd_ps(sum,sum);
 	
 	return sum[0];
-
 }

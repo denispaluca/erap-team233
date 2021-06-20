@@ -9,6 +9,11 @@ union num { float flt; uint32_t fix; };
 union num_s { __m128 flt; __m128i fix; };
 
 // Constants
+// Scalar
+extern const float deg2_consts[];
+extern const float deg4_consts[];
+extern const float artanh_consts[];
+// SIMD
 extern const uint32_t reduce_mask[];
 extern const uint32_t mantissa_mask[];
 extern const uint32_t f_bias[];
@@ -30,7 +35,7 @@ extern const float deg4_co5[];
 extern const float log_lookup_table[];
 
 // Lookup table size
-#define LOG_LOOKUP_TABLE_SIZE 14
+#define LOG_LOOKUP_TABLE_SIZE 16
 
 
 //===========C Functions==========

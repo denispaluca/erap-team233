@@ -389,8 +389,13 @@ int main(int argc, char *argv[])
     double preciseEntropy = 0.0;
     if (accuracy)
     {
+        struct timespec start,end;
+        clock_gettime(CLOCK_MONOTONIC,&start);
         preciseEntropy = precise_entropy(handler.len, handler.data);
+        clock_gettime(CLOCK_MONOTONIC,&end);
+        double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
         printf("Precise Entropy:%*s%f\n", 15, "", preciseEntropy);
+        printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
     if (full)
         runFull(handler.len, handler.data, preciseEntropy, accuracy, time, iterations);

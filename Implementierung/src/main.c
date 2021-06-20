@@ -34,6 +34,8 @@ enum Implementation
 	-t, --time => calculate time that program takes [optional iterations]
 	-a, --accuracy => difference with double precision scalar entropy
     -r, --random => test with random data
+    -g, --generator => selects random generator rand|urand
+    -u, --non-uniform => makes the random distribution nonuniform  
     -f, --full => run tests for the data with all possible configurations
 	-h, --help 
 */
@@ -253,7 +255,7 @@ int main(int argc, char *argv[])
 
     int opt;
 
-    const char *optstring = ":-l:m:i:r:t::ahf";
+    const char *optstring = ":-l:m:i:r:t::ahfg:u";
 
     static struct option long_options[] = {
         {"language", required_argument, 0, 'l'},
@@ -263,6 +265,8 @@ int main(int argc, char *argv[])
         {"accuracy", no_argument, 0, 'a'},
         {"time", optional_argument, 0, 't'},
         {"random", required_argument, 0, 'r'},
+        {"generator", required_argument, 0, 'g'},
+        {"non-uniform", no_argument, 0, 'u'},
         {"full", no_argument, 0, 'f'},
         {0, 0, 0, 0}};
 

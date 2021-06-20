@@ -221,9 +221,7 @@ log2_lookup_simd_asm:
     // Get first n bits of mantiss to look in table
     pand xmm0, [rip + mantissa_mask]
     psrld xmm0, (23 - LOG_LOOKUP_TABLE_SIZE)
-
-    // WARNING: this is probably the worst possible solution.
-    // will work on that later
+    
     movups xmm14, xmm0
 
     movd eax, xmm0

@@ -25,6 +25,7 @@ float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
 
 	return entropy;
 }
+
 double precise_entropy(size_t len, const float* data){
 	double entropy = 0;
 	for (size_t i = 0 ; i < len ; ++i)

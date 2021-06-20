@@ -26,7 +26,7 @@ entropy_asm:
 		xmm8 = total sum
 	*/
 	cvtsi2ss xmm9,rdi
-	mulss xmm9,[rip+.Lconst1eminus8]
+	mulss xmm9,[rip+.Lconst1eminus7]
 	mov r8,rdi
 	mov r9,rsi
 	movss xmm3,[rip+.Lconstupperlimit]
@@ -107,5 +107,5 @@ entropy_asm:
 .Lconstlowerlimit:
 	.4byte 0x3F7FFFAC
 .align 16
-.Lconst1eminus8:
-	.4byte 0x322BCC77
+.Lconst1eminus7:
+	.4byte 0x33D6BF95

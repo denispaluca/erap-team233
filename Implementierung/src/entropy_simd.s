@@ -123,5 +123,5 @@ entropy_simd:
 
 .align 16
 .Lconst1eminus8:
-	.4byte 0x322BCC77
+	.4byte 0x33D6BF95
 

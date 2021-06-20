@@ -27,8 +27,6 @@ entropy_asm:
 	*/
 	cvtsi2ss xmm9,rdi
 	mulss xmm9,[rip+.Lconst1eminus7]
-	mov r8,rdi
-	mov r9,rsi
 	movss xmm3,[rip+.Lconstupperlimit]
 	addss xmm3,xmm9
 	movss xmm4,[rip+.Lconstlowerlimit]
@@ -37,31 +35,6 @@ entropy_asm:
 	movss xmm6,[rip+.Lconst1]
 	pxor xmm8,xmm8
 
-	.Lcheck:
-		movss xmm7,[r9]
-
-		addss xmm8,xmm7
-
-		comiss xmm7,xmm5
-		jb .Lerror
-
-		comiss xmm7,xmm6
-		ja .Lerror
-
-
-		add r9,4
-		sub r8,1
-		ja .Lcheck
-	
-	comiss xmm8,xmm3
-	ja .Lerror
-
-	comiss xmm8,xmm4
-	jb .Lerror
-	
-	// If I reach here that means the array is a proability distrubition.	
-
-
 	// store entropy temporarily on xmm2
 	pxor xmm2,xmm2 
 	
@@ -69,6 +42,13 @@ entropy_asm:
 	.Lloop:
 
 		movss xmm0,[rsi];
+		addss xmm8,xmm0
+
+		comiss xmm0,xmm5
+		jb .Lerror
+
+		comiss xmm0,xmm6
+		ja .Lerror
 
 		sub rsp,0x08
 		call rdx
@@ -82,6 +62,12 @@ entropy_asm:
 		add rsi,4
 		sub rdi,1
 	 	ja .Lloop
+
+	comiss xmm8,xmm3
+	ja .Lerror
+
+	comiss xmm8,xmm4
+	jb .Lerror
 
 	movss xmm0,xmm2
 	ret

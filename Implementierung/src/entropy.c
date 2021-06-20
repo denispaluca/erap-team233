@@ -47,20 +47,18 @@ double precise_entropy(size_t len, const float* data){
 // PREREQUISITE:  data should allocated at least len-(4-len % 4) % 4 memory otherwise it is undefined behaviour.
 float simd_entropy(size_t len, const float* data, __m128(* log2_func) (__m128)) 
 {
-	// PREREQUISITE len is a multiple of 4.
-    const float error_margin = len*1e-8;
+    const float error_margin = len*1e-7;
 	__m128 one = _mm_set_ps1(1.0f);
 	__m128 zero = _mm_setzero_ps();
 	__m128 sum = _mm_setzero_ps();
 	__m128 cur,mask;
 	uint32_t check_mask;
+	__m128 entropy = _mm_setzero_ps();
 
-
-	//Checking validity of data
+	//Calculating entropy
 	for(size_t i = 0 ; i < len ; i+=4)
 	{
 		cur = _mm_load_ps(data+i);
-
 		sum += cur;
 
 		mask = _mm_cmplt_ps(cur,zero);
@@ -72,25 +70,19 @@ float simd_entropy(size_t len, const float* data, __m128(* log2_func) (__m128))
 
 		check_mask = _mm_movemask_epi8( (__m128i)mask);
 		if(unlikely(check_mask != 0)) return -1;
+
+
+		entropy -= cur * log2_func(cur);
 	}
+
 	sum = _mm_hadd_ps(sum,sum);
 	sum = _mm_hadd_ps(sum,sum);
 	if(sum[0] < (LOWER_LIMIT - error_margin) || sum[0] > (UPPER_LIMIT + error_margin))
 	{
 		return -1;
 	}
-
-	sum = _mm_setzero_ps();
-
-
-	//Calculating entropy
-	for(size_t i = 0 ; i < len ; i+=4)
-	{
-		cur = _mm_load_ps(data+i);
-		sum -= cur * log2_func(cur);
-	}
-	sum = _mm_hadd_ps(sum,sum);
-	sum = _mm_hadd_ps(sum,sum);
+	entropy = _mm_hadd_ps(entropy,entropy);
+	entropy = _mm_hadd_ps(entropy,entropy);
 	
-	return sum[0];
+	return entropy[0];
 }

@@ -36,7 +36,7 @@ log2approx_deg2_asm:
 	// we have already found k value, so reduce val to z
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
-	
+	movd ecx,xmm0
 	and ecx, 0x7FFFFF
 	or ecx, 0x3F800000
 

@@ -23,8 +23,6 @@ entropy_simd:
 	*/
     cvtsi2ss xmm9,rdi
 	mulss xmm9,[rip+.Lconst1eminus8]
-	mov r8,rdi
-	mov r9,rsi
 	movss xmm3,[rip+.Lconstupperlimit]
 	movss xmm4,[rip+.Lconstlowerlimit]
     addss xmm3,xmm9
@@ -32,10 +30,22 @@ entropy_simd:
 	pxor xmm5,xmm5
 	movaps xmm6,[rip+.Lconst1]
 	pxor xmm8,xmm8
+    pxor xmm2,xmm2
+    // swap values because log2f_simd takes value from rdi register.
+    mov rax,rdi
+    mov rdi,rsi 
+    mov rsi,rax
 
-    .Lsimdcheck:
-        movaps xmm7,[r9]
-        movaps xmm9,[r9]
+
+    // rdi is the pointer to the array
+    // rsi is the length of the array.
+
+
+    .Lsimdloop:
+        movaps xmm7,[rdi]
+        movaps xmm9,[rdi] 
+        movaps xmm1,[rdi]
+        movaps xmm0,[rdi]
 
         addps xmm8,xmm7
 
@@ -52,37 +62,6 @@ entropy_simd:
         jnz .Lerror
 
 
-        add r9,16
-        sub r8,4
-        ja .Lsimdcheck
-
-
-    // sum 4 floating points into 1 floating point.
-    haddps xmm8,xmm8 
-    haddps xmm8,xmm8
-
-    comiss xmm8,xmm3
-    ja .Lerror
-
-	comiss xmm8,xmm4
-    jb .Lerror
-
-    // swap values because log2f_simd takes value from rdi register.
-    mov rax,rdi
-    mov rdi,rsi 
-    mov rsi,rax
-
-
-    // rdi is the pointer to the array
-    // rsi is the length of the array.
-
-    pxor xmm2,xmm2
-
-    .Lsimdloop:
-    
-        movaps xmm1,[rdi]
-        movaps xmm0,[rdi]
-
         sub rsp,0x08
         call rdx
         add rsp,0x08
@@ -95,6 +74,14 @@ entropy_simd:
 
         ja .Lsimdloop
 
+    haddps xmm8,xmm8 
+    haddps xmm8,xmm8
+
+    comiss xmm8,xmm3
+    ja .Lerror
+
+	comiss xmm8,xmm4
+    jb .Lerror
 
     movaps xmm0,xmm2
     haddps xmm0,xmm0

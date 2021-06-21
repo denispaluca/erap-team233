@@ -70,10 +70,6 @@ float simd_entropy(size_t len, const float* data, __m128(* log2_func) (__m128))
 
 		check_mask = _mm_movemask_epi8( (__m128i)mask);
 		if(unlikely(check_mask != 0)) return -1;
-		// __m128 a = log2_lookup_simd_asm(cur);
-		// __m128 b = log2_func(cur);
-		// printf("LOOK is : %f %f %f %f \n",a[0],a[1],a[2],a[3]);
-		// printf("Normal is : %f %f %f %f \n",b[0],b[1],b[2],b[3]);
 		entropy -= cur * log2_func(cur);
 	}
 

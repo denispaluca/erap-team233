@@ -226,7 +226,7 @@ log2_lookup_simd_asm:
 
     movd eax, xmm0
     movd xmm13, [log_lookup_table + 4*eax]
-    pshufd xmm0, xmm14, 0x03
+    pshufd xmm0, xmm14, 0x01
     
     movd eax, xmm0
     movd xmm12, [log_lookup_table + 4*eax]
@@ -234,7 +234,7 @@ log2_lookup_simd_asm:
     
     movd eax, xmm0
     movd xmm11, [log_lookup_table + 4*eax]
-    pshufd xmm0, xmm14, 0x01
+    pshufd xmm0, xmm14, 0x03
 
     movd eax, xmm0
     movd xmm10, [log_lookup_table + 4*eax]

@@ -256,6 +256,8 @@ log2_lookup_simd_asm:
     por xmm0, xmm10
     movups xmm14, xmm0
 
-    addps xmm0, xmm15 
+    pshufd xmm0,xmm0, 0b00011011
+
+    addps xmm0, xmm15
 
     ret

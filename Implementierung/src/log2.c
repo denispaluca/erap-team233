@@ -186,13 +186,13 @@ __m128 log2_lookup_simd(__m128 x) {
 
     reduce_float_simd(&data, &exponent);
 
-    index = _mm_srli_epi32(data.fix &  _mm_load_si128((const __m128i*) mantissa_mask), 23 - LOG_LOOKUP_TABLE_SIZE);
+    index = _mm_srli_epi32(data.fix &  _mm_load_si128((const __m128i*) mantissa_mask), (23 - LOG_LOOKUP_TABLE_SIZE));
 
     __m128 y = _mm_set_ps(
-            log_lookup_table[((__v4si) index)[0]],
-            log_lookup_table[((__v4si) index)[1]],
+            log_lookup_table[((__v4si) index)[3]],
             log_lookup_table[((__v4si) index)[2]],
-            log_lookup_table[((__v4si) index)[3]]
+            log_lookup_table[((__v4si) index)[1]],
+            log_lookup_table[((__v4si) index)[0]]
     );
     
     return y + _mm_cvtepi32_ps(exponent);

@@ -242,19 +242,19 @@ log2_lookup_simd_asm:
     pxor xmm0, xmm0
 
     por xmm0, xmm13
-    movups xmm14, xmm0
+    movaps xmm14, xmm0
     pshufd xmm0, xmm14, 0b10010011
 
     por xmm0, xmm12
-    movups xmm14, xmm0
+    movaps xmm14, xmm0
     pshufd xmm0, xmm14, 0b10010011
 
     por xmm0, xmm11
-    movups xmm14, xmm0
+    movaps xmm14, xmm0
     pshufd xmm0, xmm14, 0b10010011
 
     por xmm0, xmm10
-    movups xmm14, xmm0
+    movaps xmm14, xmm0
 
     pshufd xmm0,xmm0, 0b00011011
 

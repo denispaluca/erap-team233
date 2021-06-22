@@ -73,6 +73,8 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
                 return simd_entropy(n, data, log2approx_arctanh_simd);
             case LOOKUP:
                 return simd_entropy(n, data, log2_lookup_simd);
+            case LOG2F:
+                return simd_entropy(n, data, log2_glibc_simd);
             default:
                 break;
             }
@@ -206,6 +208,8 @@ void runFull(size_t n, float *data, float preciseEntropy, bool accuracy, bool ti
     evaluate_args(n, data, C, SIMD, DEG4, preciseEntropy, accuracy, time, iterations);
     evaluate_args(n, data, C, SIMD, ARTANH, preciseEntropy, accuracy, time, iterations);
     evaluate_args(n, data, C, SIMD, LOOKUP, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, LOG2F, preciseEntropy, accuracy, time, iterations);
+
 
     evaluate_args(n, data, ASM, SCALAR, DEG2, preciseEntropy, accuracy, time, iterations);
     evaluate_args(n, data, ASM, SCALAR, DEG4, preciseEntropy, accuracy, time, iterations);

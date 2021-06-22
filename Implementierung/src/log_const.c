@@ -31,132 +31,129 @@ const float artanh_consts[] = {
 };
 
 // For SIMD Version
-const uint32_t reduce_mask[] = {
-    0x3F800000,
-    0x3F800000,
-    0x3F800000,
-    0x3F800000
+const __m128i reduce_mask = {
+    0x3F8000003F800000,
+    0x3F8000003F800000,
 };
 
-const uint32_t mantissa_mask[] = {
-    0x7FFFFF,
-    0x7FFFFF,
-    0x7FFFFF,
-    0x7FFFFF
+const __m128i mantissa_mask = {
+    0x007FFFFF007FFFFF,
+    0x007FFFFF007FFFFF,
 };
 
-const uint32_t f_bias[] = {
-    127, 127, 127, 127
+const __m128i f_bias = {
+    0x0000007F0000007F,
+    0x0000007F0000007F,
 };
 
-const uint32_t normalize_mask[] = {
-    0x74800000,
-    0x74800000,
-    0x74800000,
-    0x74800000
+const __m128i normalize_mask = {
+    0x7480000074800000,
+    0x7480000074800000,
 };
 
-const uint32_t normalize_exp[] = {
-    23, 23, 23, 23
+const __m128i normalize_exp = {
+    0x0000001700000017,
+    0x0000001700000017,
 };
 
-const float normalize_const[] = {
+const __m128 normalize_const = {
     0x1P23f,
     0x1P23f,
     0x1P23f,
     0x1P23f
 };
 
-const float f_one[] = {
+const __m128 f_one = {
     1.0, 1.0, 1.0, 1.0
 };
 
-const float one_third[] = {
+const __m128 one_third = {
     0.3333333333333333,
     0.3333333333333333,
     0.3333333333333333,
     0.3333333333333333
 };
 
-const float one_fifth[] = {
+const __m128 one_fifth = {
     0.2, 0.2, 0.2, 0.2
 };
 
-const float ln2_inverse_2[] = {
+const __m128 ln2_inverse_2 = {
     2.8853900817779268,
     2.8853900817779268,
     2.8853900817779268,
     2.8853900817779268
 };
 
-const float deg2_co1[] = {
+const __m128 deg2_co1 = {
     -0.344845,
     -0.344845,
     -0.344845,
     -0.344845
 };
 
-const float deg2_co2[] = {
+const __m128 deg2_co2 = {
     2.024658,
     2.024658,
     2.024658,
     2.024658
 };
 
-const float deg2_co3[] = {
+const __m128 deg2_co3 = {
     -1.674873,
     -1.674873,
     -1.674873,
     -1.674873
 };
 
-const float deg4_co1[] = {
+const __m128 deg4_co1 = {
     -0.081615808,
     -0.081615808,
     -0.081615808,
     -0.081615808,
 };
 
-const float deg4_co2[] = {
+const __m128 deg4_co2 = {
     0.64514236,
     0.64514236,
     0.64514236,
     0.64514236
 };
 
-const float deg4_co3[] = {
+const __m128 deg4_co3 = {
     -2.1206751,
     -2.1206751,
     -2.1206751,
     -2.1206751
 };
 
-const float deg4_co4[] = {
+const __m128 deg4_co4 = {
     4.0700908,
     4.0700908,
     4.0700908,
     4.0700908
 };
 
-const float deg4_co5[] = {
+const __m128 deg4_co5 = {
     -2.5128546,
     -2.5128546,
     -2.5128546,
     -2.5128546
 };
 
-const int32_t glibc_off[] = {
-    0x3f330000,
-    0x3f330000,
-    0x3f330000,
-    0x3f330000
+const __m128i glibc_off = {
+    0x3f3300003f330000,
+    0x3f3300003f330000,
 };
 
-const int32_t glibc_extract[] = {
-    0xff800000,
-    0xff800000,
-    0xff800000,
-    0xff800000
+const __m128i glibc_extract = {
+    0xff800000ff800000,
+    0xff800000ff800000,
+};
+
+const __m128i glibc_mod16_mask = {
+        0x0000000f0000000f,
+        0x0000000f0000000f,
 };
 
 const float glibc_inverse_c[] = {
@@ -177,7 +174,7 @@ const float glibc_inverse_c[] = {
     0x1.886e6037841edp-1,
     0x1.767dcf5534862p-1,
 };
-const float glibc_log[] = {
+const float glibc_logc[] = {
     -0x1.efec65b963019p-2,
     -0x1.b0b6832d4fca4p-2,
     -0x1.7418b0a1fb77bp-2,
@@ -196,28 +193,28 @@ const float glibc_log[] = {
     0x1.ce0a44eb17bccp-2,
 };
 
-const float glibc_co0[] = {
+const __m128 glibc_co0 = {
     -0x1.712b6f70a7e4dp-2,
     -0x1.712b6f70a7e4dp-2,
     -0x1.712b6f70a7e4dp-2,
     -0x1.712b6f70a7e4dp-2
 };
 
-const float glibc_co1[] = {
+const __m128 glibc_co1 = {
     0x1.ecabf496832ep-2,
     0x1.ecabf496832ep-2,
     0x1.ecabf496832ep-2,
     0x1.ecabf496832ep-2
 };
 
-const float glibc_co2[] = {
+const __m128 glibc_co2 = {
     -0x1.715479ffae3dep-1,
     -0x1.715479ffae3dep-1,
     -0x1.715479ffae3dep-1,
     -0x1.715479ffae3dep-1
 };
 
-const float glibc_co3[] = {
+const __m128 glibc_co3 = {
     0x1.715475f35c8b8p0,
     0x1.715475f35c8b8p0,
     0x1.715475f35c8b8p0,

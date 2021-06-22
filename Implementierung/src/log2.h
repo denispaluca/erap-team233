@@ -5,6 +5,9 @@
 #include <immintrin.h>
 #include <math.h>
 
+#define LOG2F_TABLE_BITS = 4
+#define LOG2F_POLY_ORDER = 4
+
 union num { float flt; uint32_t fix; };
 union num_s { __m128 flt; __m128i fix; };
 

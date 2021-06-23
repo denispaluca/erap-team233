@@ -20,11 +20,17 @@ double time_calc(size_t it, size_t n, const float* arr, float (* log2_func) (flo
 }
 
 void print_out(double t) {
+
     char* str = malloc(50);
+
+    if (str == NULL) return;
+
     sprintf(str, "%.16g ", t);
     
     for (size_t i = 0; i < 50; i++)
     {
+        if (str[i] == 0) break;
+
         if (str[i] == '.')
         str[i] = ',';
     }
@@ -37,7 +43,6 @@ void print_out(double t) {
 int main() {
     size_t it = 1;
     size_t n = 10;
-    const size_t step = 10;
 
 
     char* files[] = {
@@ -47,7 +52,7 @@ int main() {
         "tests/testfiles/data_1_000_000_uni"
     };
 
-    for (size_t i = 0; i < 4; i++, n *= step)
+    for (size_t i = 0; i < 4; i++)
     {
         struct Handler file;
         file = handle_file(files[i]);

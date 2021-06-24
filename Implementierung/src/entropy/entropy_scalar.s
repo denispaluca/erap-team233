@@ -1,12 +1,12 @@
 .intel_syntax noprefix
-.global entropy_asm
+.global entropy_scalar_asm
 // .extern log2_asm // We will use it when implemented
 .extern log2f // you can use C libray function in assembly for testing
 
 .text
 .align 16
 //float+ (size_t len, float* data, float (* log2_func) (float));
-entropy_asm:
+entropy_scalar_asm:
 	// rdi is the length of the array
 	// rsi is the pointer to the array
 

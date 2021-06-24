@@ -1,7 +1,7 @@
 .intel_syntax noprefix
-.global log2approx_deg2_simd_asm
-.global log2approx_deg4_simd_asm
-.global log2approx_arctanh_simd_asm
+.global log2_deg2_simd_asm
+.global log2_deg4_simd_asm
+.global log2_artanh_simd_asm
 .global log2_lookup_simd_asm
 
 // Make sure LOG_LOOKUP_TABLE_SIZE in log2.h is the same
@@ -12,7 +12,7 @@
 .text
 
 // __m128 log2approx_deg2_sse_asm(__m128 x)
-log2approx_deg2_simd_asm:
+log2_deg2_simd_asm:
     
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0
@@ -61,8 +61,8 @@ log2approx_deg2_simd_asm:
 
     ret
 
-// __m128 log2approx_deg4_simd_asm(__m128 x)
-log2approx_deg4_simd_asm:
+// __m128 log2_deg4_simd_asm(__m128 x)
+log2_deg4_simd_asm:
 
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0
@@ -130,8 +130,8 @@ log2approx_deg4_simd_asm:
 
     ret
 
-// __m128 log2approx_arctanh_simd_asm(__m128 x)
-log2approx_arctanh_simd_asm:
+// __m128 log2_artanh_simd_asm(__m128 x)
+log2_artanh_simd_asm:
 
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0

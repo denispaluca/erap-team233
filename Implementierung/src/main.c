@@ -210,7 +210,6 @@ void run_full(size_t n, float *data, double precise_entropy, bool accuracy, bool
     evaluate_args(n, data, C, SIMD, ARTANH, precise_entropy, accuracy, time, iterations);
     evaluate_args(n, data, C, SIMD, LOOKUP, precise_entropy, accuracy, time, iterations);
 
-
     evaluate_args(n, data, ASM, SCALAR, DEG2, precise_entropy, accuracy, time, iterations);
     evaluate_args(n, data, ASM, SCALAR, DEG4, precise_entropy, accuracy, time, iterations);
     evaluate_args(n, data, ASM, SCALAR, ARTANH, precise_entropy, accuracy, time, iterations);

@@ -222,40 +222,25 @@ log2_lookup_simd_asm:
     pand xmm0, [rip + mantissa_mask]
     psrld xmm0, (23 - LOG_LOOKUP_TABLE_SIZE)
     
-    movups xmm14, xmm0
+    // r8 1:0
+    movq r8, xmm0
+    movhlps xmm0, xmm0
+    // r9 3:2
+    movq r9, xmm0
+    movss xmm14, [log_lookup_table + 4*r9d]
+    shr r9, 32
+    movss xmm13, [log_lookup_table + 4*r9d]
 
-    movd eax, xmm0
-    movd xmm13, [log_lookup_table + 4*eax]
-    pshufd xmm0, xmm14, 0x01
+    unpcklps xmm14, xmm13
+
+    movss xmm0, [log_lookup_table + 4*r8d]
+    shr r8, 32
+    movss xmm13, [log_lookup_table + 4*r8d]
+
+    unpcklps xmm0, xmm13
     
-    movd eax, xmm0
-    movd xmm12, [log_lookup_table + 4*eax]
-    pshufd xmm0, xmm14, 0x02
-    
-    movd eax, xmm0
-    movd xmm11, [log_lookup_table + 4*eax]
-    pshufd xmm0, xmm14, 0x03
+    movlhps xmm0, xmm14
 
-    movd eax, xmm0
-    movd xmm10, [log_lookup_table + 4*eax]
-
-    pxor xmm0, xmm0
-
-    por xmm0, xmm13
-    movups xmm14, xmm0
-    pshufd xmm0, xmm14, 0b10010011
-
-    por xmm0, xmm12
-    movups xmm14, xmm0
-    pshufd xmm0, xmm14, 0b10010011
-
-    por xmm0, xmm11
-    movups xmm14, xmm0
-    pshufd xmm0, xmm14, 0b10010011
-
-    por xmm0, xmm10
-    movups xmm14, xmm0
-
-    addps xmm0, xmm15 
+    addps xmm0, xmm15
 
     ret

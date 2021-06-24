@@ -7,6 +7,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
@@ -30,5 +31,6 @@ extern float entropy_simd (size_t len, const float* data, __m128(* log_func) (__
 //===============Rand Functions===========
 float* entropy_c_rand(size_t len);
 float* entropy_c_urandom(size_t len);
-
+float* entropy_c_rand_non_uniform(size_t len);
+float* entropy_c_urandom_non_uniform(size_t len);
 #endif

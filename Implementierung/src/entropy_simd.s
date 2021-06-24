@@ -22,7 +22,7 @@ entropy_simd:
         xmm9 = current element
 	*/
     cvtsi2ss xmm9,rdi
-	mulss xmm9,[rip+.Lconst1eminus8]
+	mulss xmm9,[rip+.Lconst1eminus7]
 	movss xmm3,[rip+.Lconstupperlimit]
 	movss xmm4,[rip+.Lconstlowerlimit]
     addss xmm3,xmm9
@@ -31,21 +31,12 @@ entropy_simd:
 	movaps xmm6,[rip+.Lconst1]
 	pxor xmm8,xmm8
     pxor xmm2,xmm2
-    // swap values because log2f_simd takes value from rdi register.
-    mov rax,rdi
-    mov rdi,rsi 
-    mov rsi,rax
-
-
-    // rdi is the pointer to the array
-    // rsi is the length of the array.
-
 
     .Lsimdloop:
-        movaps xmm7,[rdi]
-        movaps xmm9,[rdi] 
-        movaps xmm1,[rdi]
-        movaps xmm0,[rdi]
+        movaps xmm7,[rsi]
+        movaps xmm9,[rsi] 
+        movaps xmm1,[rsi]
+        movaps xmm0,[rsi]
 
         addps xmm8,xmm7
 
@@ -69,8 +60,8 @@ entropy_simd:
         mulps xmm0,xmm1
         subps xmm2,xmm0
 
-        add rdi,16
-        sub rsi,4
+        add rsi,16
+        sub rdi,4
 
         ja .Lsimdloop
 
@@ -107,8 +98,7 @@ entropy_simd:
 .align 16
 .Lconstlowerlimit:
 	.4byte 0x3F7FFFAC
-
 .align 16
-.Lconst1eminus8:
+.Lconst1eminus7:
 	.4byte 0x33D6BF95
 

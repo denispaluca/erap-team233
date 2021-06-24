@@ -6,8 +6,8 @@
 #include <math.h>
 #include <string.h>
 
-#include "entropy.h"
-#include "io_operations.h"
+#include "entropy/entropy.h"
+#include "io/io_operations.h"
 
 enum Language
 {

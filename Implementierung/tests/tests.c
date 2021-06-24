@@ -1,5 +1,4 @@
-#include "../src/entropy.h"
-#include "../src/log2.h"
+#include "../src/entropy/entropy.h"
 #include <locale.h>
 #pragma GCC diagnostic ignored "-Wformat-security"
 
@@ -63,23 +62,23 @@ int main()
 
         //float* arr = entropy_c_rand_non_uniform(n);
 
-        print_out(time_calc(it, file.len, file.data, log2f, scalar_entropy));
-        print_out(time_calc(it, file.len, file.data, log2approx_deg2, scalar_entropy));
-        print_out(time_calc(it, file.len, file.data, log2approx_deg4, scalar_entropy));
-        print_out(time_calc(it, file.len, file.data, log2approx_arctanh, scalar_entropy));
-        print_out(time_calc(it, file.len, file.data, log2_lookup, scalar_entropy));
-        print_out(time_calc(it, file.len, file.data, log2approx_deg2_asm, entropy_asm));
-        print_out(time_calc(it, file.len, file.data, log2approx_deg4_asm, entropy_asm));
-        print_out(time_calc(it, file.len, file.data, log2approx_arctanh_asm, entropy_asm));
-        print_out(time_calc(it, file.len, file.data, log2_lookup_asm, entropy_asm));
-        print_out(time_calc_simd(it, file.len, file.data, log2_glibc_simd, simd_entropy));
-        print_out(time_calc_simd(it, file.len, file.data, log2approx_deg2_simd, simd_entropy));
-        print_out(time_calc_simd(it, file.len, file.data, log2approx_deg4_simd, simd_entropy));
-        print_out(time_calc_simd(it, file.len, file.data, log2approx_arctanh_simd, simd_entropy));
-        print_out(time_calc_simd(it, file.len, file.data, log2_lookup_simd, simd_entropy));
-        print_out(time_calc_simd(it, file.len, file.data, log2approx_deg2_simd_asm, entropy_simd));
-        print_out(time_calc_simd(it, file.len, file.data, log2approx_deg4_simd_asm, entropy_simd));
-        print_out(time_calc_simd(it, file.len, file.data, log2approx_arctanh_simd_asm, entropy_simd));
+        print_out(time_calc(it, file.len, file.data, log2f, entropy_scalar));
+        print_out(time_calc(it, file.len, file.data, log2_deg2_scalar, entropy_scalar));
+        print_out(time_calc(it, file.len, file.data, log2_deg4_scalar, entropy_scalar));
+        print_out(time_calc(it, file.len, file.data, log2_artanh_scalar, entropy_scalar));
+        print_out(time_calc(it, file.len, file.data, log2_lookup_scalar, entropy_scalar));
+        print_out(time_calc(it, file.len, file.data, log2_deg2_scalar_asm, entropy_scalar_asm));
+        print_out(time_calc(it, file.len, file.data, log2_deg4_scalar_asm, entropy_scalar_asm));
+        print_out(time_calc(it, file.len, file.data, log2_artanh_scalar_asm, entropy_scalar_asm));
+        print_out(time_calc(it, file.len, file.data, log2_lookup_scalar_asm, entropy_scalar_asm));
+        print_out(time_calc_simd(it, file.len, file.data, log2_glibc_simd, entropy_simd));
+        print_out(time_calc_simd(it, file.len, file.data, log2_deg2_simd, entropy_simd));
+        print_out(time_calc_simd(it, file.len, file.data, log2_deg4_simd, entropy_simd));
+        print_out(time_calc_simd(it, file.len, file.data, log2_artanh_simd, entropy_simd));
+        print_out(time_calc_simd(it, file.len, file.data, log2_lookup_simd, entropy_simd));
+        print_out(time_calc_simd(it, file.len, file.data, log2_deg2_simd_asm, entropy_simd));
+        print_out(time_calc_simd(it, file.len, file.data, log2_deg4_simd_asm, entropy_simd));
+        print_out(time_calc_simd(it, file.len, file.data, log2_artanh_simd_asm, entropy_simd));
         print_out(time_calc_simd(it, file.len, file.data, log2_lookup_simd_asm, entropy_simd));
 
         printf("\n");

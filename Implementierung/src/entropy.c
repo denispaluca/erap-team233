@@ -22,7 +22,7 @@ float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
 
 	if(sum > (UPPER_LIMIT + error_margin) || sum < (LOWER_LIMIT - error_margin))
 	    return -1;
-
+	if(isnan(entropy)) return -1;
 	return entropy;
 }
 double precise_entropy(size_t len, const float* data){
@@ -41,6 +41,7 @@ double precise_entropy(size_t len, const float* data){
 	}
 	if(sum > (UPPER_LIMIT + error_margin) || sum < (LOWER_LIMIT - error_margin))
 	    return -1;
+	if(isnan(entropy)) return -1;
 	return entropy;
 }
 

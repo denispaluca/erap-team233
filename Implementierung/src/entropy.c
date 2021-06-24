@@ -1,7 +1,7 @@
 #include "entropy.h"
 #include <stdint.h>
 
-float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
+float c_entropy_scalar(size_t len, const float* data, float (* log2_func) (float))
 {
     const float error_margin = len*1e-7;
 	float entropy = 0;
@@ -25,7 +25,7 @@ float scalar_entropy(size_t len, const float* data, float (* log2_func) (float))
 	if(isnan(entropy)) return -1;
 	return entropy;
 }
-double precise_entropy(size_t len, const float* data){
+double c_entropy_precise(size_t len, const float* data){
 	const double error_margin = len*1e-7;
 	double sum = 0;
 	double entropy = 0;
@@ -46,7 +46,7 @@ double precise_entropy(size_t len, const float* data){
 }
 
 // PREREQUISITE:  data should allocated at least len-(4-len % 4) % 4 memory otherwise it is undefined behaviour.
-float simd_entropy(size_t len, const float* data, __m128(* log2_func) (__m128)) 
+float c_entropy_simd(size_t len, const float* data, __m128(* log2_func) (__m128)) 
 {
     const float error_margin = len*1e-7;
 	__m128 one = _mm_set_ps1(1.0f);

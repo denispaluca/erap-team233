@@ -1,13 +1,13 @@
 #include "entropy.h"
 
-int compare_function(const void* a, const void* b)
+int compare_function_int(const void* a, const void* b)
 {
     int x = *(const int*)a;
     int y = *(const int*)b;
     return (x > y) - (x < y);
 }
 
-float* entropy_c_rand(size_t len)
+float* c_entropy_rand(size_t len)
 {
     if (len == 0)
     {
@@ -32,7 +32,7 @@ float* entropy_c_rand(size_t len)
     }
 
 
-    qsort(in_array, len, sizeof(int), compare_function);
+    qsort(in_array, len, sizeof(int), compare_function_int);
 
     size_t index = 0;
     size_t freq = 1;
@@ -60,7 +60,7 @@ float* entropy_c_rand(size_t len)
     return prob_array;
 }
 
-float* entropy_c_urandom(size_t len)
+float* c_entropy_urandom(size_t len)
 {
     if (len == 0)
     {
@@ -95,7 +95,7 @@ float* entropy_c_urandom(size_t len)
         return NULL;
     }
 
-    qsort(in_array, len, sizeof(int), compare_function);
+    qsort(in_array, len, sizeof(int), compare_function_int);
 
     size_t index = 0;
     size_t freq = 1;
@@ -124,7 +124,7 @@ float* entropy_c_urandom(size_t len)
     return prob_array;
 }
 
-float* entropy_c_rand_non_uniform(size_t len)
+float* c_entropy_rand_non_uniform(size_t len)
 {
     if (len == 0)
     {
@@ -166,7 +166,7 @@ float* entropy_c_rand_non_uniform(size_t len)
 
     return prob_array;
 }
-float* entropy_c_urandom_non_uniform(size_t len)
+float* c_entropy_urandom_non_uniform(size_t len)
 {
    if (len == 0)
     {

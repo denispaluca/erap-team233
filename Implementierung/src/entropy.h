@@ -20,17 +20,17 @@
 #include "log2.h"
 
 //===============C functions===================
-float scalar_entropy(size_t len, const float* data, float (* log2_func) (float));
-float simd_entropy(size_t len, const float* data, __m128(* log2_func) (__m128));
-double precise_entropy(size_t len, const float* data);
+float c_entropy_scalar(size_t len, const float* data, float (* log2_func) (float));
+float c_entropy_simd(size_t len, const float* data, __m128(* log2_func) (__m128));
+double c_entropy_precise(size_t len, const float* data);
 
 //===============Asm Functions==================
-extern float entropy_asm (size_t len, const float* data, float (* log2_func) (float));
-extern float entropy_simd (size_t len, const float* data, __m128(* log_func) (__m128));
+extern float asm_entropy_scalar (size_t len, const float* data, float (* log2_func) (float));
+extern float asm_entropy_simd (size_t len, const float* data, __m128(* log_func) (__m128));
 
 //===============Rand Functions===========
-float* entropy_c_rand(size_t len);
-float* entropy_c_urandom(size_t len);
-float* entropy_c_rand_non_uniform(size_t len);
-float* entropy_c_urandom_non_uniform(size_t len);
+float* c_entropy_rand(size_t len);
+float* c_entropy_urandom(size_t len);
+float* c_entropy_rand_non_uniform(size_t len);
+float* c_entropy_urandom_non_uniform(size_t len);
 #endif

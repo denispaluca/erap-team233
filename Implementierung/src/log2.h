@@ -57,15 +57,15 @@ extern const __m128 glibc_co3;
 extern const float log_lookup_table[];
 
 //===========C Functions==========
-float log2approx_deg2(float);
-float log2approx_deg4(float);
-float log2approx_arctanh(float);
-__m128 log2approx_deg2_simd(__m128);
-__m128 log2approx_deg4_simd(__m128);
-__m128 log2approx_arctanh_simd(__m128);
+float c_log2_deg2_scalar(float);
+float c_log2_deg4_scalar(float);
+float c_log2_artanh_scalar(float);
+__m128 c_log2_deg2_simd(__m128);
+__m128 c_log2_deg4_simd(__m128);
+__m128 c_log2_artanh_simd(__m128);
 void init_table(unsigned n, float* table);
-float log2_lookup(float x);
-__m128 log2_lookup_simd(__m128 x);
+float c_log2_lookup_scalar(float x);
+__m128 c_log2_lookup_simd(__m128 x);
 
 //===========Asm Functions=========
 float log2approx_deg2_asm(float);
@@ -76,6 +76,6 @@ __m128 log2approx_deg4_simd_asm(__m128);
 __m128 log2approx_arctanh_simd_asm(__m128);
 float log2_lookup_asm(float x);
 __m128 log2_lookup_simd_asm(__m128 x);
-__m128 log2_glibc_simd(__m128 x);
+__m128 c_log2_glibc_simd(__m128 x);
 
 #endif

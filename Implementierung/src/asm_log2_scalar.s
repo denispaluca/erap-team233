@@ -185,7 +185,7 @@ log2approx_arctanh_asm:
 
 	ret
 
-// float log2_lookup(float x)
+// float c_log2_lookup_scalar(float x)
 log2_lookup_asm:
 
 	// Extract exponent from IEEE Floating Number

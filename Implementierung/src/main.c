@@ -40,7 +40,7 @@ enum Implementation
 	-h, --help 
 */
 
-float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode, enum Implementation impl)
+float calculate_entropy(size_t n, float *data, enum Language lan, enum Mode mode, enum Implementation impl)
 {
     switch (lan)
     {
@@ -51,30 +51,30 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
             switch (impl)
             {
             case DEG2:
-                return scalar_entropy(n, data, log2approx_deg2);
+                return c_entropy_scalar(n, data, c_log2_deg2_scalar);
             case DEG4:
-                return scalar_entropy(n, data, log2approx_deg4);
+                return c_entropy_scalar(n, data, c_log2_deg4_scalar);
             case ARTANH:
-                return scalar_entropy(n, data, log2approx_arctanh);
+                return c_entropy_scalar(n, data, c_log2_artanh_scalar);
             case LOOKUP:
-                return scalar_entropy(n, data, log2_lookup);
+                return c_entropy_scalar(n, data, c_log2_lookup_scalar);
             case LOG2F:
-                return scalar_entropy(n, data, log2f);
+                return c_entropy_scalar(n, data, log2f);
             }
             break;
         case SIMD:
             switch (impl)
             {
             case DEG2:
-                return simd_entropy(n, data, log2approx_deg2_simd);
+                return c_entropy_simd(n, data, c_log2_deg2_simd);
             case DEG4:
-                return simd_entropy(n, data, log2approx_deg4_simd);
+                return c_entropy_simd(n, data, c_log2_deg4_simd);
             case ARTANH:
-                return simd_entropy(n, data, log2approx_arctanh_simd);
+                return c_entropy_simd(n, data, c_log2_artanh_simd);
             case LOOKUP:
-                return simd_entropy(n, data, log2_lookup_simd);
+                return c_entropy_simd(n, data, c_log2_lookup_simd);
             case LOG2F:
-                return simd_entropy(n, data, log2_glibc_simd);
+                return c_entropy_simd(n, data, c_log2_glibc_simd);
             default:
                 break;
             }
@@ -88,13 +88,13 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
             switch (impl)
             {
             case DEG2:
-                return entropy_asm(n, data, log2approx_deg2_asm);
+                return asm_entropy_scalar(n, data, log2approx_deg2_asm);
             case DEG4:
-                return entropy_asm(n, data, log2approx_deg4_asm);
+                return asm_entropy_scalar(n, data, log2approx_deg4_asm);
             case ARTANH:
-                return entropy_asm(n, data, log2approx_arctanh_asm);
+                return asm_entropy_scalar(n, data, log2approx_arctanh_asm);
             case LOOKUP:
-                return entropy_asm(n, data, log2_lookup_asm);
+                return asm_entropy_scalar(n, data, log2_lookup_asm);
             default:
                 break;
             }
@@ -103,13 +103,13 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
             switch (impl)
             {
             case DEG2:
-                return entropy_simd(n, data, log2approx_deg2_simd_asm);
+                return asm_entropy_simd(n, data, log2approx_deg2_simd_asm);
             case DEG4:
-                return entropy_simd(n, data, log2approx_deg4_simd_asm);
+                return asm_entropy_simd(n, data, log2approx_deg4_simd_asm);
             case ARTANH:
-                return entropy_simd(n, data, log2approx_arctanh_simd_asm);
+                return asm_entropy_simd(n, data, log2approx_arctanh_simd_asm);
             case LOOKUP:
-                return entropy_simd(n, data, log2_lookup_simd_asm);
+                return asm_entropy_simd(n, data, log2_lookup_simd_asm);
             default:
                 break;
             }
@@ -120,7 +120,7 @@ float evaluate_entropy(size_t n, float *data, enum Language lan, enum Mode mode,
     return -1.0f;
 }
 
-void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy)
+void print_entropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy)
 {
     char *lans = lan == C ? "C" : "ASM";
     char *modes = mode == SCALAR ? "scalar" : "simd";
@@ -147,30 +147,30 @@ void printEntropy(enum Language lan, enum Mode mode, enum Implementation impl, f
     printf("%s/%s/%s Entropy:%*s%f\n", lans, modes, impls, len, "", entropy);
 }
 
-void printMistake(float entropy, double preciseEntropy)
+void print_mistake(float entropy, double precise_entropy)
 {
-    double absMistake = fabs(preciseEntropy - entropy);
-    printf("Absolute Mistake:%*s%f\n", 14, "", absMistake);
-    if (preciseEntropy != 0)
+    double abs_mistake = fabs(precise_entropy - entropy);
+    printf("Absolute Mistake:%*s%f\n", 14, "", abs_mistake);
+    if (precise_entropy != 0)
     {
-        printf("Relative Mistake:%*s%f\n", 14, "", absMistake / preciseEntropy);
+        printf("Relative Mistake:%*s%f\n", 14, "", abs_mistake / precise_entropy);
     }
     // else
     // {
-    //     printf("No relative mistake is calculated because precise entropy is: %f \n",preciseEntropy);
+    //     printf("No relative mistake is calculated because precise entropy is: %f \n",precise_entropy);
     // }
 }
 
 void evaluate_args(size_t n, float *data, enum Language lan, enum Mode mode,
-                   enum Implementation impl, float preciseEntropy, bool accuracy, bool time, size_t iterations)
+                   enum Implementation impl, double precise_entropy, bool accuracy, bool time, size_t iterations)
 {
-    float entropy = evaluate_entropy(n, data, lan, mode, impl);
+    float entropy = calculate_entropy(n, data, lan, mode, impl);
 
-    printEntropy(lan, mode, impl, entropy);
+    print_entropy(lan, mode, impl, entropy);
 
     if (accuracy)
     {
-        printMistake(entropy, preciseEntropy);
+        print_mistake(entropy, precise_entropy);
     }
 
     if (time)
@@ -181,7 +181,7 @@ void evaluate_args(size_t n, float *data, enum Language lan, enum Mode mode,
         // Need more than 1 iterations to measure time
         for (size_t i = 0; i < iterations; ++i)
         {
-            evaluate_entropy(n, data, lan, mode, impl);
+            calculate_entropy(n, data, lan, mode, impl);
         }
 
         clock_gettime(CLOCK_MONOTONIC, &end);
@@ -194,35 +194,35 @@ void evaluate_args(size_t n, float *data, enum Language lan, enum Mode mode,
         printf("\n");
 }
 
-void runFull(size_t n, float *data, float preciseEntropy, bool accuracy, bool time, size_t iterations)
+void run_full(size_t n, float *data, double precise_entropy, bool accuracy, bool time, size_t iterations)
 {
     printf("Length is:%*s %zu \n\n", 20, "", n);
-    evaluate_args(n, data, C, SCALAR, LOG2F, preciseEntropy, accuracy, time, iterations);
 
-    evaluate_args(n, data, C, SCALAR, DEG2, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, C, SCALAR, DEG4, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, C, SCALAR, ARTANH, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, C, SCALAR, LOOKUP, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SCALAR, LOG2F, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SCALAR, DEG2, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SCALAR, DEG4, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SCALAR, ARTANH, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SCALAR, LOOKUP, precise_entropy, accuracy, time, iterations);
 
-    evaluate_args(n, data, C, SIMD, DEG2, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, C, SIMD, DEG4, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, C, SIMD, ARTANH, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, C, SIMD, LOOKUP, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, C, SIMD, LOG2F, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, LOG2F, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, DEG2, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, DEG4, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, ARTANH, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, C, SIMD, LOOKUP, precise_entropy, accuracy, time, iterations);
 
 
-    evaluate_args(n, data, ASM, SCALAR, DEG2, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, ASM, SCALAR, DEG4, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, ASM, SCALAR, ARTANH, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, ASM, SCALAR, LOOKUP, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SCALAR, DEG2, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SCALAR, DEG4, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SCALAR, ARTANH, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SCALAR, LOOKUP, precise_entropy, accuracy, time, iterations);
 
-    evaluate_args(n, data, ASM, SIMD, DEG2, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, ASM, SIMD, DEG4, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, ASM, SIMD, ARTANH, preciseEntropy, accuracy, time, iterations);
-    evaluate_args(n, data, ASM, SIMD, LOOKUP, preciseEntropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SIMD, DEG2, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SIMD, DEG4, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SIMD, ARTANH, precise_entropy, accuracy, time, iterations);
+    evaluate_args(n, data, ASM, SIMD, LOOKUP, precise_entropy, accuracy, time, iterations);
 }
 
-void printUsage()
+void print_usage()
 {
     printf("Usage: entropy [options] file\n"
            "\t-l, --language => implementation language c|asm\n"
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
             full = true;
             break;
         case 'h':
-            printUsage();
+            print_usage();
             return EXIT_SUCCESS;
 
         case ':':
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
             __attribute__((fallthrough)); // Let fallthrough
 
         default:
-            printUsage();
+            print_usage();
             exit(EXIT_FAILURE);
         }
     }
@@ -427,22 +427,22 @@ int main(int argc, char *argv[])
         {
             if (generator)
             {
-                handler.data = entropy_c_rand_non_uniform(randLen);
+                handler.data = c_entropy_rand_non_uniform(randLen);
             }
             else
             {
-                handler.data = entropy_c_urandom_non_uniform(randLen);
+                handler.data = c_entropy_urandom_non_uniform(randLen);
             }
         }
         else
         {
             if (generator)
             {
-                handler.data = entropy_c_rand(randLen);
+                handler.data = c_entropy_rand(randLen);
             }
             else
             {
-                handler.data = entropy_c_urandom(randLen);
+                handler.data = c_entropy_urandom(randLen);
             }
         }
     }
@@ -453,21 +453,21 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    double preciseEntropy = 0.0;
+    double precise_entropy = 0.0;
     if (accuracy)
     {
         struct timespec start, end;
         clock_gettime(CLOCK_MONOTONIC, &start);
-        preciseEntropy = precise_entropy(handler.len, handler.data);
+        precise_entropy = c_entropy_precise(handler.len, handler.data);
         clock_gettime(CLOCK_MONOTONIC, &end);
         double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
-        printf("Precise Entropy:%*s%f\n", 15, "", preciseEntropy);
+        printf("Precise Entropy:%*s%f\n", 15, "", precise_entropy);
         printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
     if (full)
-        runFull(handler.len, handler.data, preciseEntropy, accuracy, time, iterations);
+        run_full(handler.len, handler.data, precise_entropy, accuracy, time, iterations);
     else
-        evaluate_args(handler.len, handler.data, lan, mode, impl, preciseEntropy, accuracy, time, iterations);
+        evaluate_args(handler.len, handler.data, lan, mode, impl, precise_entropy, accuracy, time, iterations);
 
     printf("-----------------------------------------------------\n");
     printf("                    FINISHED\n");

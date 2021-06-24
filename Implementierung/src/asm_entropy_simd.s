@@ -1,10 +1,10 @@
 .intel_syntax noprefix
-.global entropy_simd
+.global asm_entropy_simd
 
 .text
 .align 16
 // float(size_t len, float* data, __m128(* log_func) (__m128));
-entropy_simd:
+asm_entropy_simd:
     // rdi is the length of the array
     // rsi is the pointer to the array
     // PREREQUISITE:  len must be a multiple of 4.

@@ -51,30 +51,30 @@ float calculate_entropy(size_t n, float *data, enum Language lan, enum Mode mode
             switch (impl)
             {
             case DEG2:
-                return c_entropy_scalar(n, data, c_log2_deg2_scalar);
+                return entropy_scalar(n, data, log2_deg2_scalar);
             case DEG4:
-                return c_entropy_scalar(n, data, c_log2_deg4_scalar);
+                return entropy_scalar(n, data, log2_deg4_scalar);
             case ARTANH:
-                return c_entropy_scalar(n, data, c_log2_artanh_scalar);
+                return entropy_scalar(n, data, log2_artanh_scalar);
             case LOOKUP:
-                return c_entropy_scalar(n, data, c_log2_lookup_scalar);
+                return entropy_scalar(n, data, log2_lookup_scalar);
             case LOG2F:
-                return c_entropy_scalar(n, data, log2f);
+                return entropy_scalar(n, data, log2f);
             }
             break;
         case SIMD:
             switch (impl)
             {
             case DEG2:
-                return c_entropy_simd(n, data, c_log2_deg2_simd);
+                return entropy_simd(n, data, log2_deg2_simd);
             case DEG4:
-                return c_entropy_simd(n, data, c_log2_deg4_simd);
+                return entropy_simd(n, data, log2_deg4_simd);
             case ARTANH:
-                return c_entropy_simd(n, data, c_log2_artanh_simd);
+                return entropy_simd(n, data, log2_artanh_simd);
             case LOOKUP:
-                return c_entropy_simd(n, data, c_log2_lookup_simd);
+                return entropy_simd(n, data, log2_lookup_simd);
             case LOG2F:
-                return c_entropy_simd(n, data, c_log2_glibc_simd);
+                return entropy_simd(n, data, log2_glibc_simd);
             default:
                 break;
             }
@@ -88,13 +88,13 @@ float calculate_entropy(size_t n, float *data, enum Language lan, enum Mode mode
             switch (impl)
             {
             case DEG2:
-                return asm_entropy_scalar(n, data, log2approx_deg2_asm);
+                return entropy_scalar_asm(n, data, log2_deg2_scalar_asm);
             case DEG4:
-                return asm_entropy_scalar(n, data, log2approx_deg4_asm);
+                return entropy_scalar_asm(n, data, log2_deg4_scalar_asm);
             case ARTANH:
-                return asm_entropy_scalar(n, data, log2approx_arctanh_asm);
+                return entropy_scalar_asm(n, data, log2_artanh_scalar_asm);
             case LOOKUP:
-                return asm_entropy_scalar(n, data, log2_lookup_asm);
+                return entropy_scalar_asm(n, data, log2_lookup_scalar_asm);
             default:
                 break;
             }
@@ -103,13 +103,13 @@ float calculate_entropy(size_t n, float *data, enum Language lan, enum Mode mode
             switch (impl)
             {
             case DEG2:
-                return asm_entropy_simd(n, data, log2approx_deg2_simd_asm);
+                return entropy_simd_asm(n, data, log2_deg2_simd_asm);
             case DEG4:
-                return asm_entropy_simd(n, data, log2approx_deg4_simd_asm);
+                return entropy_simd_asm(n, data, log2_deg4_simd_asm);
             case ARTANH:
-                return asm_entropy_simd(n, data, log2approx_arctanh_simd_asm);
+                return entropy_simd_asm(n, data, log2_artanh_simd_asm);
             case LOOKUP:
-                return asm_entropy_simd(n, data, log2_lookup_simd_asm);
+                return entropy_simd_asm(n, data, log2_lookup_simd_asm);
             default:
                 break;
             }
@@ -426,22 +426,22 @@ int main(int argc, char *argv[])
         {
             if (generator)
             {
-                handler.data = c_entropy_rand_non_uniform(randLen);
+                handler.data = entropy_rand_non_uniform(randLen);
             }
             else
             {
-                handler.data = c_entropy_urandom_non_uniform(randLen);
+                handler.data = entropy_urandom_non_uniform(randLen);
             }
         }
         else
         {
             if (generator)
             {
-                handler.data = c_entropy_rand(randLen);
+                handler.data = entropy_rand(randLen);
             }
             else
             {
-                handler.data = c_entropy_urandom(randLen);
+                handler.data = entropy_urandom(randLen);
             }
         }
     }
@@ -457,7 +457,7 @@ int main(int argc, char *argv[])
     {
         struct timespec start, end;
         clock_gettime(CLOCK_MONOTONIC, &start);
-        precise_entropy = c_entropy_precise(handler.len, handler.data);
+        precise_entropy = entropy_precise(handler.len, handler.data);
         clock_gettime(CLOCK_MONOTONIC, &end);
         double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
         printf("Precise Entropy:%*s%f\n", 15, "", precise_entropy);

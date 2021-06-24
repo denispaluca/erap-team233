@@ -7,7 +7,7 @@ int compare_function_int(const void *a, const void *b)
     return (x > y) - (x < y);
 }
 
-float *c_entropy_rand(size_t len)
+float *entropy_rand(size_t len)
 {
     if (len == 0)
     {
@@ -59,7 +59,7 @@ float *c_entropy_rand(size_t len)
     return prob_array;
 }
 
-float *c_entropy_urandom(size_t len)
+float *entropy_urandom(size_t len)
 {
     if (len == 0)
     {
@@ -123,7 +123,7 @@ float *c_entropy_urandom(size_t len)
     return prob_array;
 }
 
-float *c_entropy_rand_non_uniform(size_t len)
+float *entropy_rand_non_uniform(size_t len)
 {
     if (len == 0)
     {
@@ -168,7 +168,7 @@ float *c_entropy_rand_non_uniform(size_t len)
     return prob_array;
 }
 
-float *c_entropy_urandom_non_uniform(size_t len)
+float *entropy_urandom_non_uniform(size_t len)
 {
     if (len == 0)
     {

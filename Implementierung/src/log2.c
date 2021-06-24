@@ -1,6 +1,6 @@
 #include "log2.h"
 
-inline void c_reduce_float_scalar(union num *data, int *exponent)
+inline void reduce_float_scalar(union num *data, int *exponent)
 {
 
     // Get exponent (omitting sign bit()
@@ -9,7 +9,7 @@ inline void c_reduce_float_scalar(union num *data, int *exponent)
     // Special case for denormal floating numbers
     if (*exponent == 0)
     {
-        data->flt *= 0x1P23f;    /* Normalizefloating number */
+        data->flt *= 0x1P23f;               /* Normalizefloating number */
         *exponent = (data->fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
     }
 
@@ -20,12 +20,12 @@ inline void c_reduce_float_scalar(union num *data, int *exponent)
 }
 
 // Normal
-float c_log2_deg2_scalar(float x)
+float log2_deg2_scalar(float x)
 {
     union num data = {.flt = x};
     int exponent;
 
-    c_reduce_float_scalar(&data, &exponent);
+    reduce_float_scalar(&data, &exponent);
 
     // co1 * x^2 + co2 * x + co3
 
@@ -38,12 +38,12 @@ float c_log2_deg2_scalar(float x)
     return y * data.flt + y0;
 }
 
-float c_log2_deg4_scalar(float x)
+float log2_deg4_scalar(float x)
 {
     union num data = {.flt = x};
     int exponent;
 
-    c_reduce_float_scalar(&data, &exponent);
+    reduce_float_scalar(&data, &exponent);
 
     // co1 * x^4 + co2 * x^3 + co3 * x^2 + co2 * x + co1
 
@@ -60,12 +60,12 @@ float c_log2_deg4_scalar(float x)
     return y * x2 + z;
 }
 
-float c_log2_artanh_scalar(float x)
+float log2_artanh_scalar(float x)
 {
     union num data = {.flt = x};
     int exponent;
 
-    c_reduce_float_scalar(&data, &exponent);
+    reduce_float_scalar(&data, &exponent);
 
     // q = (x - 1) / (x + 1)
     // ( 0.2 * q^5 + 0.3 * q^3 + q ) * (2 / ln2)
@@ -83,7 +83,7 @@ float c_log2_artanh_scalar(float x)
     return y + exponent;
 }
 
-inline void c_reduce_float_simd(union num_s *data, __m128i *exponent)
+inline void reduce_float_simd(union num_s *data, __m128i *exponent)
 {
 
     /* 
@@ -105,7 +105,7 @@ inline void c_reduce_float_simd(union num_s *data, __m128i *exponent)
     mask.fix = _mm_cmpeq_epi32(*exponent, _mm_setzero_si128());
     __m128i exp_fix = normalize_exp & mask.fix;
     mask.fix &= normalize_mask;
-    mask.fix ^= (const __m128i) f_one;
+    mask.fix ^= (const __m128i)f_one;
 
     data->flt *= mask.flt;
 
@@ -117,12 +117,12 @@ inline void c_reduce_float_simd(union num_s *data, __m128i *exponent)
 }
 
 // SIMD
-__m128 c_log2_deg2_simd(__m128 x)
+__m128 log2_deg2_simd(__m128 x)
 {
     union num_s data = {.flt = x};
     __m128i exponent;
 
-    c_reduce_float_simd(&data, &exponent);
+    reduce_float_simd(&data, &exponent);
 
     // Pipelining
     __m128 y0, y;
@@ -133,12 +133,12 @@ __m128 c_log2_deg2_simd(__m128 x)
     return y * data.flt + y0;
 }
 
-__m128 c_log2_deg4_simd(__m128 x)
+__m128 log2_deg4_simd(__m128 x)
 {
     union num_s data = {.flt = x};
     __m128i exponent;
 
-    c_reduce_float_simd(&data, &exponent);
+    reduce_float_simd(&data, &exponent);
 
     // Pipelining
     __m128 y0, x2, y, z;
@@ -153,12 +153,12 @@ __m128 c_log2_deg4_simd(__m128 x)
     return y * x2 + z;
 }
 
-__m128 c_log2_artanh_simd(__m128 x)
+__m128 log2_artanh_simd(__m128 x)
 {
     union num_s data = {.flt = x};
     __m128i exponent;
 
-    c_reduce_float_simd(&data, &exponent);
+    reduce_float_simd(&data, &exponent);
 
     // Pipelining
     __m128 q, q2, y;
@@ -174,25 +174,24 @@ __m128 c_log2_artanh_simd(__m128 x)
 }
 
 // With Lookup table
-
-float c_log2_lookup_scalar(float x)
+float log2_lookup_scalar(float x)
 {
     union num data = {.flt = x};
     int exponent, index;
 
-    c_reduce_float_scalar(&data, &exponent);
+    reduce_float_scalar(&data, &exponent);
 
     index = (data.fix & 0x7FFFFF) >> (23 - LOG_LOOKUP_TABLE_SIZE);
 
     return log_lookup_table[index] + exponent;
 }
 
-__m128 c_log2_lookup_simd(__m128 x)
+__m128 log2_lookup_simd(__m128 x)
 {
     union num_s data = {.flt = x};
     __m128i exponent, index;
 
-    c_reduce_float_simd(&data, &exponent);
+    reduce_float_simd(&data, &exponent);
 
     index = _mm_srli_epi32(data.fix & mantissa_mask, (23 - LOG_LOOKUP_TABLE_SIZE));
 
@@ -205,7 +204,7 @@ __m128 c_log2_lookup_simd(__m128 x)
     return y + _mm_cvtepi32_ps(exponent);
 }
 
-__m128 c_log2_glibc_simd(__m128 x)
+__m128 log2_glibc_simd(__m128 x)
 {
     union num_s data = {.flt = x};
 
@@ -227,10 +226,10 @@ __m128 c_log2_glibc_simd(__m128 x)
         glibc_inverse_c[((__v4si)i)[0]]);
 
     logc = _mm_set_ps(
-    glibc_logc[((__v4si)i)[3]],
-    glibc_logc[((__v4si)i)[2]],
-    glibc_logc[((__v4si)i)[1]],
-    glibc_logc[((__v4si)i)[0]]);
+        glibc_logc[((__v4si)i)[3]],
+        glibc_logc[((__v4si)i)[2]],
+        glibc_logc[((__v4si)i)[1]],
+        glibc_logc[((__v4si)i)[0]]);
 
     r = z.flt * invc - f_one;
     y0 = logc + _mm_cvtepi32_ps(k);
@@ -238,8 +237,8 @@ __m128 c_log2_glibc_simd(__m128 x)
     // Pipeline
     r2 = r * r;
     y = glibc_co1 * r + glibc_co2;
-    y = glibc_co0 *r2 + y;
+    y = glibc_co0 * r2 + y;
     p = glibc_co3 * r + y0;
     y = y * r2 + p;
-    return y;    
+    return y;
 }

@@ -1,7 +1,7 @@
 #include "entropy.h"
 #include <stdint.h>
 
-float c_entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
+float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
 {
 	const float error_margin = len * 1e-7;
 	float entropy = 0;
@@ -29,7 +29,7 @@ float c_entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
 	return entropy;
 }
 
-double c_entropy_precise(size_t len, const float *data)
+double entropy_precise(size_t len, const float *data)
 {
 	const double error_margin = len * 1e-7;
 	double sum = 0;
@@ -54,7 +54,7 @@ double c_entropy_precise(size_t len, const float *data)
 }
 
 // PREREQUISITE:  data should allocated at least len-(4-len % 4) % 4 memory otherwise it is undefined behaviour.
-float c_entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128))
+float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128))
 {
 	const float error_margin = len * 1e-7;
 	__m128 one = _mm_set_ps1(1.0f);

@@ -1,8 +1,8 @@
 .intel_syntax noprefix
-.global log2approx_deg2_asm
-.global log2approx_deg4_asm
-.global log2approx_arctanh_asm
-.global log2_lookup_asm
+.global log2_deg2_scalar_asm
+.global log2_deg4_scalar_asm
+.global log2_artanh_scalar_asm
+.global log2_lookup_scalar_asm
 
 // Make sure LOG_LOOKUP_TABLE_SIZE in log2.h is the same
 .equ LOG_LOOKUP_TABLE_SIZE, 16
@@ -11,9 +11,9 @@
 // !!! USING CONSTANTS FROM log2.c !!!
 
 .text
-// float log2approx_deg2_asm(float val);
+// float log2_deg2_scalar_asm(float val);
 .align 16
-log2approx_deg2_asm:
+log2_deg2_scalar_asm:
 
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
@@ -58,8 +58,8 @@ log2approx_deg2_asm:
 	ret
 
 
-// float log2approx_deg4_asm(float val);
-log2approx_deg4_asm:
+// float log2_deg4_scalar_asm(float val);
+log2_deg4_scalar_asm:
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
 	shr eax, 23
@@ -120,8 +120,8 @@ log2approx_deg4_asm:
 
 	ret
 
-// float log2approx_deg4_asm(float val);
-log2approx_arctanh_asm:
+// float log2_deg4_scalar_asm(float val);
+log2_artanh_scalar_asm:
 
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
@@ -185,8 +185,8 @@ log2approx_arctanh_asm:
 
 	ret
 
-// float c_log2_lookup_scalar(float x)
-log2_lookup_asm:
+// float log2_lookup_scalar(float x)
+log2_lookup_scalar_asm:
 
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0

@@ -12,10 +12,6 @@
 #define likely(x) __builtin_expect((x), 1)
 #define unlikely(x) __builtin_expect((x), 0)
 
-// Error Margin
-#define UPPER_LIMIT 1.000005f
-#define LOWER_LIMIT 0.999995f
-
 #include "../io/io_operations.h"
 #include "../log2f/log2.h"
 

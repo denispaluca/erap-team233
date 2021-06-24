@@ -1,6 +1,6 @@
 #include "log2.h"
 
-inline void reduce_float(union num *data, int *exponent)
+void reduce_float(union num *data, int *exponent)
 {
 
     // Get exponent (omitting sign bit()
@@ -83,7 +83,7 @@ float log2approx_arctanh(float x)
     return y + exponent;
 }
 
-inline void reduce_float_simd(union num_s *data, __m128i *exponent)
+void reduce_float_simd(union num_s *data, __m128i *exponent)
 {
 
     /* 

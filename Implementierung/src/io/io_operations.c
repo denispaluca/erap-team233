@@ -55,7 +55,8 @@ float *read_file(size_t len, const char *file_name)
 	// take inputs from the file and store it in inputs.
 	for (size_t i = 0; i < len; ++i)
 	{
-		if (!fscanf(input_file, "%f", &inputs[i])){
+		if (!fscanf(input_file, "%f", &inputs[i]))
+		{
 			free(inputs);
 			return NULL;
 		}

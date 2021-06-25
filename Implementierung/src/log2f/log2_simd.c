@@ -22,12 +22,12 @@ inline void reduce_float_simd(union num_s *data, __m128i *exponent)
     mask.fix = _mm_cmpeq_epi32(*exponent, _mm_setzero_si128());
     __m128i exp_fix = normalize_exp & mask.fix;
     mask.fix &= normalize_mask;
-    mask.fix ^= (const __m128i)f_one;
+    mask.fix ^= (const __m128i)one_packed;
 
     data->flt *= mask.flt;
 
     *exponent = _mm_srli_epi32(data->fix, 23);
-    *exponent = _mm_sub_epi32(*exponent, f_bias);
+    *exponent = _mm_sub_epi32(*exponent, bias_packed);
     *exponent = _mm_sub_epi32(*exponent, exp_fix);
 
     data->fix = (data->fix & mantissa_mask) | reduce_mask;
@@ -80,11 +80,11 @@ __m128 log2_artanh_simd(__m128 x)
     // Pipelining
     __m128 q, q2, y;
 
-    q = (data.flt - f_one) / (data.flt + f_one);
+    q = (data.flt - one_packed) / (data.flt + one_packed);
     q2 = q * q;
 
     y = one_third + q2 * one_fifth;
-    y = y * q2 + f_one;
+    y = y * q2 + one_packed;
     y = y * q * ln2_inverse_2;
 
     return y + _mm_cvtepi32_ps(exponent);
@@ -137,7 +137,7 @@ __m128 log2_glibc_simd(__m128 x)
         glibc_logc[((__v4si)i)[1]],
         glibc_logc[((__v4si)i)[0]]);
 
-    r = z.flt * invc - f_one;
+    r = z.flt * invc - one_packed;
     y0 = logc + _mm_cvtepi32_ps(k);
 
     // Pipeline

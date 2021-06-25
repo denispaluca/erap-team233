@@ -41,7 +41,7 @@ const __m128i mantissa_mask = {
     0x007FFFFF007FFFFF,
 };
 
-const __m128i f_bias = {
+const __m128i bias_packed = {
     0x0000007F0000007F,
     0x0000007F0000007F,
 };
@@ -63,7 +63,7 @@ const __m128 normalize_const = {
     0x1P23f
 };
 
-const __m128 f_one = {
+const __m128 one_packed = {
     1.0, 1.0, 1.0, 1.0
 };
 
@@ -152,8 +152,8 @@ const __m128i glibc_extract = {
 };
 
 const __m128i glibc_mod16_mask = {
-        0x0000000f0000000f,
-        0x0000000f0000000f,
+    0x0000000f0000000f,
+    0x0000000f0000000f,
 };
 
 const float glibc_inverse_c[] = {

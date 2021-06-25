@@ -32,12 +32,12 @@ extern const float artanh_consts[];
 // SIMD
 extern const __m128i reduce_mask;
 extern const __m128i mantissa_mask;
-extern const __m128i f_bias;
+extern const __m128i bias_packed;
 extern const __m128i normalize_mask;
 extern const __m128i normalize_exp;
 
 extern const __m128 normalize_const;
-extern const __m128 f_one;
+extern const __m128 one_packed;
 extern const __m128 one_third;
 extern const __m128 one_fifth;
 extern const __m128 ln2_inverse_2;

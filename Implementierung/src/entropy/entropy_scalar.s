@@ -31,7 +31,7 @@ entropy_scalar_asm:
 	pxor xmm4,xmm4
 	pxor xmm5,xmm5
 	pxor xmm6,xmm6
-	movss xmm7,[rip+.Lconst1]
+	movss xmm7,[rip + one_f]
 
 	.Lloop:
 
@@ -93,9 +93,9 @@ entropy_scalar_asm:
 		sub rdi,1
 	 	ja .Lloop
 
-	movss xmm9,[rip+.Lfepsilon]
-	movss xmm10,[rip+.Land]
-	movss xmm11,[rip+.Lxor]
+	movss xmm9,[rip + epsilon_f]
+	movss xmm10,[rip + cmpmask]
+	movss xmm11,[rip + absmask]
 
 	// checking if |sum-1| < epsilon
 	subss xmm3,xmm7
@@ -109,29 +109,5 @@ entropy_scalar_asm:
 	xorps xmm0,xmm11
 	ret
 	.Lerror:
-		movss xmm0,[rip+.Lconstminus1]
+		movss xmm0,[rip + minusone_f]
 		ret
-
-// Constants
-.align 16
-.Lconstminus1:
-	.4byte 0xBF800000
-.align 16
-.Lconst1:
-	.4byte 0x3F800000
-.align 16
-.Land:
-	.4byte 0x7FFFFFFF
-	.4byte 0x00000000
-	.4byte 0x00000000 
-	.4byte 0x00000000
-.align 16
-.Lxor:
-	.long 0x80000000
-    .long 0x00000000
-    .long 0x00000000
-    .long 0x00000000
-.align 16
-.Lfepsilon:
-	.4byte 0x34000000
-	

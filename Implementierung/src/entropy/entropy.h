@@ -15,6 +15,15 @@
 #include "../io/io_operations.h"
 #include "../log2f/log2.h"
 
+
+// Constants for entropy functions
+extern const float one_f;
+extern const float minusone_f;
+extern const uint32_t cmpmask;
+extern const uint32_t absmask;
+extern const float epsilon_f;
+
+
 //===============C functions===================
 float entropy_scalar(size_t len, const float *data, float (*log2_func)(float));
 float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128));

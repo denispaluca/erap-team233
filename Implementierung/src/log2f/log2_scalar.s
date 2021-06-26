@@ -4,11 +4,15 @@
 .global log2_artanh_scalar_asm
 .global log2_lookup_scalar_asm
 
-// Make sure LOG_LOOKUP_TABLE_SIZE in log2.h is the same
-.equ LOG_LOOKUP_TABLE_SIZE, 16
-
 
 // !!! USING CONSTANTS FROM log2.c !!!
+
+// Make sure LOG_LOOKUP_TABLE_SIZE in log2.h is the same
+.equ LOG_LOOKUP_TABLE_SIZE, 16
+.equ EXPONENT_MASK, 0x3F800000
+.equ MANTISSA_MASK, 0x7FFFFF
+.equ BIAS, 127
+.equ MANTISSA_BITS, 23
 
 .text
 // float log2_deg2_scalar_asm(float val);
@@ -17,7 +21,7 @@ log2_deg2_scalar_asm:
 
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
-	shr eax, 23
+	shr eax, MANTISSA_BITS
 
 	// // Special case for denormal floating numbers
 	cmp eax, 0
@@ -25,11 +29,11 @@ log2_deg2_scalar_asm:
 
 	mulss xmm0, [rip + deg2_consts]
 	movd eax, xmm0
-	shr eax, 23
-	sub eax, 23
+	shr eax, MANTISSA_BITS
+	sub eax, MANTISSA_BITS
 
 	.Lnormal_deg2:
-	sub eax, 127
+	sub eax, BIAS
 
 	// Reduce floating point number into
 	// val = 2^k * z form
@@ -37,8 +41,8 @@ log2_deg2_scalar_asm:
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
 	movd ecx,xmm0
-	and ecx, 0x7FFFFF
-	or ecx, 0x3F800000
+	and ecx, MANTISSA_MASK
+	or ecx, EXPONENT_MASK
 
 	movd xmm0, ecx
 
@@ -62,7 +66,7 @@ log2_deg2_scalar_asm:
 log2_deg4_scalar_asm:
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
-	shr eax, 23
+	shr eax, MANTISSA_BITS
 
 	// // Special case for denormal floating numbers
 	cmp eax, 0
@@ -70,11 +74,11 @@ log2_deg4_scalar_asm:
 
 	mulss xmm0, [rip + deg4_consts]
 	movd eax, xmm0
-	shr eax, 23
-	sub eax, 23
+	shr eax, MANTISSA_BITS
+	sub eax, MANTISSA_BITS
 
 	.Lnormal_deg4:
-	sub eax, 127
+	sub eax, BIAS
 
 	// Reduce floating point number into
 	// val = 2^k * z form
@@ -82,13 +86,13 @@ log2_deg4_scalar_asm:
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
 	movd ecx, xmm0
-	and ecx, 0x7FFFFF
-	or ecx, 0x3F800000
+	and ecx, MANTISSA_MASK
+	or ecx, EXPONENT_MASK
 
 	movd xmm0, ecx
 
 	// Apply approximation
-	// log_2(val) = -0.081615808 * z^4 + 0.64514236 * z^3 + 0.64514236 * z^2 + 4.0700908 * z + -2.5128546 + exponent
+	// log_2(val) = -0.081615808 * z^4 + 0.64514MANTISSA_BITS6 * z^3 + 0.64514MANTISSA_BITS6 * z^2 + 4.0700908 * z + -2.5128546 + exponent
 	
 	// y0
 	cvtsi2ss xmm15, eax
@@ -125,7 +129,7 @@ log2_artanh_scalar_asm:
 
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
-	shr eax, 23
+	shr eax, MANTISSA_BITS
 
 	// // Special case for denormal floating numbers
 	cmp eax, 0
@@ -133,11 +137,11 @@ log2_artanh_scalar_asm:
 
 	mulss xmm0, [rip + artanh_consts]
 	movd eax, xmm0
-	shr eax, 23
-	sub eax, 23
+	shr eax, MANTISSA_BITS
+	sub eax, MANTISSA_BITS
 
 	.Lnormal_arctanh:
-	sub eax, 127	
+	sub eax, BIAS	
 
 	// Reduce floating point number into
 	// val = 2^k * z form
@@ -145,8 +149,8 @@ log2_artanh_scalar_asm:
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
 	movd ecx, xmm0
-	and ecx, 0x7FFFFF
-	or ecx, 0x3F800000
+	and ecx, MANTISSA_MASK
+	or ecx, EXPONENT_MASK
 
 	movd xmm0, ecx
 
@@ -190,7 +194,7 @@ log2_lookup_scalar_asm:
 
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
-	shr eax, 23
+	shr eax, MANTISSA_BITS
 
 	// // Special case for denormal floating numbers
 	cmp eax, 0
@@ -198,16 +202,16 @@ log2_lookup_scalar_asm:
 
 	mulss xmm0, [rip + normalize_const]
 	movd eax, xmm0
-	shr eax, 23
-	sub eax, 23
+	shr eax, MANTISSA_BITS
+	sub eax, MANTISSA_BITS
 
 	.Lnormal_lookup:
-	sub eax, 127
+	sub eax, BIAS
 
 	// Get first n bits of mantiss to look in table
 	movd ecx, xmm0
-	and ecx, 0x7FFFFF
-	shr ecx, (23 - LOG_LOOKUP_TABLE_SIZE)
+	and ecx, MANTISSA_MASK
+	shr ecx, (MANTISSA_BITS - LOG_LOOKUP_TABLE_SIZE)
 
 	// log_lookup_table[index] + exponent
 	cvtsi2ss xmm0, eax

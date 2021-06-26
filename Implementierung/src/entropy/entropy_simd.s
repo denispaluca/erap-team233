@@ -34,7 +34,9 @@ entropy_simd_asm:
     pxor xmm4,xmm4
     pxor xmm5,xmm5
     pxor xmm6,xmm6
-    movaps xmm7,[rip+.Lconst1]
+
+    // one_packed defined in log2 constants
+    movaps xmm7,[rip + one_packed]
 
     .Lloop:
         movaps xmm0,[rsi]
@@ -101,9 +103,9 @@ entropy_simd_asm:
         sub rdi,4
         ja .Lloop
 
-    movss xmm9,[rip+.Lfepsilon]
-    movss xmm10,[rip+.Land]
-    movss xmm11,[rip+.Lxor]
+    movss xmm9,[rip + epsilon_f]
+    movss xmm10,[rip + cmpmask]
+    movss xmm11,[rip + absmask]
 
     haddps xmm3,xmm3 
     haddps xmm3,xmm3
@@ -122,33 +124,5 @@ entropy_simd_asm:
     xorps xmm0,xmm11
     ret
     .Lerror:
-        movaps xmm0,[rip+.Lconstminus1]
+        movss xmm0,[rip + minusone_f]
 		ret
-
-// Constants
-.align 16
-.Lconstminus1:
-	.4byte 0xBF800000
-.align 16
-.Lconst1:
-	.4byte 0x3F800000
-    .4byte 0x3F800000
-    .4byte 0x3F800000
-    .4byte 0x3F800000
-.align 16
-.Land:
-	.4byte 0x7FFFFFFF
-	.4byte 0x00000000
-	.4byte 0x00000000 
-	.4byte 0x00000000
-.align 16
-.Lxor:
-	.4byte 0x80000000
-    .4byte 0x00000000
-    .4byte 0x00000000
-    .4byte 0x00000000
-.align 16
-.Lfepsilon:
-	.4byte 0x34000000
-
-

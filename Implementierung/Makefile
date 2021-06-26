@@ -1,8 +1,8 @@
 CC = gcc
 
-#					   limit to sse4.2 /             C11 / No x87 FPU / No MMX     //CLOCK_MONOTIC
-CFLAGS = -O3 $(MATHLIB) -march=nehalem -mtune=generic -std=c11 -mno-80387 -mno-mmx -D_POSIX_C_SOURCE=199309L
-MATHLIB = -lm -no-pie # Math Library, without no-pie fails to use math library functions in assembly
+#		math library	           enable sse4.2 / C11       No x87 / No MMX  / CLOCK_MONOTIC  / target assembly 64 bit generic until sse4.2 without mmx and x87
+CFLAGS = -O3 -lm -no-pie -mtune=generic -msse4.2 -std=c11 -mno-80387 -mno-mmx -D_POSIX_C_SOURCE=199309L -Wa,-march=generic64+sse4.2+nommx+no87
+# Math Library, without no-pie fails to use math library functions in assembly
 
 VERBOSE_FLAGS = -g -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined $(WARNING_FLAGS)
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -pedantic-errors -Wfatal-errors -Wcast-align -Wunused -Wshadow -Wcast-qual -Wno-missing-braces

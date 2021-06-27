@@ -2,23 +2,24 @@
 
 Die Entropie (engl.: Shannon entropy, sym.: $H$) ist in der Informationstheorie ein Maß für den mittleren Informationsgehalt einer Nachricht. Das Informationsgehalt (auch Überraschungswert gennant) eines Ereignisses nimmt mit zunehmenden Wahrscheinlichkeit des Ereignisses ab. Je unwahrscheinlicher das Ereignis ist, desto überraschender ist es, falls es geschieht. Formel für die Entropie eines Zufallsvariable $X$:
 
-\begin{equation}
-    \mathrm {H} (X)=-\sum _{i=1}^{n}{\mathrm {P} (x_{i})\log_2 \mathrm {P} (x_{i})}
-\end{equation}
+\begin{equation*}
+    \mathrm {H} (X)=-\sum _{x \in X}{\mathrm {P} (X = x) \cdot \log_2 (\mathrm {P} (X = x))}
+\end{equation*}
 
-In der gegebenen Aufgabe geht es darum, die Entropie einer Zufallsvariable zu berechnen, gegeben sei die Wahrscheinlichkeitsverteilung der Zufallsvariable. Dafür muss man ein geeignetes Rahmenprogramm und die Entropiefunktion implementieren. Das Programm soll auf Genauigkeit und Performanz getestet.
+Mit der Entropiefunktion kann man sehen, wie gleichmäßig die Wahrscheinlichkeiten verteilt sind. Daher liegt die Entropie zwischen 0 und $\mathrm{log_{2}}(|X|)$. Es ist 0, wenn nur eine Ereignis möglich ist, und $\mathrm{log_{2}}(|X|)$, wenn es sich um eine Gleichverteilung handelt.
+
+In der gegebenen Aufgabe geht es darum, die Entropie einer Zufallsvariable zu berechnen, gegeben sei die Wahrscheinlichkeitsverteilung der Zufallsvariable. Dafür muss man ein geeignetes Rahmenprogramm und die Entropiefunktion implementieren. Das Programm soll auf Genauigkeit und Performanz getestet werden.
 
 Die Wahrscheinlichkeitsverteilung soll als Textdatei übergeben werden. Das Format ist wie folgt:
 
 \begin{itemize}
-    \item Die Datei enthält eine Liste von Zahlen
+    \item Die Datei enthält eine Liste von Gleitkommazahlen
     \item Die Zahlen sind mittels Leerzeichen aufgeteilt
     \item Die Zahlen liegen zwischen 0 und 1 (inklusive)
     \item Die Summe der Zahlen ist gleich 1 (mit einer Fehlerspanne)
-    \item Beispiel: 0.25 0.1 0.05 0.6
 \end{itemize}
 
-Die Datei wird von dem Rahmenprogramm, das in C programmiert ist, eingelesen. Die eingelesene Zahlen werden in ein Array mit
-Fließkommazahlen gespeichert und als Pointer dem Assemblerprogramm übergeben. Das Assemblerprogramm berechnet die Entropie, und danach gibt das Rahmenprogramm die Entropie aus. Die Performanz und die Genauigkeit der Implementierung werden mittels Vergleich zwischen eine Basisimplementierung und verschiedene Implementierungen festgestellt.
+Die Datei wird von dem Rahmenprogramm, das in C programmiert ist, eingelesen. Die eingelesenen Zahlen werden in ein Array mit
+Fließkommazahlen gespeichert und als Pointer dem Assemblerprogramm übergeben. Das Assemblerprogramm berechnet die Entropie und danach gibt das Rahmenprogramm die Entropie aus. Die Performanz und die Genauigkeit der Implementierung werden mittels Vergleich zwischen einer Basisimplementierung und verschiedenen Implementierungen festgestellt.
 
-In folgenden Abschnitten wird der Lösungsansatz genauer erläutert. Ins besonders fokussieren wir an der Logarithmusfunktion und an die angewendete Techniken zur SIMD-Vektorisierung der Entropiefunktion. Danach besprechen wir die Genauigkeit und Performanz verschiedene Implementierungen, und welche Art von Trade-offs sie eingehen. Wir schließen die Arbeit mit einer kurzen Zusammenfassung unserer Ergebnisse sowie mit einigen abschließenden Gedanken über mögliche zukünftige Entwicklungen.
+In den folgenden Abschnitten wird der Lösungsansatz genauer erläutert. Insbesondere fokussieren wir auf die Logarithmusfunktion und auf die angewendeten Techniken zur SIMD-Vektorisierung der Entropiefunktion. Danach besprechen wir die Genauigkeit und Performanz verschiedene Implementierungen und welche Art von Trade-offs sie eingehen. Wir schließen die Arbeit mit einer kurzen Zusammenfassung unserer Ergebnisse sowie mit einigen abschließenden Gedanken über mögliche zukünftige Entwicklungen.

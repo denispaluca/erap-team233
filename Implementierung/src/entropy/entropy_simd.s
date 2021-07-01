@@ -2,9 +2,9 @@
 .global entropy_simd_asm
 
 .text
-.align 16
 // PREREQUISITE:  data must allocate 4*k size otherwise it is undefined behaviour.
 // float(size_t len, float* data, __m128(* log_func) (__m128));
+.align 16
 entropy_simd_asm:
     // rdi is the length of the array
     // rsi is the pointer to the array
@@ -104,8 +104,8 @@ entropy_simd_asm:
         ja .Lloop
 
     movss xmm9,[rip + epsilon_f]
-    movss xmm10,[rip + cmpmask]
-    movss xmm11,[rip + absmask]
+    movss xmm10,[rip + absmask]
+    movss xmm11,[rip + signmask]
 
     haddps xmm3,xmm3 
     haddps xmm3,xmm3
@@ -121,6 +121,7 @@ entropy_simd_asm:
     haddps xmm0,xmm0
     haddps xmm0,xmm0
 
+    // Since in the loop I didnt subtract but added I change the sign.
     xorps xmm0,xmm11
     ret
     .Lerror:

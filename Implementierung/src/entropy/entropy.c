@@ -1,5 +1,4 @@
 #include "entropy.h"
-#include <stdint.h>
 
 float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
 {
@@ -32,7 +31,8 @@ float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
 		sum = t;
 
 		// Kahans Algorithm
-		tmp = - x * log2_func(x);
+		// Summing instead of subtracting.
+		tmp =  x * log2_func(x);
 
 		y = tmp - c_entropy;
 		t = entropy + y;
@@ -47,7 +47,8 @@ float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
 	if (isnan(entropy))
 		return -1;
 
-	return entropy;
+	// Changing the sign at the end.
+	return -entropy;
 }
 
 double entropy_precise(size_t len, const float *data)
@@ -81,7 +82,8 @@ double entropy_precise(size_t len, const float *data)
 		sum = t;
 
 		// Kahans Algorithm
-		tmp = - x * log2(x);
+		// Summing instead of subtracting.
+		tmp =  x * log2(x);
 
 		y = tmp - c_entropy;
 		t = entropy + y;
@@ -96,7 +98,8 @@ double entropy_precise(size_t len, const float *data)
 	if (isnan(entropy))
 		return -1;
 
-	return entropy;
+	// Changing the sign at the end.
+	return -entropy;
 }
 
 // PREREQUISITE:  data should allocated at least len-(4-len % 4) % 4 memory otherwise it is undefined behaviour.
@@ -145,7 +148,8 @@ float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128))
 		sum = t;
 
 		// Kahans Algorithm
-		tmp = - x * log2_func(x);
+		// Summing instead of subtracting.
+		tmp = x * log2_func(x);
 
 		y = tmp - c_entropy;
 		t = entropy + y;
@@ -165,5 +169,6 @@ float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128))
 	entropy = _mm_hadd_ps(entropy, entropy);
 	entropy = _mm_hadd_ps(entropy, entropy);
 
-	return entropy[0];
+	// Changing the sign at the end.
+	return -entropy[0];
 }

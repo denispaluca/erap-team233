@@ -19,8 +19,8 @@
 // Constants for entropy functions
 extern const float one_f;
 extern const float minusone_f;
-extern const uint32_t cmpmask;
 extern const uint32_t absmask;
+extern const uint32_t signmask;
 extern const float epsilon_f;
 
 

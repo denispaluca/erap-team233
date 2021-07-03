@@ -1,97 +1,113 @@
 .intel_syntax noprefix
 .global entropy_scalar_asm
-// .extern log2_asm // We will use it when implemented
-.extern log2f // you can use C libray function in assembly for testing
 
 .text
-.align 16
 //float+ (size_t len, float* data, float (* log2_func) (float));
+.align 16
 entropy_scalar_asm:
 	// rdi is the length of the array
 	// rsi is the pointer to the array
+	// rdx is the log2 function
 
 	test rdi,rdi
-	je .Lzero
+	je .Lerror
 
-
-	// First checking if the array has the properties of probability distrubition.
 	/*
-		r8 = len
-		r9 = data
-		xmm3 = 1.00005 Upper limit for total sum
-		xmm4 = 0.99995 Lower limit for total sum
-		xmm5 = 0.0
-		xmm6 = 1.0
-		xmm7 = current element
-		xmm8 = total sum
+		rdi = length
+		rsi = pointer to array
+		rdx = function
+		xmm0 = current element
+		xmm1 = current element
+		xmm2 = entropy
+		xmm3 = sum
+		xmm4 = c_sum(Kahans Algorithm)
+		xmm5 = c_entropy(Kahans Algorithm)
+		xmm6 = 0 (Checking if number is negative)
+		xmm7 = 1 (Checking if numnber is bigger than 1)
 	*/
-	cvtsi2ss xmm9,rdi
-	mulss xmm9,[rip+.Lconst1eminus7]
-	movss xmm3,[rip+.Lconstupperlimit]
-	addss xmm3,xmm9
-	movss xmm4,[rip+.Lconstlowerlimit]
-	subss xmm4,xmm9
-	pxor xmm5,xmm5
-	movss xmm6,[rip+.Lconst1]
-	pxor xmm8,xmm8
-
-	// store entropy temporarily on xmm2
-	pxor xmm2,xmm2 
 	
+	pxor xmm2,xmm2
+	pxor xmm3,xmm3
+	pxor xmm4,xmm4
+	pxor xmm5,xmm5
+	pxor xmm6,xmm6
+	movss xmm7,[rip + one_f]
 
 	.Lloop:
 
 		movss xmm0,[rsi];
-		addss xmm8,xmm0
-
-		comiss xmm0,xmm5
+		movss xmm1,[rsi]
+		
+		// Checking x < 0
+		comiss xmm0,xmm6
 		jb .Lerror
 
-		comiss xmm0,xmm6
+		// Checking x > 1
+		comiss xmm0,xmm7
 		ja .Lerror
 
 		sub rsp,0x08
 		call rdx
 		add rsp,0x08
+		/*
+			Kahans Algorithm
+			xmm0 = log2f(x)
+			xmm1 = x
+			xmm2 = entropy
+			xmm3 = sum
+			xmm4 = c_sum
+			xmm5 = c_entropy
+			xmm12 = y
+			xmm11 = t
+		*/
 
-		movss xmm1,[rsi]
+		// Sum part
+		movss xmm12,xmm1 
+		movss xmm11,xmm3 
 
+		subss xmm12,xmm4 
+		addss xmm11,xmm12
+
+		movss xmm4,xmm11 
+		subss xmm4,xmm3 
+		subss xmm4,xmm12
+
+		movss xmm3,xmm11 
+
+		//Entropy part
 		mulss xmm0,xmm1
-		subss xmm2,xmm0
+
+		movss xmm12,xmm0 
+		movss xmm11,xmm2 
+
+		subss xmm12,xmm5 
+		addss xmm11,xmm12 
+
+		movss xmm5,xmm11 
+		subss xmm5,xmm2 
+		subss xmm5,xmm12
+
+		movss xmm2,xmm11
 
 		add rsi,4
 		sub rdi,1
 	 	ja .Lloop
 
-	comiss xmm8,xmm3
+	movss xmm9,[rip + epsilon_f]
+	movss xmm10,[rip + absmask]
+	movss xmm11,[rip + signmask]
+
+	// checking if |sum-1| < epsilon
+	subss xmm3,xmm7
+	andps xmm3,xmm10
+
+	comiss xmm3,xmm9
 	ja .Lerror
 
-	comiss xmm8,xmm4
-	jb .Lerror
-
+	// Since in the loop I didnt subtract but added I change the sign.
 	movss xmm0,xmm2
+	xorps xmm0,xmm11
 	ret
-
-	.Lzero:
-		pxor xmm0,xmm0
-		ret
 	.Lerror:
-		movss xmm0,[rip+.Lconstminus1]
+		movss xmm0,[rip + minusone_f]
 		ret
-
-// Constants
-.align 16
-.Lconstminus1:
-	.4byte 0xBF800000
-.align 16
-.Lconst1:
-	.4byte 0x3F800000
-.align 16
-.Lconstupperlimit:
-	.4byte 0x3F80002A
-.align 16
-.Lconstlowerlimit:
-	.4byte 0x3F7FFFAC
-.align 16
-.Lconst1eminus7:
-	.4byte 0x33D6BF95

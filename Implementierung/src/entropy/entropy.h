@@ -12,12 +12,17 @@
 #define likely(x) __builtin_expect((x), 1)
 #define unlikely(x) __builtin_expect((x), 0)
 
-// Error Margin
-#define UPPER_LIMIT 1.000005f
-#define LOWER_LIMIT 0.999995f
-
 #include "../io/io_operations.h"
 #include "../log2f/log2.h"
+
+
+// Constants for entropy functions
+extern const float one_f;
+extern const float minusone_f;
+extern const uint32_t absmask;
+extern const uint32_t signmask;
+extern const float epsilon_f;
+
 
 //===============C functions===================
 float entropy_scalar(size_t len, const float *data, float (*log2_func)(float));

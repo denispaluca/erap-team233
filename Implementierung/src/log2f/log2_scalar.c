@@ -23,7 +23,7 @@ inline void reduce_float_scalar(union num *data, int *exponent)
 float log2_deg2_scalar(float x)
 {
     union num data = {.flt = x};
-    int exponent;
+    int32_t exponent = 0;
 
     reduce_float_scalar(&data, &exponent);
 
@@ -41,7 +41,7 @@ float log2_deg2_scalar(float x)
 float log2_deg4_scalar(float x)
 {
     union num data = {.flt = x};
-    int exponent;
+    int32_t exponent = 0;
 
     reduce_float_scalar(&data, &exponent);
 
@@ -63,7 +63,7 @@ float log2_deg4_scalar(float x)
 float log2_artanh_scalar(float x)
 {
     union num data = {.flt = x};
-    int exponent;
+    int32_t exponent = 0;
 
     reduce_float_scalar(&data, &exponent);
 
@@ -87,7 +87,8 @@ float log2_artanh_scalar(float x)
 float log2_lookup_scalar(float x)
 {
     union num data = {.flt = x};
-    int exponent, index;
+    int32_t exponent = 0;
+    int32_t index = 0;
 
     reduce_float_scalar(&data, &exponent);
 

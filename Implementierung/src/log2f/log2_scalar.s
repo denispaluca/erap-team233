@@ -63,6 +63,7 @@ log2_deg2_scalar_asm:
 
 
 // float log2_deg4_scalar_asm(float val);
+.align 16
 log2_deg4_scalar_asm:
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
@@ -125,6 +126,7 @@ log2_deg4_scalar_asm:
 	ret
 
 // float log2_deg4_scalar_asm(float val);
+.align 16
 log2_artanh_scalar_asm:
 
 	// Extract exponent from IEEE Floating Number
@@ -190,6 +192,7 @@ log2_artanh_scalar_asm:
 	ret
 
 // float log2_lookup_scalar(float x)
+.align 16
 log2_lookup_scalar_asm:
 
 	// Extract exponent from IEEE Floating Number

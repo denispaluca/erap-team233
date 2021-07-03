@@ -13,6 +13,7 @@
 .text
 
 // __m128 log2approx_deg2_sse_asm(__m128 x)
+.align 16
 log2_deg2_simd_asm:
     
     // Extract exponents from IEEE Floating Numbers
@@ -63,6 +64,7 @@ log2_deg2_simd_asm:
     ret
 
 // __m128 log2_deg4_simd_asm(__m128 x)
+.align 16
 log2_deg4_simd_asm:
 
     // Extract exponents from IEEE Floating Numbers
@@ -132,6 +134,7 @@ log2_deg4_simd_asm:
     ret
 
 // __m128 log2_artanh_simd_asm(__m128 x)
+.align 16
 log2_artanh_simd_asm:
 
     // Extract exponents from IEEE Floating Numbers
@@ -190,7 +193,8 @@ log2_artanh_simd_asm:
     addps xmm0, xmm15
 
     ret
-
+//__m128 log2_lookup_simd_asm(__m128 x)
+.align 16
 log2_lookup_simd_asm:
 
     // Extract exponents from IEEE Floating Numbers

@@ -2,8 +2,8 @@
 .global entropy_scalar_asm
 
 .text
-.align 16
 //float+ (size_t len, float* data, float (* log2_func) (float));
+.align 16
 entropy_scalar_asm:
 	// rdi is the length of the array
 	// rsi is the pointer to the array
@@ -94,8 +94,8 @@ entropy_scalar_asm:
 	 	ja .Lloop
 
 	movss xmm9,[rip + epsilon_f]
-	movss xmm10,[rip + cmpmask]
-	movss xmm11,[rip + absmask]
+	movss xmm10,[rip + absmask]
+	movss xmm11,[rip + signmask]
 
 	// checking if |sum-1| < epsilon
 	subss xmm3,xmm7
@@ -104,7 +104,7 @@ entropy_scalar_asm:
 	comiss xmm3,xmm9
 	ja .Lerror
 
-	// Since in the loop I didnt subtract but added I take the aboslute value.
+	// Since in the loop I didnt subtract but added I change the sign.
 	movss xmm0,xmm2
 	xorps xmm0,xmm11
 	ret

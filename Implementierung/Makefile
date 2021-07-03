@@ -19,14 +19,15 @@ TEST = test
 
 .PHONY: clean build_dir release perf-cache perf-branch
 
-$(PROGRAM): build_dir
+#default target is release mode
+$(PROGRAM): build_dir 
+	$(CC) $(LIB_FILES) $(CFLAGS) $(SRC_DIR)/main.c -o $(BUILD_DIR)/$(PROGRAM)
+
+debug: build_dir
 	@$(CC) $(LIB_FILES) $(CFLAGS) $(VERBOSE_FLAGS) $(SRC_DIR)/main.c -o $(BUILD_DIR)/$(PROGRAM)
 
 test: build_dir
 	@$(CC) $(TEST_FILES) $(LIB_FILES) $(CFLAGS) -o $(BUILD_DIR)/$(TEST)
-
-release: $(PROGRAM)
-	$(CC) $(LIB_FILES) $(CFLAGS) $(SRC_DIR)/main.c -o $(BUILD_DIR)/$(PROGRAM)
 
 # Need to specify program argumets via "make perf-cache|perf-branch args="<ARGS HERE>" "
 perf-cache: $(PROGRAM)

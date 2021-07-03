@@ -4,7 +4,7 @@ n  = 16
 
 steps = 1 << n
 
-x = 1.0 + (1.0 / (1 << (n + 1)))
+x = 1.0
 step_size = 1.0 / steps
 
 list = []
@@ -16,7 +16,7 @@ for i in range(steps >> 2):
         x += step_size
     list.append(tmp)
 
-f = open("log_const.c", "a+")
+f = open("log2_consts.c", "a+")
 
 string = "{\n"
 

@@ -9,7 +9,7 @@ size_t size_file(const char *file_name)
 	if (input_file == NULL)
 	{
 		printf("Error occured while trying to open the input file: %s.\n", file_name);
-		printf("Skipping the file %s. \n", file_name);
+		//printf("Skipping the file %s. \n", file_name);
 		return 0;
 	}
 
@@ -47,7 +47,7 @@ float *read_file(size_t len, const char *file_name)
 	if (input_file == NULL)
 	{
 		printf("Error occured while trying to open the input file: %s.\n", file_name);
-		printf("Skipping the file %s. \n", file_name);
+		//printf("Skipping the file %s. \n", file_name);
 		free(inputs);
 		return NULL;
 	}

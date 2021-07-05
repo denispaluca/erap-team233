@@ -8,36 +8,26 @@ VERBOSE_FLAGS = -g -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefin
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -pedantic-errors -Wfatal-errors -Wcast-align -Wunused -Wshadow -Wcast-qual -Wno-missing-braces
 
 SRC_DIR = src
-BUILD_DIR = build
-TEST_DIR = tests
 
-LIB_FILES = $(shell find $(SRC_DIR) -name "*.c" -not -name "main.c" -o -name "*.S" -o -name "*.s")
-TEST_FILES = $(shell find $(TEST_DIR) -name "*.c" -not -name "main.c" -o -name "*.S" -o -name "*.s")
+FILES = $(shell find . -name "*.c" -o -name "*.S" -o -name "*.s")
 
 PROGRAM = entropy
-TEST = test
 
-.PHONY: clean build_dir release perf-cache perf-branch
+.PHONY: clean release perf-cache perf-branch
 
 #default target is release mode
-$(PROGRAM): build_dir 
-	$(CC) $(LIB_FILES) $(CFLAGS) $(SRC_DIR)/main.c -o $(BUILD_DIR)/$(PROGRAM)
+$(PROGRAM):
+	$(CC) $(FILES) $(CFLAGS) -o $(PROGRAM)
 
-debug: build_dir
-	@$(CC) $(LIB_FILES) $(CFLAGS) $(VERBOSE_FLAGS) $(SRC_DIR)/main.c -o $(BUILD_DIR)/$(PROGRAM)
-
-test: build_dir
-	@$(CC) $(TEST_FILES) $(LIB_FILES) $(CFLAGS) -o $(BUILD_DIR)/$(TEST)
+debug:
+	@$(CC) $(FILES) $(CFLAGS) $(VERBOSE_FLAGS) -o $(PROGRAM)
 
 # Need to specify program argumets via "make perf-cache|perf-branch args="<ARGS HERE>" "
 perf-cache: $(PROGRAM)
-	@perf stat -e cache-misses ./$(BUILD_DIR)/$(PROGRAM) $(args)
+	perf stat -e cache-misses ./$(PROGRAM) $(args)
 
 perf-branch: $(PROGRAM)
-	@perf stat -e branch-misses ./$(BUILD_DIR)/$(PROGRAM) $(args)
-
-build_dir:
-	@mkdir -p build	
+	perf stat -e branch-misses ./$(PROGRAM) $(args)
 
 clean:
-	rm -rf $(BUILD_DIR)/*
+	rm $(PROGRAM)

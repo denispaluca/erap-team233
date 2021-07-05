@@ -8,6 +8,7 @@
 
 #include "entropy/entropy.h"
 #include "io/io_operations.h"
+#include "../tests/tests.h"
 
 enum Language
 {
@@ -27,18 +28,6 @@ enum Implementation
     LOOKUP,
     LOG2F
 };
-/*
-    -l, --language => implementation language c|asm
-	-m, --mode => run mode scalar|simd
-    -i, --implementation => deg2|deg4|artanh|lookup
-	-t, --time => calculate time that program takes [optional iterations]
-	-a, --accuracy => difference with double precision scalar entropy
-    -r, --random => test with random data
-    -g, --generator => selects random generator rand|urandom
-    -u, --non-uniform => makes the random distribution nonuniform  
-    -f, --full => run tests for the data with all possible configurations
-	-h, --help 
-*/
 
 float calculate_entropy(size_t n, const float *data, enum Language lan, enum Mode mode, enum Implementation impl)
 {
@@ -233,37 +222,40 @@ void print_usage()
            "\t-g, --generator => selects random generator rand|urandom. Default is rand.\n"
            "\t-u, --uniform => makes the random distribution uniform.\n"
            "\t-f, --full => run tests for the data with all possible configurations.\n"
+           "\t-b, --benchmark => run benchmarks.\n"
            "\t-h, --help\n");
 }
 
 int main(int argc, char *argv[])
 {
 
-    // optind -> index of next element to be processed in argv
-    // nextchar -> if finds option character, returns it
+    /*
+    optind -> index of next element to be processed in argv
+    nextchar -> if finds option character, returns it
 
-    // no more option character, getopt returns -1
-    // Then optind is the index in argv of the first argv-element that is not an option.
+    no more option character, getopt returns -1
+    Then optind is the index in argv of the first argv-element that is not an option.
 
-    // optstring is a string containing the legitimate option characters.
-    // If such a character is followed by a colon, the option requires an argument, so getopt() places a pointer to the
-    // following text in the same argv-element, or the text of the following argv-element, in optarg.
-    // otherwise optarg is set to zero.
+    optstring is a string containing the legitimate option characters.
+    If such a character is followed by a colon, the option requires an argument, so getopt() places a pointer to the
+    following text in the same argv-element, or the text of the following argv-element, in optarg.
+    otherwise optarg is set to zero.
 
-    //If an option was successfully found, then getopt() returns the option character.  If all command-line options have been parsed,
-    // then getopt() returns -1.  If getopt() encounters an option character that was not in optstring, then '?' is returned.
+    If an option was successfully found, then getopt() returns the option character.  If all command-line options have been parsed,
+    then getopt() returns -1.  If getopt() encounters an option character that was not in optstring, then '?' is returned.
 
-    // If the first character of optstring is '-', then each nonoption argv-element is handled as if it were the argument
-    // of an option with character code 1.
+    If the first character of optstring is '-', then each nonoption argv-element is handled as if it were the argument
+    of an option with character code 1.
 
-    // Long option names may be abbreviated if the abbreviation is unique or is an exact match for some defined option.
-    // The last element of the array has to be filled with zeros.
+    Long option names may be abbreviated if the abbreviation is unique or is an exact match for some defined option.
+    The last element of the array has to be filled with zeros.
+    */
 
     int32_t opt;
 
-    const char *optstring = ":-l:m:i:r:t::ahfg:u";
+    const char *optstring = ":-l:m:i:r:t::ahfg:ub";
 
-    static struct option long_options[] = {
+    const struct option long_options[] = {
         {"language", required_argument, 0, 'l'},
         {"mode", required_argument, 0, 'm'},
         {"implementation", required_argument, 0, 'i'},
@@ -273,8 +265,10 @@ int main(int argc, char *argv[])
         {"random", required_argument, 0, 'r'},
         {"generator", required_argument, 0, 'g'},
         {"uniform", no_argument, 0, 'u'},
+        {"benchmark", no_argument, 0, 'b'},
         {"full", no_argument, 0, 'f'},
-        {0, 0, 0, 0}};
+        {0, 0, 0, 0}
+    };
 
     int32_t optindex = 0;
 
@@ -288,6 +282,7 @@ int main(int argc, char *argv[])
     bool full = false;
     bool generator = false;
     bool uniform = false;
+    bool benchmark = false;
 
     // Fetching option arguments
     while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1)
@@ -382,6 +377,9 @@ int main(int argc, char *argv[])
         case 'f':
             full = true;
             break;
+        case 'b':
+            benchmark = true;
+            break;
         case 'h':
             print_usage();
             return EXIT_SUCCESS;
@@ -396,6 +394,29 @@ int main(int argc, char *argv[])
         }
     }
 
+
+    // Run benchmarks if flag provided before anything else
+    if (benchmark) 
+    {
+        if (!(accuracy || time))
+        {
+            printf("You need to specify at least -a or -t to run benchmarks.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        if (time)
+        {
+            test_performance(iterations);
+        }
+
+        if (accuracy) 
+        {
+            test_accuracy();
+        }
+
+        exit(EXIT_SUCCESS);
+    }
+
     struct Handler handler;
     handler.data = NULL;
     handler.len = 0;
@@ -404,16 +425,16 @@ int main(int argc, char *argv[])
     if (argv[optind] != NULL)
     {
         handler = handle_file(argv[optind]);
+
+        if (handler.status == -1)
+        {
+            // TODO Calculating... text should not be displayed
+            exit(EXIT_FAILURE);
+        }
+
         printf("-----------------------------------------------------\n");
         printf("       Calculating entropy of %s.\n", argv[optind]);
         printf("-----------------------------------------------------\n\n");
-    }
-
-    if (handler.status == -1 && randLen == 0)
-    {
-        // TODO Calculating... text should not be displayed
-        printf("Invalid Data Input! \n");
-        exit(EXIT_FAILURE);
     }
 
     if (argv[optind] == NULL && randLen != 0)

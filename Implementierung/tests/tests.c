@@ -108,33 +108,35 @@ int main()
         array[i] = 0;
     }
     printf("Calculating \n");
-    size_t iterations = 25000;
-    for (size_t i = 1; i <= iterations; ++i)
+        printf("WTF \n");
+    for (size_t i = 0; i < 5; ++i)
     {
-        float *data = entropy_urandom_non_uniform(i);
-        array[0] += accuracy_diff(i, data, log2f, entropy_scalar);
-        array[1] += accuracy_diff(i, data, log2_deg2_scalar, entropy_scalar);
-        array[2] += accuracy_diff(i, data, log2_deg4_scalar, entropy_scalar);
-        array[3] += accuracy_diff(i, data, log2_artanh_scalar, entropy_scalar);
-        array[4] += accuracy_diff(i, data, log2_lookup_scalar, entropy_scalar);
-        array[5] += accuracy_diff(i, data, log2_deg2_scalar_asm, entropy_scalar_asm);
-        array[6] += accuracy_diff(i, data, log2_deg4_scalar_asm, entropy_scalar_asm);
-        array[7] += accuracy_diff(i, data, log2_artanh_scalar_asm, entropy_scalar_asm);
-        array[8] += accuracy_diff(i, data, log2_lookup_scalar_asm, entropy_scalar_asm);
-        array[9] += accuracy_diff_simd(i, data, log2_glibc_simd, entropy_simd);
-        array[10] += accuracy_diff_simd(i, data, log2_deg2_simd, entropy_simd);
-        array[11] += accuracy_diff_simd(i, data, log2_deg4_simd, entropy_simd);
-        array[12] += accuracy_diff_simd(i, data, log2_artanh_simd, entropy_simd);
-        array[13] += accuracy_diff_simd(i, data, log2_lookup_simd, entropy_simd);
-        array[14] += accuracy_diff_simd(i, data, log2_deg2_simd_asm, entropy_simd_asm);
-        array[15] += accuracy_diff_simd(i, data, log2_deg4_simd_asm, entropy_simd_asm);
-        array[16] += accuracy_diff_simd(i, data, log2_artanh_simd_asm, entropy_simd_asm);
-        array[17] += accuracy_diff_simd(i, data, log2_lookup_simd_asm, entropy_simd_asm);
-        free(data);
+        
+        struct Handler file;
+        file = handle_file(files[i]);
+        array[0] += accuracy_diff(file.len, file.data, log2f, entropy_scalar);
+        array[1] += accuracy_diff(file.len, file.data, log2_deg2_scalar, entropy_scalar);
+        array[2] += accuracy_diff(file.len, file.data, log2_deg4_scalar, entropy_scalar);
+        array[3] += accuracy_diff(file.len, file.data, log2_artanh_scalar, entropy_scalar);
+        array[4] += accuracy_diff(file.len, file.data, log2_lookup_scalar, entropy_scalar);
+        array[5] += accuracy_diff(file.len, file.data, log2_deg2_scalar_asm, entropy_scalar_asm);
+        array[6] += accuracy_diff(file.len, file.data, log2_deg4_scalar_asm, entropy_scalar_asm);
+        array[7] += accuracy_diff(file.len, file.data, log2_artanh_scalar_asm, entropy_scalar_asm);
+        array[8] += accuracy_diff(file.len, file.data, log2_lookup_scalar_asm, entropy_scalar_asm);
+        array[9] += accuracy_diff_simd(file.len, file.data, log2_glibc_simd, entropy_simd);
+        array[10] += accuracy_diff_simd(file.len, file.data, log2_deg2_simd, entropy_simd);
+        array[11] += accuracy_diff_simd(file.len, file.data, log2_deg4_simd, entropy_simd);
+        array[12] += accuracy_diff_simd(file.len, file.data, log2_artanh_simd, entropy_simd);
+        array[13] += accuracy_diff_simd(file.len, file.data, log2_lookup_simd, entropy_simd);
+        array[14] += accuracy_diff_simd(file.len, file.data, log2_deg2_simd_asm, entropy_simd_asm);
+        array[15] += accuracy_diff_simd(file.len, file.data, log2_deg4_simd_asm, entropy_simd_asm);
+        array[16] += accuracy_diff_simd(file.len, file.data, log2_artanh_simd_asm, entropy_simd_asm);
+        array[17] += accuracy_diff_simd(file.len, file.data, log2_lookup_simd_asm, entropy_simd_asm);
+        free(file.data);
     }
     for (size_t i = 0; i < 18; ++i)
     {
-        double result = array[i] / iterations;
+        double result = array[i] / 5;
         printf("%f \n", result);
     }
 }

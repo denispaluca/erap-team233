@@ -39,8 +39,6 @@ float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
 		c_entropy = (t - entropy) - y;
 
 		entropy = t;
-
-		entropy += x*log2_func(x);
 	}
 
 	if (fabs(sum - 1) > __FLT_EPSILON__)
@@ -158,7 +156,6 @@ float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128))
 		c_entropy = (t - entropy) - y;
 
 		entropy = t;
-		entropy += x * log2_func(x);
 	}
 
 	sum = _mm_hadd_ps(sum, sum);

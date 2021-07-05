@@ -1,6 +1,6 @@
 #include "log2.h"
 
-inline void reduce_float_simd(union num_s *data, __m128i *exponent)
+void reduce_float_simd(union num_s *data, __m128i *exponent)
 {
 
     /* 

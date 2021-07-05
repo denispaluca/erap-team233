@@ -1,6 +1,6 @@
 #include "log2.h"
 
-inline void reduce_float_scalar(union num *data, int *exponent)
+void reduce_float_scalar(union num *data, int *exponent)
 {
 
     // Get exponent (omitting sign bit()

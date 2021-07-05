@@ -16,10 +16,10 @@ PROGRAM = entropy
 .PHONY: clean release perf-cache perf-branch
 
 #default target is release mode
-$(PROGRAM):
-	$(CC) $(FILES) $(CFLAGS) -o $(PROGRAM)
+$(PROGRAM): $(FILES)
+	@$(CC) $(FILES) $(CFLAGS) -o $(PROGRAM)
 
-debug:
+debug: $(FILES)
 	@$(CC) $(FILES) $(CFLAGS) $(VERBOSE_FLAGS) -o $(PROGRAM)
 
 # Need to specify program argumets via "make perf-cache|perf-branch args="<ARGS HERE>" "

@@ -176,7 +176,7 @@ void test_performance(size_t it)
         if (file.data != NULL)
         {
 
-            printf("%-23s| ", files_accuracy[i]);
+            printf("%-23s| ", files_performance[i]);
             double time = 0;
 
             time = time_calc_simd(it, file.len, file.data, log2_glibc_simd, entropy_simd);

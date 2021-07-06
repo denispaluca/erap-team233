@@ -21,7 +21,9 @@ f = open("log2_consts.c", "a+")
 string = "{\n"
 
 for i in list:
-    string += str(i).lstrip('[').rstrip(']') + ",\n"
+    for j in i:
+        string += str(float(j)) + ", "
+    string += "\n"
 
 string = string.rstrip().rstrip(',') + '\n'
 f.write(string + "};\n")

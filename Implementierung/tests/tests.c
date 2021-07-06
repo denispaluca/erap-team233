@@ -81,7 +81,7 @@ void test_performance(size_t it)
 
         if (file.data != NULL)
         {
-            printf("Performance benchmark for the file: %s \n",files[i]);
+            printf("Performance benchmark for the file: %s \n", files[i]);
             double time = 0;
             time = time_calc(it, file.len, file.data, log2f, entropy_scalar);
             printf("LOG2F Calculation took: %*s%f seconds\n", 14, "", time);
@@ -135,7 +135,6 @@ void test_performance(size_t it)
 
             time = time_calc_simd(it, file.len, file.data, log2_lookup_simd_asm, entropy_simd_asm);
             printf("ASM SIMD LOOKUP Calculation took: %*s%f seconds\n", 4, "", time);
-
 
             printf("\n");
             free(file.data);
@@ -192,40 +191,58 @@ void test_accuracy()
         double abs_mistake = 0;
         abs_mistake = array[0] / success;
         printf("LOG2F Absolute Mistake:%*s%f\n", 15, "", abs_mistake);
+
         abs_mistake = array[1] / success;
         printf("DEG2 Absolute Mistake:%*s%f\n", 16, "", abs_mistake);
+
         abs_mistake = array[2] / success;
         printf("DEG4 Absolute Mistake:%*s%f\n", 16, "", abs_mistake);
+
         abs_mistake = array[3] / success;
         printf("ARTANH Absolute Mistake:%*s%f\n", 14, "", abs_mistake);
+
         abs_mistake = array[4] / success;
         printf("LOOKUP Absolute Mistake:%*s%f\n", 14, "", abs_mistake);
+
         abs_mistake = array[5] / success;
         printf("ASM DEG2 Absolute Mistake:%*s%f\n", 12, "", abs_mistake);
+
         abs_mistake = array[6] / success;
         printf("ASM DEG4 Absolute Mistake:%*s%f\n", 12, "", abs_mistake);
+
         abs_mistake = array[7] / success;
         printf("ASM ARTANH Absolute Mistake:%*s%f\n", 10, "", abs_mistake);
+
         abs_mistake = array[8] / success;
         printf("ASM LOOKUP Absolute Mistake:%*s%f\n", 10, "", abs_mistake);
+
         abs_mistake = array[9] / success;
         printf("SIMD GLIBC Absolute Mistake:%*s%f\n", 10, "", abs_mistake);
+
         abs_mistake = array[10] / success;
         printf("SIMD DEG2 Absolute Mistake:%*s%f\n", 11, "", abs_mistake);
+
         abs_mistake = array[11] / success;
         printf("SIMD DEG4 Absolute Mistake:%*s%f\n", 11, "", abs_mistake);
+
         abs_mistake = array[12] / success;
         printf("SIMD ARTANH Absolute Mistake:%*s%f\n", 9, "", abs_mistake);
+
         abs_mistake = array[13] / success;
         printf("SIMD LOOKUP Absolute Mistake:%*s%f\n", 9, "", abs_mistake);
+
         abs_mistake = array[14] / success;
         printf("ASM SIMD DEG2 Absolute Mistake:%*s%f\n", 7, "", abs_mistake);
+
         abs_mistake = array[15] / success;
         printf("ASM SIMD DEG4 Absolute Mistake:%*s%f\n", 7, "", abs_mistake);
+
         abs_mistake = array[16] / success;
         printf("ASM SIMD ARTANH Absolute Mistake:%*s%f\n", 5, "", abs_mistake);
+
         abs_mistake = array[17] / success;
         printf("ASM SIMD LOOKUP Absolute Mistake:%*s%f\n", 5, "", abs_mistake);
+        
     }
     else
     {

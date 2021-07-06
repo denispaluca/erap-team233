@@ -13,7 +13,7 @@ FILES = $(shell find . -name "*.c" -o -name "*.S" -o -name "*.s")
 
 PROGRAM = entropy
 
-.PHONY: clean release perf-cache perf-branch
+.PHONY: clean perf-cache perf-branch
 
 #default target is release mode
 $(PROGRAM): $(FILES)

@@ -66,11 +66,11 @@ static const char *files_performance[] = {
     "data_1_000_000_uni"
     };
 static const char *files_accuracy[] = {
-    "data_5_000_non-uni",
-    "data_10_000_non-uni",
-    "data_50_000_non-uni",
-    "data_100_000_non-uni",
-    "data_500_000_non-uni"
+    "data_500_000_non-uni",
+    "data_500_000_non-uni-2",
+    "data_500_000_non-uni-3",
+    "data_500_000_non-uni-4",
+    "data_500_000_non-uni-5"
     };
 
 static const char* seperator = "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
@@ -176,7 +176,7 @@ void test_performance(size_t it)
         if (file.data != NULL)
         {
 
-            printf("%-23s| ", files_performance[i]);
+            printf("%-23s| ", files_accuracy[i]);
             double time = 0;
 
             time = time_calc_simd(it, file.len, file.data, log2_glibc_simd, entropy_simd);

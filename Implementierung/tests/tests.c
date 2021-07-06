@@ -1,7 +1,7 @@
 #include "../src/entropy/entropy.h"
 #include <locale.h>
 
-double time_calc(size_t it, size_t n, const float *arr, float (*log2_func)(float), float (*entropy)(size_t, const float *, float (*)(float)))
+static double time_calc(size_t it, size_t n, const float *arr, float (*log2_func)(float), float (*entropy)(size_t, const float *, float (*)(float)))
 {
 
     struct timespec start, end;
@@ -18,7 +18,7 @@ double time_calc(size_t it, size_t n, const float *arr, float (*log2_func)(float
     return time_secs;
 }
 
-double time_calc_simd(size_t it, size_t n, const float *arr, __m128 (*log2_func)(__m128), float (*entropy)(size_t, const float *, __m128 (*)(__m128)))
+static double time_calc_simd(size_t it, size_t n, const float *arr, __m128 (*log2_func)(__m128), float (*entropy)(size_t, const float *, __m128 (*)(__m128)))
 {
 
     struct timespec start, end;
@@ -35,7 +35,7 @@ double time_calc_simd(size_t it, size_t n, const float *arr, __m128 (*log2_func)
     return time_secs;
 }
 
-double accuracy_diff(size_t n, const float *arr, float (*log2_func)(float), float (*entropy)(size_t, const float *, float (*)(float)))
+static double accuracy_diff(size_t n, const float *arr, float (*log2_func)(float), float (*entropy)(size_t, const float *, float (*)(float)))
 {
     double precise = entropy_precise(n, arr);
     float actual = entropy(n, arr, log2_func);
@@ -45,7 +45,7 @@ double accuracy_diff(size_t n, const float *arr, float (*log2_func)(float), floa
     return diff;
 }
 
-double accuracy_diff_simd(size_t n, const float *arr, __m128 (*log2_func)(__m128), float (*entropy)(size_t, const float *, __m128 (*)(__m128)))
+static double accuracy_diff_simd(size_t n, const float *arr, __m128 (*log2_func)(__m128), float (*entropy)(size_t, const float *, __m128 (*)(__m128)))
 {
     double precise = entropy_precise(n, arr);
     float actual = entropy(n, arr, log2_func);
@@ -55,12 +55,7 @@ double accuracy_diff_simd(size_t n, const float *arr, __m128 (*log2_func)(__m128
     return diff;
 }
 
-void print_out(double t)
-{
-    printf("%.6f ", t);
-}
-
-const char *files[] = {
+static const char *files[] = {
     "tests/testfiles/data_100_000_non-uni",
     "tests/testfiles/data_100_000_uni",
     "tests/testfiles/data_500_000_non-uni",
@@ -242,7 +237,6 @@ void test_accuracy()
 
         abs_mistake = array[17] / success;
         printf("ASM SIMD LOOKUP Absolute Mistake:%*s%f\n", 5, "", abs_mistake);
-        
     }
     else
     {

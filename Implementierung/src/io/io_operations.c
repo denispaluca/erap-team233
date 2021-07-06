@@ -1,7 +1,7 @@
 #include "io_operations.h"
 
 // This function determines the size of inputs in the given file name.
-size_t size_file(const char *file_name)
+static size_t size_file(const char *file_name)
 {
 	FILE *input_file;
 	input_file = fopen(file_name, "r");
@@ -26,7 +26,7 @@ size_t size_file(const char *file_name)
 	return len;
 }
 
-float *read_file(size_t len, const char *file_name)
+static float *read_file(size_t len, const char *file_name)
 {
 
 	// allocate enough spaces to store every input.

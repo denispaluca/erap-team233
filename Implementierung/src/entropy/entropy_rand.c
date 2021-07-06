@@ -1,7 +1,7 @@
 #include "entropy.h"
 
 // Compare function for qsort
-int compare_function_int(const void *a, const void *b)
+static int compare_function_int(const void *a, const void *b)
 {
     int32_t x = *(const int32_t *)a;
     int32_t y = *(const int32_t *)b;

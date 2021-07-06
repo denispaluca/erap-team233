@@ -11,8 +11,7 @@ struct Handler
     float *data;
     int32_t status;
 };
-size_t size_file(const char *file_name);
-float *read_file(size_t len, const char *file_name);
+
 struct Handler handle_file(const char *file_name);
 
 #endif

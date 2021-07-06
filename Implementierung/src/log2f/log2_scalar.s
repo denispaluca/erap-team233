@@ -14,10 +14,8 @@
 .equ BIAS, 127
 .equ MANTISSA_BITS, 23
 
-.text
-// float log2_deg2_scalar_asm(float val);
-.align 16
-log2_deg2_scalar_asm:
+// Macro for reduce_float() inline function
+.macro REDUCE_FLOAT label, reduce = 1
 
 	// Extract exponent from IEEE Floating Number
 	movd eax, xmm0
@@ -25,26 +23,36 @@ log2_deg2_scalar_asm:
 
 	// // Special case for denormal floating numbers
 	cmp eax, 0
-	jnz .Lnormal_deg2
+	jnz .L\label
 
-	mulss xmm0, [rip + deg2_consts]
+	mulss xmm0, [rip + artanh_consts]
 	movd eax, xmm0
 	shr eax, MANTISSA_BITS
 	sub eax, MANTISSA_BITS
 
-	.Lnormal_deg2:
-	sub eax, BIAS
+	.L\label:
+	sub eax, BIAS	
 
+	.if \reduce
 	// Reduce floating point number into
 	// val = 2^k * z form
 	// we have already found k value, so reduce val to z
 	// Where 1 <= z < 2
 	// So set exponent to 127 (with bias) where mantissa remains same
-	movd ecx,xmm0
+	movd ecx, xmm0
 	and ecx, MANTISSA_MASK
 	or ecx, EXPONENT_MASK
 
 	movd xmm0, ecx
+	.endif
+.endm
+
+.text
+// float log2_deg2_scalar_asm(float val);
+.align 16
+log2_deg2_scalar_asm:
+
+	REDUCE_FLOAT "normal_deg2"
 
 	// Apply approximation
 	// log_2(val) = -0.344845 * z^2 + 2.024658 * z - 1.674873 + exponent
@@ -65,32 +73,8 @@ log2_deg2_scalar_asm:
 // float log2_deg4_scalar_asm(float val);
 .align 16
 log2_deg4_scalar_asm:
-	// Extract exponent from IEEE Floating Number
-	movd eax, xmm0
-	shr eax, MANTISSA_BITS
 
-	// // Special case for denormal floating numbers
-	cmp eax, 0
-	jnz .Lnormal_deg4
-
-	mulss xmm0, [rip + deg4_consts]
-	movd eax, xmm0
-	shr eax, MANTISSA_BITS
-	sub eax, MANTISSA_BITS
-
-	.Lnormal_deg4:
-	sub eax, BIAS
-
-	// Reduce floating point number into
-	// val = 2^k * z form
-	// we have already found k value, so reduce val to z
-	// Where 1 <= z < 2
-	// So set exponent to 127 (with bias) where mantissa remains same
-	movd ecx, xmm0
-	and ecx, MANTISSA_MASK
-	or ecx, EXPONENT_MASK
-
-	movd xmm0, ecx
+	REDUCE_FLOAT "normal_deg4"
 
 	// Apply approximation
 	// log_2(val) = -0.081615808 * z^4 + 0.64514MANTISSA_BITS6 * z^3 + 0.64514MANTISSA_BITS6 * z^2 + 4.0700908 * z + -2.5128546 + exponent
@@ -129,32 +113,7 @@ log2_deg4_scalar_asm:
 .align 16
 log2_artanh_scalar_asm:
 
-	// Extract exponent from IEEE Floating Number
-	movd eax, xmm0
-	shr eax, MANTISSA_BITS
-
-	// // Special case for denormal floating numbers
-	cmp eax, 0
-	jnz .Lnormal_arctanh
-
-	mulss xmm0, [rip + artanh_consts]
-	movd eax, xmm0
-	shr eax, MANTISSA_BITS
-	sub eax, MANTISSA_BITS
-
-	.Lnormal_arctanh:
-	sub eax, BIAS	
-
-	// Reduce floating point number into
-	// val = 2^k * z form
-	// we have already found k value, so reduce val to z
-	// Where 1 <= z < 2
-	// So set exponent to 127 (with bias) where mantissa remains same
-	movd ecx, xmm0
-	and ecx, MANTISSA_MASK
-	or ecx, EXPONENT_MASK
-
-	movd xmm0, ecx
+	REDUCE_FLOAT "normal_artanh"
 
 	// x = (z-1) / (z + 1)
 	//log_2(val) = 2 * (x + x^3/3 + x^5/5) / ln2
@@ -195,21 +154,7 @@ log2_artanh_scalar_asm:
 .align 16
 log2_lookup_scalar_asm:
 
-	// Extract exponent from IEEE Floating Number
-	movd eax, xmm0
-	shr eax, MANTISSA_BITS
-
-	// // Special case for denormal floating numbers
-	cmp eax, 0
-	jnz .Lnormal_lookup
-
-	mulss xmm0, [rip + normalize_const]
-	movd eax, xmm0
-	shr eax, MANTISSA_BITS
-	sub eax, MANTISSA_BITS
-
-	.Lnormal_lookup:
-	sub eax, BIAS
+	REDUCE_FLOAT "normal_lookup", 0
 
 	// Get first n bits of mantiss to look in table
 	movd ecx, xmm0

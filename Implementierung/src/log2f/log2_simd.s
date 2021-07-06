@@ -10,12 +10,8 @@
 .equ LOG_LOOKUP_TABLE_SIZE, 16
 .equ MANTISSA_BITS, 23
 
-.text
-
-// __m128 log2approx_deg2_sse_asm(__m128 x)
-.align 16
-log2_deg2_simd_asm:
-    
+// Macro for reduce_float_simd() inline function
+.macro REDUCE_FLOAT_SIMD reduce = 1
     // Extract exponents from IEEE Floating Numbers
     movaps xmm15, xmm0
     psrld xmm15, MANTISSA_BITS
@@ -40,6 +36,7 @@ log2_deg2_simd_asm:
 
     psubd xmm15, [rip + bias_packed]
 
+    .if \reduce
     // Reduce floating point numbers into
 	// val = 2^k * z form
 	// we have already found k values, so reduce vals to zs
@@ -47,6 +44,16 @@ log2_deg2_simd_asm:
 	// So set exponents to 127 (with bias) where mantissa remains same
     pand xmm0, [rip + mantissa_mask]
     por xmm0, [rip + reduce_mask]
+    .endif
+.endm
+
+.text
+
+// __m128 log2approx_deg2_sse_asm(__m128 x)
+.align 16
+log2_deg2_simd_asm:
+    
+    REDUCE_FLOAT_SIMD
 
     // Apply approximation
 	// log_2(val) = -0.344845 * z^2 + 2.024658 * z - 1.674873 + exponent
@@ -67,39 +74,8 @@ log2_deg2_simd_asm:
 .align 16
 log2_deg4_simd_asm:
 
-    // Extract exponents from IEEE Floating Numbers
-    movaps xmm15, xmm0
-    psrld xmm15, MANTISSA_BITS
+    REDUCE_FLOAT_SIMD
 
-    // If exponent zero
-    pxor xmm14, xmm14
-    pcmpeqd xmm14, xmm15
-
-    // exp_fix
-    movdqa xmm13, xmm14
-    pand xmm13, [rip + normalize_exp] 
-
-    pand xmm14, [rip + normalize_mask]
-    pxor xmm14, [rip + one_packed]
-
-    mulps xmm0, xmm14
-
-    // Recalculate exponents
-    movaps xmm15, xmm0
-    psrld xmm15, MANTISSA_BITS
-    psubd xmm15, xmm13
-
-    psubd xmm15, [rip + bias_packed]
-
-    // Reduce floating point numbers into
-	// val = 2^k * z form
-	// we have already found k values, so reduce vals to zs
-	// Where 1 <= z < 2
-	// So set exponents to 127 (with bias) where mantissa remains same
-    pand xmm0, [rip + mantissa_mask]
-    por xmm0, [rip + reduce_mask]
-
-    
     // Apply approximation
 	// log_2(val) = -0.081615808 * z^4 + 0.64514MANTISSA_BITS6 * z^3 + 0.64514MANTISSA_BITS6 * z^2 + 4.0700908 * z + -2.5128546 + exponent
 	
@@ -137,37 +113,7 @@ log2_deg4_simd_asm:
 .align 16
 log2_artanh_simd_asm:
 
-    // Extract exponents from IEEE Floating Numbers
-    movaps xmm15, xmm0
-    psrld xmm15, MANTISSA_BITS
-
-    // If exponent zero
-    pxor xmm14, xmm14
-    pcmpeqd xmm14, xmm15
-
-    // exp_fix
-    movdqa xmm13, xmm14
-    pand xmm13, [rip + normalize_exp] 
-
-    pand xmm14, [rip + normalize_mask]
-    pxor xmm14, [rip + one_packed]
-
-    mulps xmm0, xmm14
-
-    // Recalculate exponents
-    movaps xmm15, xmm0
-    psrld xmm15, MANTISSA_BITS
-    psubd xmm15, xmm13
-
-    psubd xmm15, [rip + bias_packed]
-
-    // Reduce floating point numbers into
-	// val = 2^k * z form
-	// we have already found k values, so reduce vals to zs
-	// Where 1 <= z < 2
-	// So set exponents to 127 (with bias) where mantissa remains same
-    pand xmm0, [rip + mantissa_mask]
-    por xmm0, [rip + reduce_mask]
+    REDUCE_FLOAT_SIMD
 
     movaps xmm14, xmm0
     subps xmm14, [rip + one_packed]
@@ -197,29 +143,7 @@ log2_artanh_simd_asm:
 .align 16
 log2_lookup_simd_asm:
 
-    // Extract exponents from IEEE Floating Numbers
-    movaps xmm15, xmm0
-    psrld xmm15, MANTISSA_BITS
-
-    // If exponent zero
-    pxor xmm14, xmm14
-    pcmpeqd xmm14, xmm15
-
-    // exp_fix
-    movdqa xmm13, xmm14
-    pand xmm13, [rip + normalize_exp] 
-
-    pand xmm14, [rip + normalize_mask]
-    pxor xmm14, [rip + one_packed]
-
-    mulps xmm0, xmm14
-
-    // Recalculate exponents
-    movaps xmm15, xmm0
-    psrld xmm15, MANTISSA_BITS
-    psubd xmm15, xmm13
-
-    psubd xmm15, [rip + bias_packed]
+    REDUCE_FLOAT_SIMD 0
 
     cvtdq2ps xmm15, xmm15
 

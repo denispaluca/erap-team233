@@ -58,12 +58,19 @@ static double accuracy_diff_simd(size_t n, const float *arr, __m128 (*log2_func)
 
 static const char* dir = "tests/testfiles/";
 
-static const char *files[] = {
+static const char *files_performance[] = {
     "data_100_000_non-uni",
     "data_100_000_uni",
     "data_500_000_non-uni",
     "data_1_000_000_non-uni",
     "data_1_000_000_uni"
+    };
+static const char *files_accuracy[] = {
+    "data_5_000_non-uni",
+    "data_10_000_non-uni",
+    "data_50_000_non-uni",
+    "data_100_000_non-uni",
+    "data_500_000_non-uni"
     };
 
 static const char* seperator = "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
@@ -96,13 +103,13 @@ void test_performance(size_t it)
         file.status = -1;
 
         char buffer[50];
-        snprintf(buffer, sizeof(buffer), "%s%s", dir, files[i]);
+        snprintf(buffer, sizeof(buffer), "%s%s", dir, files_performance[i]);
         file = handle_file(buffer);
 
         if (file.data != NULL)
         {
 
-            printf("%-23s| ", files[i]);
+            printf("%-23s| ", files_performance[i]);
             double time = 0;
 
             time = time_calc(it, file.len, file.data, log2f, entropy_scalar);
@@ -163,13 +170,13 @@ void test_performance(size_t it)
         file.status = -1;
 
         char buffer[50];
-        snprintf(buffer, sizeof(buffer), "%s%s", dir, files[i]);
+        snprintf(buffer, sizeof(buffer), "%s%s", dir, files_performance[i]);
         file = handle_file(buffer);
 
         if (file.data != NULL)
         {
 
-            printf("%-23s| ", files[i]);
+            printf("%-23s| ", files_performance[i]);
             double time = 0;
 
             time = time_calc_simd(it, file.len, file.data, log2_glibc_simd, entropy_simd);
@@ -229,7 +236,7 @@ void test_accuracy()
         file.status = -1;
 
         char buffer[50];
-        snprintf(buffer, sizeof(buffer), "%s%s", dir, files[i]);
+        snprintf(buffer, sizeof(buffer), "%s%s", dir, files_accuracy[i]);
         file = handle_file(buffer);
 
         if (file.data != NULL)

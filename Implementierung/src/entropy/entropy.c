@@ -148,7 +148,7 @@ float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128))
 		sum = t;
 
 		// Kahans Algorithm
-		// Summing instead of subtracting.
+		//Summing instead of subtracting.
 		tmp = x * log2_func(x);
 
 		y = tmp - c_entropy;

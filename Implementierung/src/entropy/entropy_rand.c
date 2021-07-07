@@ -1,7 +1,7 @@
 #include "entropy.h"
 
 // Compare function for qsort
-int compare_function_int(const void *a, const void *b)
+static int compare_function_int(const void *a, const void *b)
 {
     int32_t x = *(const int32_t *)a;
     int32_t y = *(const int32_t *)b;
@@ -16,7 +16,7 @@ float *entropy_rand(size_t len)
 {
     if (len == 0)
     {
-        printf("Length must be a positive number.");
+        printf("Length must be a positive number. \n");
         return NULL;
     }
     srand(time(NULL));
@@ -27,7 +27,8 @@ float *entropy_rand(size_t len)
 
     if (in_array == NULL)
     {
-        printf("Could not allocate enough space for given length: %zu. \n", len);
+        printf("Could not allocated enough memory to store every input.\n");
+        printf("Number of elements to store: %zu.\n", len);
         return NULL;
     }
 
@@ -35,7 +36,8 @@ float *entropy_rand(size_t len)
 
     if (prob_array == NULL)
     {
-        printf("Could not allocate enough space for given length: %zu. \n", len);
+        printf("Could not allocated enough memory to store every input.\n");
+        printf("Number of elements to store: %zu.\n", len);
         free(in_array);
         return NULL;
     }
@@ -84,7 +86,7 @@ float *entropy_urandom(size_t len)
 {
     if (len == 0)
     {
-        printf("Length must be a positive number.");
+        printf("Length must be a positive number. \n");
         return NULL;
     }
 
@@ -103,7 +105,8 @@ float *entropy_urandom(size_t len)
 
     if (in_array == NULL)
     {
-        printf("Could not allocate enough space for given length: %zu. \n", len);
+        printf("Could not allocated enough memory to store every input.\n");
+        printf("Number of elements to store: %zu.\n", len);
         fclose(input_file);
         return NULL;
     }
@@ -112,7 +115,8 @@ float *entropy_urandom(size_t len)
 
     if (prob_array == NULL)
     {
-        printf("Could not allocate enough space for given length: %zu. \n", len);
+        printf("Could not allocated enough memory to store every input.\n");
+        printf("Number of elements to store: %zu.\n", len);
         fclose(input_file);
         free(in_array);
         return NULL;
@@ -120,7 +124,7 @@ float *entropy_urandom(size_t len)
 
     if (!fread(in_array, len, 4, input_file))
     {
-        printf("Nothing read!\n");
+        printf("Nothing read from /dev/urandom!\n");
         fclose(input_file);
         free(in_array);
         free(prob_array);
@@ -167,7 +171,7 @@ float *entropy_rand_non_uniform(size_t len)
 {
     if (len == 0)
     {
-        printf("Length must be a positive number.");
+        printf("Length must be a positive number. \n");
         return NULL;
     }
     srand(time(NULL));
@@ -176,7 +180,8 @@ float *entropy_rand_non_uniform(size_t len)
     float *prob_array = aligned_alloc(16, align * sizeof(float));
     if (prob_array == NULL)
     {
-        printf("Could not allocate enough space for given length: %zu. \n", len);
+        printf("Could not allocated enough memory to store every input.\n");
+        printf("Number of elements to store: %zu.\n", len);
         return NULL;
     }
     // using double for more precision.
@@ -216,7 +221,7 @@ float *entropy_urandom_non_uniform(size_t len)
 {
     if (len == 0)
     {
-        printf("Length must be a positive number.");
+        printf("Length must be a positive number. \n");
         return NULL;
     }
     FILE *input_file;
@@ -233,7 +238,8 @@ float *entropy_urandom_non_uniform(size_t len)
 
     if (in_array == NULL)
     {
-        printf("Could not allocate enough space for given length: %zu. \n", len);
+        printf("Could not allocated enough memory to store every input.\n");
+        printf("Number of elements to store: %zu.\n", len);
         fclose(input_file);
         return NULL;
     }
@@ -242,7 +248,8 @@ float *entropy_urandom_non_uniform(size_t len)
 
     if (prob_array == NULL)
     {
-        printf("Could not allocate enough space for given length: %zu. \n", len);
+        printf("Could not allocated enough memory to store every input.\n");
+        printf("Number of elements to store: %zu.\n", len);
         fclose(input_file);
         free(in_array);
         return NULL;
@@ -278,7 +285,7 @@ float *entropy_urandom_non_uniform(size_t len)
         free(prob_array);
         return NULL;
     }
-    
+
     for (size_t i = 0; i < align; ++i)
     {
         prob_array[i] = (float)((double)prob_array[i] / sum);

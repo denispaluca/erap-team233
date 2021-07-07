@@ -58,3 +58,6 @@ Implementierung/build
 .vscode
 .idea
 .DS_Store
+
+# ignore also program itself
+entropy

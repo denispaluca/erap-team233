@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
             {
                 impl = LOOKUP;
             }
-            else if(strcmp("log2f",optarg) == 0)
+            else if (strcmp("log2f", optarg) == 0)
             {
                 impl = LOG2F;
             }
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
 
         exit(EXIT_SUCCESS);
     }
-    if((impl == LOG2F && lan == ASM) && !full)
+    if ((impl == LOG2F && lan == ASM) && !full)
     {
         printf("ASM|LOG2f is not implemented yet, please choose another implementation \n");
         exit(EXIT_FAILURE);
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
                 handler.data = entropy_urandom_non_uniform(rand_len);
             }
         }
-        if (handler.data  != NULL)
+        if (handler.data != NULL)
         {
             printf("-----------------------------------------------------\n");
             printf("       Calculating entropy of random data.\n");

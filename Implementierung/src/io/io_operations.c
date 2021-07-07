@@ -9,7 +9,6 @@ static size_t size_file(const char *file_name)
 	if (input_file == NULL)
 	{
 		printf("Error occured while trying to open the input file: %s.\n", file_name);
-		//printf("Skipping the file %s. \n", file_name);
 		return 0;
 	}
 
@@ -77,7 +76,7 @@ struct Handler handle_file(const char *file_name)
 	size_t len = size_file(file_name);
 	if (len == 0)
 	{
-		printf("No numbers are read from the file %s.\n",file_name);
+		printf("No numbers are read from the file %s.\n", file_name);
 		return handler;
 	}
 	handler.data = read_file(len, file_name);

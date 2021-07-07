@@ -21,14 +21,12 @@ static size_t size_file(const char *file_name)
 	{
 		++len;
 	}
-
 	fclose(input_file);
 	return len;
 }
 
 static float *read_file(size_t len, const char *file_name)
 {
-
 	// allocate enough spaces to store every input.
 	size_t align = len + (4 - len % 4) % 4;
 	float *inputs = aligned_alloc(16, align * sizeof(float));
@@ -37,7 +35,6 @@ static float *read_file(size_t len, const char *file_name)
 	{
 		printf("Could not allocated enough memory to store every input.\n");
 		printf("Number of elements to store: %zu.\n", len);
-		printf("Skipping the file %s.\n", file_name);
 		return NULL;
 	}
 
@@ -47,7 +44,6 @@ static float *read_file(size_t len, const char *file_name)
 	if (input_file == NULL)
 	{
 		printf("Error occured while trying to open the input file: %s.\n", file_name);
-		//printf("Skipping the file %s. \n", file_name);
 		free(inputs);
 		return NULL;
 	}
@@ -81,6 +77,7 @@ struct Handler handle_file(const char *file_name)
 	size_t len = size_file(file_name);
 	if (len == 0)
 	{
+		printf("No numbers are read from the file %s.\n",file_name);
 		return handler;
 	}
 	handler.data = read_file(len, file_name);

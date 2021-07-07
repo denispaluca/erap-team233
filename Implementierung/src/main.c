@@ -213,17 +213,30 @@ void run_full(size_t n, const float *data, double precise_entropy, bool accuracy
 void print_usage()
 {
     printf("Usage: entropy [options] file\n"
-           "\t-l, --language => implementation language c|asm.\n"
-           "\t-m, --mode => run mode scalar|simd.\n"
-           "\t-i, --implementation => deg2|deg4|artanh|lookup.\n"
+           "\t-l, --language => implementation language c|asm.Default is asm.\n"
+           "\t-m, --mode => run mode scalar|simd. Default is simd.\n"
+           "\t-i, --implementation => deg2|deg4|artanh|lookup|log2f.\n"
            "\t-t, --time => calculate time that program takes optional [iterations].\n"
            "\t-a, --accuracy => difference with double precision scalar entropy.\n"
-           "\t-r, --random => run with random data.\n"
+           "\t-r, --random => run with random data, requires [length]\n"
            "\t-g, --generator => selects random generator rand|urandom. Default is rand.\n"
            "\t-u, --uniform => makes the random distribution uniform.\n"
            "\t-f, --full => run tests for the data with all possible configurations.\n"
-           "\t-b, --benchmark => run benchmarks.\n"
-           "\t-h, --help\n");
+           "\t-b, --benchmark => run benchmarks. Use -a for accuracy tests, -t for performance tests, or both.\n"
+           "\t-h, --help\n"
+           "Example usages: \n"
+           "\t To run benchmarks for accuracy and time with 500 iterations(default is 1000) run\n"
+           "\t ./entropy -b -a -t500\n"
+           "\t To run the entropy function for given file. The default is ASM/SIMD/DEG4\n"
+           "\t ./entropy \"file_name\" \n"
+           "\t To run entropy function for given file with specific language/mod/implementation\n"
+           "\t ./entropy -l c -m scalar -i lookup \"file_name\"\n"
+           "\t To measure time with 500 iterations(default is 1000) with given file \n"
+           "\t ./entrpy -t500 \"file_name\" \n"
+           "\t To run all implemeantions and measure time and accuracy for given file \n"
+           "\t ./entropy -t -a -f \"file_name\" \n"
+           "\t To generate random file with length 1000 and with generator urandom(default is rand) and measure it's entropy \n"
+           "\t ./entropy -r 1000 -g urandom \n");
 }
 
 int main(int argc, char *argv[])
@@ -267,15 +280,14 @@ int main(int argc, char *argv[])
         {"uniform", no_argument, 0, 'u'},
         {"benchmark", no_argument, 0, 'b'},
         {"full", no_argument, 0, 'f'},
-        {0, 0, 0, 0}
-    };
+        {0, 0, 0, 0}};
 
     int32_t optindex = 0;
 
     enum Language lan = ASM;
     enum Mode mode = SIMD;
     enum Implementation impl = DEG4;
-    size_t randLen = 0;
+    size_t rand_len = 0;
     bool time = false;
     size_t iterations = 1000;
     bool accuracy = false;
@@ -337,6 +349,10 @@ int main(int argc, char *argv[])
             {
                 impl = LOOKUP;
             }
+            else if(strcmp("log2f",optarg) == 0)
+            {
+                impl = LOG2F;
+            }
             else
             {
                 printf("Wrong implementation option!\n");
@@ -344,7 +360,7 @@ int main(int argc, char *argv[])
             }
             break;
         case 'r':
-            randLen = atoi(optarg);
+            rand_len = atoi(optarg);
             break;
         case 'g':
             if (strcmp("rand", optarg) == 0)
@@ -394,9 +410,8 @@ int main(int argc, char *argv[])
         }
     }
 
-
     // Run benchmarks if flag provided before anything else
-    if (benchmark) 
+    if (benchmark)
     {
         if (!(accuracy || time))
         {
@@ -409,14 +424,18 @@ int main(int argc, char *argv[])
             test_performance(iterations);
         }
 
-        if (accuracy) 
+        if (accuracy)
         {
             test_accuracy();
         }
 
         exit(EXIT_SUCCESS);
     }
-
+    if((impl == LOG2F && lan == ASM) && !full)
+    {
+        printf("ASM|LOG2f is not implemented yet, please choose another implementation \n");
+        exit(EXIT_FAILURE);
+    }
     struct Handler handler;
     handler.data = NULL;
     handler.len = 0;
@@ -436,40 +455,42 @@ int main(int argc, char *argv[])
         printf("       Calculating entropy of %s.\n", argv[optind]);
         printf("-----------------------------------------------------\n\n");
     }
-
-    if (argv[optind] == NULL && randLen != 0)
+    else
     {
-        printf("-----------------------------------------------------\n");
-        printf("       Calculating entropy of random data.\n");
-        printf("-----------------------------------------------------\n");
-        handler.len = randLen;
+        handler.len = rand_len;
         if (uniform)
         {
             if (generator)
             {
-                handler.data = entropy_rand(randLen);
+                handler.data = entropy_rand(rand_len);
             }
             else
             {
-                handler.data = entropy_urandom(randLen);
+                handler.data = entropy_urandom(rand_len);
             }
         }
         else
         {
             if (generator)
             {
-                handler.data = entropy_rand_non_uniform(randLen);
+                handler.data = entropy_rand_non_uniform(rand_len);
             }
             else
             {
-                handler.data = entropy_urandom_non_uniform(randLen);
+                handler.data = entropy_urandom_non_uniform(rand_len);
             }
+        }
+        if (handler.data  != NULL)
+        {
+            printf("-----------------------------------------------------\n");
+            printf("       Calculating entropy of random data.\n");
+            printf("-----------------------------------------------------\n");
         }
     }
 
     if (handler.data == NULL)
     {
-        printf("Error occured while reading/generating a file.\n");
+        //printf("Error occured while reading/generating a file.\n");
         exit(EXIT_FAILURE);
     }
 

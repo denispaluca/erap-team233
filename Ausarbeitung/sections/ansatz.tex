@@ -114,7 +114,7 @@ Im Gegensatz dazu ist die Vektorisierung von der Lookup-Version unsere Logarithm
 \subsection{Umgang mit denormalen Zahlen}
 Um die oben beschriebenen Methoden an die denormalen Zahlen anzupassen ist eine spezielle Behandlung benötigt. Unsere Methoden funktionieren für die Zahlen $x = 2^k \cdot z$ wo $1 \leq z < 2$. Bei den denormalizierten Zahlen liegt $z$ im Interval $[0,1)$, wo unsere Approximationen sehr ungenau sind. Deswegen müssen die denormalen Zahlen erst normaliziert werden. 
 
-Dafür multiplizieren wir die Zahlen mit $2^{23}$, deren Exponent gleich $0$ ist. Unsere Zahl ist damit normaliziert, aber ist jetzt $2^{23}$ mal mehr als wir erwarten würden. \[log_2(x\cdot 2^{23}) = log_2(x) - log_2(2^{23}) = log_2(y) - 23\]
+Dafür multiplizieren wir die Zahlen mit $2^{23}$, deren Exponent gleich $0$ ist. Unsere Zahl ist damit normaliziert, aber ist jetzt $2^{23}$ mal mehr als wir erwarten würden. \[log_2 \left(x \cdot  \frac{2^{23}}{2^{23}}\right)  = log_2(x\cdot 2^{23})-log_2(2^{23}) = log_2(y) - 23\]
 Aus diesem Grund subtrahieren wir $23$ von dem Exponent und führen wir die normalen Schritte für die Logarithmusfunktion.
 
 % Für SIMD ist der Ansatz gleich, aber die Methode ändert sich denn ein Vergleich für einzelne Zahlen ist nicht mehr möglich. Wohingegen werden die normalen Zahlen mit $1.0$ und denormalen Zahlen mit $2^{23}$ multipliziert und von deren Exponent 23 subtrahiert. Die Bitmasken dafür sehen wie folgt aus:

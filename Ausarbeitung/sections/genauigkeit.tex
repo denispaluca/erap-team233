@@ -44,7 +44,7 @@ Auf die Stelle x gleich 1 ist die Differenz 0. Aber, der größte Wert im Bereic
 
 Wir erwarten, dass die DEG4-Approximation uns bessere Ergebnisse liefert, weil es den kleinsten Fehler hat. (Siehe Abbildung \ref{fig:absolute-mistake})
 
-Wir haben nur den maximalen absoluten Fehler für die log2 im Bereich [1,2] berechnet. Am Ende wird der Fehler für die log2 Approximation noch kleiner, weil diese Zahl mit dem log2 vom Exponenten addiert wird. Der log2 des Exponenten ist im Intervall [-126,0] und der log2 der Mantisse ist im Intervall [0,1]. Daher sinkt der relative Fehler mit der Addition. Der Fehler für die Lookup Version der log2 mit der empfohlene 16-Bit-Mantisse ist $6.55 \cdot 10^{-6}$.~\cite{fast_log}
+Wir haben nur den maximalen absoluten Fehler für die log2 im Bereich [1,2] berechnet. Am Ende wird der Fehler für die log2 Approximation noch kleiner, weil diese Zahl mit dem log2 vom Exponenten addiert wird. Der log2 des Exponenten ist im Intervall [-126,0] und der log2 der Mantisse ist im Intervall [0,1]. Daher sinkt der relative Fehler mit der Addition. Der durchschnittliche Fehler für die Lookup Version der log2 mit der empfohlene 16-Bit-Mantisse ist $6.55 \cdot 10^{-6}$.~\cite{fast_log}
 % Der absolute Fehler sinkt auch (in Vergleich zu andere 32 Bit Fließkommaberechnung), weil bei der Addition Rundungsfehler auftritt, und das kann potenziell falsch berechnete Stellen der log2 der Mantisse entfernen. \\
 
 
@@ -52,23 +52,44 @@ Die Berechnung der Entropiefunktion enthält eine Multiplikation von der Logarit
 
 Bei einer naiven Implementierung der Entropiefunktion gibt es auch einen Unterschied in Genauigkeit zwischen der Skalar- und SIMD-Version der Entropie. Wobei der SIMD Version genauer ist. Da der SIMD Version 4 Teil-summen berechnet, werden weniger Additionen von Rundungsfehler beeinflusst. Immer noch haben wir bemerkt, dass in beiden Fällen unsere Ergebnisse sehr stark von Rundungsfehler beeinflusst wurden.
 
+
+\definecolor{rred}{HTML}{C0504D}
+\definecolor{ggreen}{HTML}{9BBB59}
+
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}
     \begin{axis}[
-        symbolic x coords={log2f, DEG2, DEG4, ARTANH, Lookup},
+        symbolic x coords={log2f, DEG2, DEG4, ARTANH, Lookup, log2fi, DEG2i, DEG4i, ARTANHi, Lookupi},
         xtick=data,
+        ybar=2*\pgflinewidth,
         ymode = log,
-        width = \textwidth *0.65
+        log origin=infty,
+        width = \textwidth *0.65,
+        legend cell align=left,
+        legend style={
+                at={(1.05,1)},
+                anchor=north west,
+                column sep=1ex
+        }
       ]
-        \addplot[ybar] coordinates {
-            (log2f,   0.000010)
-            (DEG2,  0.000671)
-            (DEG4,   0.000013)
-            (ARTANH, 0.0000275) 
-            (Lookup, 0.000010)
+        \addplot[style={rred,fill=rred,mark=none}] coordinates {
+            (log2f,   0.000331)
+            (DEG2, 0.000992)
+            (DEG4,   0.000330)
+            (ARTANH, 0.000289) 
+            (Lookup, 0.000325)
         };
-    \end{axis}
+        
+        \addplot[style={ggreen,fill=ggreen,mark=none}] coordinates {
+            (log2f,   0.000001)
+            (DEG2,  0.000686)
+            (DEG4,   0.000001)
+            (ARTANH, 0.000039) 
+            (Lookup, 0.000008)
+        };
+        \legend{Naive,Kahan-Summe}
+v    \end{axis}
 \end{tikzpicture}
 \caption{Entropiefehler Größenordnung (Durchschnitt bei zufälligen Daten)}
 \end{figure}

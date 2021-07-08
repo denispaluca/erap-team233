@@ -322,7 +322,7 @@ int main(int argc, char *argv[]) {
             case 'r':
                 errno = 0;
                 rand_len = strtoul(optarg, NULL, 10);
-                if(errno == ERANGE){
+                if (errno == ERANGE) {
                     printf("Please enter a number after -r. For example -r 1000 \n");
                     exit(EXIT_FAILURE);
                 }
@@ -346,7 +346,7 @@ int main(int argc, char *argv[]) {
                 if (optarg != 0) {
                     iterations = strtoul(optarg, NULL, 10);
                 }
-                if(errno == ERANGE){
+                if (errno == ERANGE) {
                     printf("Please enter a number after -t. For example -t500 \n");
                     exit(EXIT_FAILURE);
                 }

@@ -1,5 +1,4 @@
 #include "../src/entropy/entropy.h"
-#include <locale.h>
 
 
 static double time_calc(size_t it, size_t n, const float *arr, float (*log2_func)(float), float (*entropy)(size_t, const float *, float (*)(float)))
@@ -82,35 +81,31 @@ void test_performance(size_t it)
     puts("Executing tests for Performance...(All results are in SECONDS)");
     puts(seperator);
     printf("%-23s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s\n",
-    "FILE",
-    "LOG2F", 
-    "DEG2", 
-    "DEG4", 
-    "ARTANH", 
-    "LOOKUP",
-    "ASM DEG2", 
-    "ASM DEG4", 
-    "ASM ARTANH", 
-    "ASM LOOKUP"
+           "FILE",
+           "LOG2F",
+           "DEG2",
+           "DEG4",
+           "ARTANH",
+           "LOOKUP",
+           "ASM DEG2",
+           "ASM DEG4",
+           "ASM ARTANH",
+           "ASM LOOKUP"
     );
     puts(seperator);
-    
+
     for (size_t i = 0; i < 5; i++)
     {
         struct Handler file;
-        file.data = NULL;
-        file.len = 0;
-        file.status = -1;
 
         char buffer[50];
         snprintf(buffer, sizeof(buffer), "%s%s", dir, files_performance[i]);
         file = handle_file(buffer);
 
-        if (file.data != NULL)
-        {
+        if (file.data != NULL && file.status != -1) {
 
             printf("%-23s| ", files_performance[i]);
-            double time = 0;
+            double time;
 
             time = time_calc(it, file.len, file.data, log2f, entropy_scalar);
             printf("%-16f| ", time);
@@ -148,16 +143,16 @@ void test_performance(size_t it)
 
     puts(seperator);
     printf("%-23s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s\n",
-    "FILE",
-    "SIMD GLIBC", 
-    "SIMD DEG2", 
-    "SIMD DEG4", 
-    "SIMD ARTANH", 
-    "SIMD LOOKUP",
-    "ASM SIMD DEG2", 
-    "ASM SIMD DEG4", 
-    "ASM SIMD ARTANH", 
-    "ASM SIMD LOOKUP"
+           "FILE",
+           "SIMD GLIBC",
+           "SIMD DEG2",
+           "SIMD DEG4",
+           "SIMD ARTANH",
+           "SIMD LOOKUP",
+           "ASM SIMD DEG2",
+           "ASM SIMD DEG4",
+           "ASM SIMD ARTANH",
+           "ASM SIMD LOOKUP"
     );
     puts(seperator);
 
@@ -165,9 +160,6 @@ void test_performance(size_t it)
   for (size_t i = 0; i < 5; i++)
     {
         struct Handler file;
-        file.data = NULL;
-        file.len = 0;
-        file.status = -1;
 
         char buffer[50];
         snprintf(buffer, sizeof(buffer), "%s%s", dir, files_performance[i]);
@@ -177,7 +169,7 @@ void test_performance(size_t it)
         {
 
             printf("%-23s| ", files_performance[i]);
-            double time = 0;
+            double time;
 
             time = time_calc_simd(it, file.len, file.data, log2_glibc_simd, entropy_simd);
             printf("%-16f| ", time);
@@ -231,16 +223,12 @@ void test_accuracy()
     {
 
         struct Handler file;
-        file.data = NULL;
-        file.len = 0;
-        file.status = -1;
 
         char buffer[50];
         snprintf(buffer, sizeof(buffer), "%s%s", dir, files_accuracy[i]);
         file = handle_file(buffer);
 
-        if (file.data != NULL)
-        {
+        if (file.data != NULL && file.status != -1) {
             array[0] += accuracy_diff(file.len, file.data, log2f, entropy_scalar);
             array[1] += accuracy_diff(file.len, file.data, log2_deg2_scalar, entropy_scalar);
             array[2] += accuracy_diff(file.len, file.data, log2_deg4_scalar, entropy_scalar);
@@ -269,22 +257,22 @@ void test_accuracy()
     puts("Executing tests for Accuracy...");
     puts(seperator);
     printf("%-23s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s\n",
-    "",
-    "LOG2F", 
-    "DEG2", 
-    "DEG4", 
-    "ARTANH", 
-    "LOOKUP",
-    "ASM DEG2", 
-    "ASM DEG4", 
-    "ASM ARTANH", 
-    "ASM LOOKUP"
+           "",
+           "LOG2F",
+           "DEG2",
+           "DEG4",
+           "ARTANH",
+           "LOOKUP",
+           "ASM DEG2",
+           "ASM DEG4",
+           "ASM ARTANH",
+           "ASM LOOKUP"
     );
     puts(seperator);
 
     if (success != 0)
     {
-        double abs_mistake = 0;
+        double abs_mistake;
         printf("%-23s| ", "Absolute Mistake");
 
         abs_mistake = array[0] / success;
@@ -324,22 +312,22 @@ void test_accuracy()
 
     puts(seperator);
     printf("%-23s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s| %-16s\n",
-    "",
-    "SIMD GLIBC", 
-    "SIMD DEG2", 
-    "SIMD DEG4", 
-    "SIMD ARTANH", 
-    "SIMD LOOKUP",
-    "ASM SIMD DEG2", 
-    "ASM SIMD DEG4", 
-    "ASM SIMD ARTANH", 
-    "ASM SIMD LOOKUP"
+           "",
+           "SIMD GLIBC",
+           "SIMD DEG2",
+           "SIMD DEG4",
+           "SIMD ARTANH",
+           "SIMD LOOKUP",
+           "ASM SIMD DEG2",
+           "ASM SIMD DEG4",
+           "ASM SIMD ARTANH",
+           "ASM SIMD LOOKUP"
     );
     puts(seperator);
 
     if (success != 0)
     {
-        double abs_mistake = 0;
+        double abs_mistake;
         printf("%-23s| ", "Absolute Mistake");
 
         abs_mistake = array[9] / success;

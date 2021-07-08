@@ -8,9 +8,6 @@
 // Lookup table size
 #define LOG_LOOKUP_TABLE_SIZE 16
 
-// glibc implementation constants
-#define GLIBC_TABLE_BITS = 4
-#define GLIBC_POLY_ORDER = 4
 
 union num
 {
@@ -71,7 +68,6 @@ float log2_artanh_scalar(float);
 __m128 log2_deg2_simd(__m128);
 __m128 log2_deg4_simd(__m128);
 __m128 log2_artanh_simd(__m128);
-void init_table(unsigned n, float *table);
 float log2_lookup_scalar(float x);
 __m128 log2_lookup_simd(__m128 x);
 

@@ -9,7 +9,7 @@ static void reduce_float_scalar(union num *data, int *exponent)
     // Special case for denormal floating numbers
     if (*exponent == 0)
     {
-        data->flt *= 0x1P23f;               /* Normalizefloating number */
+        data->flt *= 0x1P23f;               /* Normalize floating number */
         *exponent = (data->fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
     }
 
@@ -31,7 +31,7 @@ float log2_deg2_scalar(float x)
 
     // Pipelining
     float y0, y;
-    y0 = deg2_co3[0] + exponent;
+    y0 = deg2_co3[0] + (float) exponent;
 
     y = deg2_co1[0] * data.flt + deg2_co2[0];
 
@@ -49,7 +49,7 @@ float log2_deg4_scalar(float x)
 
     // Pipelining
     float y0, x2, y, z;
-    y0 = deg4_co5[0] + exponent;
+    y0 = deg4_co5[0] + (float) exponent;
 
     x2 = data.flt * data.flt;
 
@@ -80,7 +80,7 @@ float log2_artanh_scalar(float x)
     y = y * q2 + 1;
     y = y * q * ln2_inverse_2[0];
 
-    return y + exponent;
+    return y + (float) exponent;
 }
 
 // With Lookup table
@@ -88,11 +88,11 @@ float log2_lookup_scalar(float x)
 {
     union num data = {.flt = x};
     int32_t exponent = 0;
-    int32_t index = 0;
+    int32_t index;
 
     reduce_float_scalar(&data, &exponent);
 
     index = (data.fix & 0x7FFFFF) >> (23 - LOG_LOOKUP_TABLE_SIZE);
 
-    return log_lookup_table[index] + exponent;
+    return log_lookup_table[index] + (float) exponent;
 }

@@ -9,7 +9,7 @@ static void reduce_float_simd(union num_s *data, __m128i *exponent)
     xor mask:   0 11101001 00000000000000000000000
     zero mask   0 00000000 00000000000000000000000
 
-    For exponent recalcultaion easily recalculate exponent for all and subtraact 23 for denormalized ones
+    For exponent recalculation easily recalculate exponent for all and subtract 23 for denormalized ones
 
     so that you can easily multiply by 2^23f
     */

@@ -8,9 +8,9 @@ static size_t size_file(const char *file_name)
 
 	if (input_file == NULL)
 	{
-		printf("Error occured while trying to open the input file: %s.\n", file_name);
-		return 0;
-	}
+        printf("Error occurred while trying to open the input file: %s.\n", file_name);
+        return 0;
+    }
 
 	size_t len = 0;
 	float tmp = 0;
@@ -40,12 +40,11 @@ static float *read_file(size_t len, const char *file_name)
 	FILE *input_file;
 	input_file = fopen(file_name, "r");
 
-	if (input_file == NULL)
-	{
-		printf("Error occured while trying to open the input file: %s.\n", file_name);
-		free(inputs);
-		return NULL;
-	}
+	if (input_file == NULL) {
+        printf("Error occurred while trying to open the input file: %s.\n", file_name);
+        free(inputs);
+        return NULL;
+    }
 
 	// take inputs from the file and store it in inputs.
 	for (size_t i = 0; i < len; ++i)

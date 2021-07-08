@@ -4,24 +4,19 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include <string.h>
 
 #include "entropy/entropy.h"
-#include "io/io_operations.h"
 #include "../tests/tests.h"
 
-enum Language
-{
+enum Language {
     C,
     ASM
 };
-enum Mode
-{
+enum Mode {
     SCALAR,
     SIMD
 };
-enum Implementation
-{
+enum Implementation {
     DEG2,
     DEG4,
     ARTANH,
@@ -29,119 +24,113 @@ enum Implementation
     LOG2F
 };
 
-float calculate_entropy(size_t n, const float *data, enum Language lan, enum Mode mode, enum Implementation impl)
-{
-    switch (lan)
-    {
-    case C:
-        switch (mode)
-        {
-        case SCALAR:
-            switch (impl)
-            {
-            case DEG2:
-                return entropy_scalar(n, data, log2_deg2_scalar);
-            case DEG4:
-                return entropy_scalar(n, data, log2_deg4_scalar);
-            case ARTANH:
-                return entropy_scalar(n, data, log2_artanh_scalar);
-            case LOOKUP:
-                return entropy_scalar(n, data, log2_lookup_scalar);
-            case LOG2F:
-                return entropy_scalar(n, data, log2f);
+float calculate_entropy(size_t n, const float *data, enum Language lan, enum Mode mode, enum Implementation impl) {
+    switch (lan) {
+        case C:
+            switch (mode) {
+                case SCALAR:
+                    switch (impl) {
+                        case DEG2:
+                            return entropy_scalar(n, data, log2_deg2_scalar);
+                        case DEG4:
+                            return entropy_scalar(n, data, log2_deg4_scalar);
+                        case ARTANH:
+                            return entropy_scalar(n, data, log2_artanh_scalar);
+                        case LOOKUP:
+                            return entropy_scalar(n, data, log2_lookup_scalar);
+                        case LOG2F:
+                            return entropy_scalar(n, data, log2f);
+                        default:
+                            break;
+                    }
+                    break;
+                case SIMD:
+                    switch (impl) {
+                        case DEG2:
+                            return entropy_simd(n, data, log2_deg2_simd);
+                        case DEG4:
+                            return entropy_simd(n, data, log2_deg4_simd);
+                        case ARTANH:
+                            return entropy_simd(n, data, log2_artanh_simd);
+                        case LOOKUP:
+                            return entropy_simd(n, data, log2_lookup_simd);
+                        case LOG2F:
+                            return entropy_simd(n, data, log2_glibc_simd);
+                        default:
+                            break;
+                    }
+                default:
+                    break;
             }
             break;
-        case SIMD:
-            switch (impl)
-            {
-            case DEG2:
-                return entropy_simd(n, data, log2_deg2_simd);
-            case DEG4:
-                return entropy_simd(n, data, log2_deg4_simd);
-            case ARTANH:
-                return entropy_simd(n, data, log2_artanh_simd);
-            case LOOKUP:
-                return entropy_simd(n, data, log2_lookup_simd);
-            case LOG2F:
-                return entropy_simd(n, data, log2_glibc_simd);
-            default:
-                break;
+        case ASM:
+            switch (mode) {
+                case SCALAR:
+                    switch (impl) {
+                        case DEG2:
+                            return entropy_scalar_asm(n, data, log2_deg2_scalar_asm);
+                        case DEG4:
+                            return entropy_scalar_asm(n, data, log2_deg4_scalar_asm);
+                        case ARTANH:
+                            return entropy_scalar_asm(n, data, log2_artanh_scalar_asm);
+                        case LOOKUP:
+                            return entropy_scalar_asm(n, data, log2_lookup_scalar_asm);
+                        default:
+                            break;
+                    }
+                default:
+                    break;
+                case SIMD:
+                    switch (impl) {
+                        case DEG2:
+                            return entropy_simd_asm(n, data, log2_deg2_simd_asm);
+                        case DEG4:
+                            return entropy_simd_asm(n, data, log2_deg4_simd_asm);
+                        case ARTANH:
+                            return entropy_simd_asm(n, data, log2_artanh_simd_asm);
+                        case LOOKUP:
+                            return entropy_simd_asm(n, data, log2_lookup_simd_asm);
+                        default:
+                            break;
+                    }
             }
+        default:
             break;
-        }
-        break;
-    case ASM:
-        switch (mode)
-        {
-        case SCALAR:
-            switch (impl)
-            {
-            case DEG2:
-                return entropy_scalar_asm(n, data, log2_deg2_scalar_asm);
-            case DEG4:
-                return entropy_scalar_asm(n, data, log2_deg4_scalar_asm);
-            case ARTANH:
-                return entropy_scalar_asm(n, data, log2_artanh_scalar_asm);
-            case LOOKUP:
-                return entropy_scalar_asm(n, data, log2_lookup_scalar_asm);
-            default:
-                break;
-            }
-            break;
-        case SIMD:
-            switch (impl)
-            {
-            case DEG2:
-                return entropy_simd_asm(n, data, log2_deg2_simd_asm);
-            case DEG4:
-                return entropy_simd_asm(n, data, log2_deg4_simd_asm);
-            case ARTANH:
-                return entropy_simd_asm(n, data, log2_artanh_simd_asm);
-            case LOOKUP:
-                return entropy_simd_asm(n, data, log2_lookup_simd_asm);
-            default:
-                break;
-            }
-            break;
-        }
-        break;
     }
     return -1.0f;
 }
 
-void print_entropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy)
-{
+void print_entropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy) {
     char *lans = lan == C ? "C" : "ASM";
     char *modes = mode == SCALAR ? "scalar" : "simd";
     char *impls = "";
-    switch (impl)
-    {
-    case DEG2:
-        impls = "DEG2";
-        break;
-    case DEG4:
-        impls = "DEG4";
-        break;
-    case ARTANH:
-        impls = "ARTANH";
-        break;
-    case LOOKUP:
-        impls = "LOOKUP";
-        break;
-    case LOG2F:
-        impls = "LOG2F";
-        break;
+    switch (impl) {
+        case DEG2:
+            impls = "DEG2";
+            break;
+        case DEG4:
+            impls = "DEG4";
+            break;
+        case ARTANH:
+            impls = "ARTANH";
+            break;
+        case LOOKUP:
+            impls = "LOOKUP";
+            break;
+        case LOG2F:
+            impls = "LOG2F";
+            break;
+        default:
+            break;
     }
     int32_t len = 20 - (strlen(lans) + strlen(modes) + strlen(impls));
     printf("%s/%s/%s Entropy:%*s%f\n", lans, modes, impls, len, "", entropy);
 }
 
-void print_mistake(float entropy, double precise_entropy)
-{
+void print_mistake(float entropy, double precise_entropy) {
     double abs_mistake = fabs(precise_entropy - entropy);
     printf("Absolute Mistake:%*s%f\n", 14, "", abs_mistake);
-    if (precise_entropy != 0)
-    {
+    if (precise_entropy != 0) {
         printf("Relative Mistake:%*s%f\n", 14, "", abs_mistake / precise_entropy);
     }
     // else
@@ -151,25 +140,21 @@ void print_mistake(float entropy, double precise_entropy)
 }
 
 void evaluate_args(size_t n, const float *data, enum Language lan, enum Mode mode,
-                   enum Implementation impl, double precise_entropy, bool accuracy, bool time, size_t iterations)
-{
+                   enum Implementation impl, double precise_entropy, bool accuracy, bool time, size_t iterations) {
     float entropy = calculate_entropy(n, data, lan, mode, impl);
 
     print_entropy(lan, mode, impl, entropy);
 
-    if (accuracy)
-    {
+    if (accuracy) {
         print_mistake(entropy, precise_entropy);
     }
 
-    if (time)
-    {
+    if (time) {
         struct timespec start, end;
         clock_gettime(CLOCK_MONOTONIC, &start);
 
         // Need more than 1 iterations to measure time
-        for (size_t i = 0; i < iterations; ++i)
-        {
+        for (size_t i = 0; i < iterations; ++i) {
             calculate_entropy(n, data, lan, mode, impl);
         }
 
@@ -183,8 +168,7 @@ void evaluate_args(size_t n, const float *data, enum Language lan, enum Mode mod
         printf("\n");
 }
 
-void run_full(size_t n, const float *data, double precise_entropy, bool accuracy, bool time, size_t iterations)
-{
+void run_full(size_t n, const float *data, double precise_entropy, bool accuracy, bool time, size_t iterations) {
     printf("Length is:%*s %zu \n\n", 20, "", n);
 
     evaluate_args(n, data, C, SCALAR, LOG2F, precise_entropy, accuracy, time, iterations);
@@ -210,8 +194,7 @@ void run_full(size_t n, const float *data, double precise_entropy, bool accuracy
     evaluate_args(n, data, ASM, SIMD, LOOKUP, precise_entropy, accuracy, time, iterations);
 }
 
-void print_usage()
-{
+void print_usage() {
     printf("Usage: entropy [options] file\n"
            "\t-l, --language => implementation language c|asm.Default is asm.\n"
            "\t-m, --mode => run mode scalar|simd. Default is simd.\n"
@@ -232,15 +215,14 @@ void print_usage()
            "\t To run entropy function for given file with specific language/mod/implementation\n"
            "\t ./entropy -l c -m scalar -i lookup \"file_name\"\n"
            "\t To measure time with 500 iterations(default is 1000) with given file \n"
-           "\t ./entrpy -t500 \"file_name\" \n"
-           "\t To run all implemeantions and measure time and accuracy for given file \n"
+           "\t ./entropy -t500 \"file_name\" \n"
+           "\t To run all implementations and measure time and accuracy for given file \n"
            "\t ./entropy -t -a -f \"file_name\" \n"
            "\t To generate random file with length 1000 and with generator urandom(default is rand) and measure it's entropy \n"
            "\t ./entropy -r 1000 -g urandom \n");
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
     /*
     optind -> index of next element to be processed in argv
@@ -269,18 +251,18 @@ int main(int argc, char *argv[])
     const char *optstring = ":-l:m:i:r:t::ahfg:ub";
 
     const struct option long_options[] = {
-        {"language", required_argument, 0, 'l'},
-        {"mode", required_argument, 0, 'm'},
-        {"implementation", required_argument, 0, 'i'},
-        {"help", no_argument, 0, 'h'},
-        {"accuracy", no_argument, 0, 'a'},
-        {"time", optional_argument, 0, 't'},
-        {"random", required_argument, 0, 'r'},
-        {"generator", required_argument, 0, 'g'},
-        {"uniform", no_argument, 0, 'u'},
-        {"benchmark", no_argument, 0, 'b'},
-        {"full", no_argument, 0, 'f'},
-        {0, 0, 0, 0}};
+            {"language",       required_argument, 0, 'l'},
+            {"mode",           required_argument, 0, 'm'},
+            {"implementation", required_argument, 0, 'i'},
+            {"help",           no_argument,       0, 'h'},
+            {"accuracy",       no_argument,       0, 'a'},
+            {"time",           optional_argument, 0, 't'},
+            {"random",         required_argument, 0, 'r'},
+            {"generator",      required_argument, 0, 'g'},
+            {"uniform",        no_argument,       0, 'u'},
+            {"benchmark",      no_argument,       0, 'b'},
+            {"full",           no_argument,       0, 'f'},
+            {0, 0,                                0, 0}};
 
     int32_t optindex = 0;
 
@@ -297,142 +279,108 @@ int main(int argc, char *argv[])
     bool benchmark = false;
 
     // Fetching option arguments
-    while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1)
-    {
+    while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1) {
 
-        switch (opt)
-        {
-        case 'l':
-            if (strcmp("c", optarg) == 0)
-            {
-                lan = C;
-            }
-            else if (strcmp("asm", optarg) == 0)
-            {
-                lan = ASM;
-            }
-            else
-            {
-                printf("Wrong language option!\n");
-                exit(EXIT_FAILURE);
-            }
-            break;
-        case 'm':
-            if (strcmp("scalar", optarg) == 0)
-            {
-                mode = SCALAR;
-            }
-            else if (strcmp("simd", optarg) == 0)
-            {
-                mode = SIMD;
-            }
-            else
-            {
-                printf("Wrong mode option!\n");
-                exit(EXIT_FAILURE);
-            }
-            break;
-        case 'i':
-            if (strcmp("deg2", optarg) == 0)
-            {
-                impl = DEG2;
-            }
-            else if (strcmp("deg4", optarg) == 0)
-            {
-                impl = DEG4;
-            }
-            else if (strcmp("artanh", optarg) == 0)
-            {
-                impl = ARTANH;
-            }
-            else if (strcmp("lookup", optarg) == 0)
-            {
-                impl = LOOKUP;
-            }
-            else if (strcmp("log2f", optarg) == 0)
-            {
-                impl = LOG2F;
-            }
-            else
-            {
-                printf("Wrong implementation option!\n");
-                exit(EXIT_FAILURE);
-            }
-            break;
-        case 'r':
-            rand_len = atoi(optarg);
-            break;
-        case 'g':
-            if (strcmp("rand", optarg) == 0)
-            {
-                generator = false;
-            }
-            else if (strcmp("urandom", optarg) == 0)
-            {
-                generator = true;
-            }
-            else
-            {
-                printf("Wrong generator mode! \n");
-                exit(EXIT_FAILURE);
-            }
-            break;
-        case 'u':
-            uniform = true;
-            break;
-        case 't':
-            time = true;
-            if (optarg != 0)
-            {
-                iterations = atoi(optarg);
-            }
-            break;
-        case 'a':
-            accuracy = true;
-            break;
-        case 'f':
-            full = true;
-            break;
-        case 'b':
-            benchmark = true;
-            break;
-        case 'h':
-            print_usage();
-            return EXIT_SUCCESS;
+        switch (opt) {
+            case 'l':
+                if (strcmp("c", optarg) == 0) {
+                    lan = C;
+                } else if (strcmp("asm", optarg) == 0) {
+                    lan = ASM;
+                } else {
+                    printf("Wrong language option!\n");
+                    exit(EXIT_FAILURE);
+                }
+                break;
+            case 'm':
+                if (strcmp("scalar", optarg) == 0) {
+                    mode = SCALAR;
+                } else if (strcmp("simd", optarg) == 0) {
+                    mode = SIMD;
+                } else {
+                    printf("Wrong mode option!\n");
+                    exit(EXIT_FAILURE);
+                }
+                break;
+            case 'i':
+                if (strcmp("deg2", optarg) == 0) {
+                    impl = DEG2;
+                } else if (strcmp("deg4", optarg) == 0) {
+                    impl = DEG4;
+                } else if (strcmp("artanh", optarg) == 0) {
+                    impl = ARTANH;
+                } else if (strcmp("lookup", optarg) == 0) {
+                    impl = LOOKUP;
+                } else if (strcmp("log2f", optarg) == 0) {
+                    impl = LOG2F;
+                } else {
+                    printf("Wrong implementation option!\n");
+                    exit(EXIT_FAILURE);
+                }
+                break;
+            case 'r':
+                rand_len = strtoul(optarg, NULL, 10);
+                break;
+            case 'g':
+                if (strcmp("rand", optarg) == 0) {
+                    generator = false;
+                } else if (strcmp("urandom", optarg) == 0) {
+                    generator = true;
+                } else {
+                    printf("Wrong generator mode! \n");
+                    exit(EXIT_FAILURE);
+                }
+                break;
+            case 'u':
+                uniform = true;
+                break;
+            case 't':
+                time = true;
+                if (optarg != 0) {
+                    iterations = strtoul(optarg, NULL, 10);
+                }
+                break;
+            case 'a':
+                accuracy = true;
+                break;
+            case 'f':
+                full = true;
+                break;
+            case 'b':
+                benchmark = true;
+                break;
+            case 'h':
+                print_usage();
+                return EXIT_SUCCESS;
 
-        case ':':
-            fprintf(stderr, "Missing argumant for option -%c\n", optopt);
-            __attribute__((fallthrough)); // Let fallthrough
+            case ':':
+                fprintf(stderr, "Missing argument for option -%c\n", optopt);
+                        __attribute__((fallthrough)); // Let fallthrough
 
-        default:
-            print_usage();
-            exit(EXIT_FAILURE);
+            default:
+                print_usage();
+                exit(EXIT_FAILURE);
         }
     }
 
     // Run benchmarks if flag provided before anything else
-    if (benchmark)
-    {
-        if (!(accuracy || time))
-        {
+    if (benchmark) {
+        if (!(accuracy || time)) {
             printf("You need to specify at least -a or -t to run benchmarks.\n");
             exit(EXIT_FAILURE);
         }
 
-        if (time)
-        {
+        if (time) {
             test_performance(iterations);
         }
 
-        if (accuracy)
-        {
+        if (accuracy) {
             test_accuracy();
         }
 
         exit(EXIT_SUCCESS);
     }
-    if ((impl == LOG2F && lan == ASM) && !full)
-    {
+    if ((impl == LOG2F && lan == ASM) && !full) {
         printf("ASM|LOG2f is not implemented yet, please choose another implementation \n");
         exit(EXIT_FAILURE);
     }
@@ -441,12 +389,10 @@ int main(int argc, char *argv[])
     handler.len = 0;
     handler.status = -1;
 
-    if (argv[optind] != NULL)
-    {
+    if (argv[optind] != NULL) {
         handler = handle_file(argv[optind]);
 
-        if (handler.status == -1)
-        {
+        if (handler.status == -1) {
             // TODO Calculating... text should not be displayed
             exit(EXIT_FAILURE);
         }
@@ -454,49 +400,35 @@ int main(int argc, char *argv[])
         printf("-----------------------------------------------------\n");
         printf("       Calculating entropy of %s.\n", argv[optind]);
         printf("-----------------------------------------------------\n\n");
-    }
-    else
-    {
+    } else if(rand_len != 0){
         handler.len = rand_len;
-        if (uniform)
-        {
-            if (generator)
-            {
+        if (uniform) {
+            if (generator) {
                 handler.data = entropy_rand(rand_len);
-            }
-            else
-            {
+            } else {
                 handler.data = entropy_urandom(rand_len);
             }
-        }
-        else
-        {
-            if (generator)
-            {
+        } else {
+            if (generator) {
                 handler.data = entropy_rand_non_uniform(rand_len);
-            }
-            else
-            {
+            } else {
                 handler.data = entropy_urandom_non_uniform(rand_len);
             }
         }
-        if (handler.data != NULL)
-        {
+        if (handler.data != NULL) {
             printf("-----------------------------------------------------\n");
             printf("       Calculating entropy of random data.\n");
             printf("-----------------------------------------------------\n");
         }
     }
 
-    if (handler.data == NULL)
-    {
+    if (handler.data == NULL) {
         //printf("Error occured while reading/generating a file.\n");
         exit(EXIT_FAILURE);
     }
 
     double precise_entropy = 0.0;
-    if (accuracy)
-    {
+    if (accuracy) {
         struct timespec start, end;
         clock_gettime(CLOCK_MONOTONIC, &start);
         precise_entropy = entropy_precise(handler.len, handler.data);
@@ -505,12 +437,9 @@ int main(int argc, char *argv[])
         printf("Precise Entropy:%*s%f\n", 15, "", precise_entropy);
         printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
-    if (full)
-    {
+    if (full) {
         run_full(handler.len, handler.data, precise_entropy, accuracy, time, iterations);
-    }
-    else
-    {
+    } else {
         printf("\n");
         evaluate_args(handler.len, handler.data, lan, mode, impl, precise_entropy, accuracy, time, iterations);
     }

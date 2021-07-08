@@ -52,21 +52,21 @@ float *entropy_rand(size_t len)
     size_t index = 0;
     size_t freq = 1;
 
-    // Counting the occurences of every number and updating probability array.
+    // Counting the occurrences of every number and updating probability array.
     for (size_t i = 1; i < len; ++i)
     {
-        if (unlikely(in_array[i] == in_array[i - 1]))
+        if (in_array[i] == in_array[i - 1])
         {
             ++freq;
         }
         else
         {
-            prob_array[index++] = ((float)freq) / len;
+            prob_array[index++] = ((float) freq) / (float) len;
             freq = 1;
         }
     }
 
-    prob_array[index++] = ((float)freq) / len;
+    prob_array[index++] = ((float) freq) / (float) len;
 
     // Fill the rest of them zero.
     for (size_t i = index; i < align; ++i)
@@ -136,21 +136,21 @@ float *entropy_urandom(size_t len)
     size_t index = 0;
     size_t freq = 1;
 
-    // Counting the occurences of every number and updating probability array.
+    // Counting the occurrences of every number and updating probability array.
     for (size_t i = 1; i < len; ++i)
     {
-        if (unlikely(in_array[i] == in_array[i - 1]))
+        if (in_array[i] == in_array[i - 1])
         {
             ++freq;
         }
         else
         {
-            prob_array[index++] = ((float)freq) / len;
+            prob_array[index++] = ((float) freq) / (float) len;
             freq = 1;
         }
     }
 
-    prob_array[index++] = ((float)freq) / len;
+    prob_array[index++] = ((float) freq) / (float) len;
 
     // Fill the rest of them zero.
     for (size_t i = index; i < align; ++i)
@@ -196,7 +196,7 @@ float *entropy_rand_non_uniform(size_t len)
     {
         prob_array[i] = 0;
     }
-    // This shouldnt happen because every number between 0 and 1.
+    // This shouldn't happen because every number between 0 and 1.
     // But to be just safe.
     if (sum <= 0)
     {
@@ -275,7 +275,7 @@ float *entropy_urandom_non_uniform(size_t len)
     {
         prob_array[i] = 0.0f;
     }
-    // This shouldnt happen because every number between 0 and 1.
+    // This shouldn't happen because every number between 0 and 1.
     // But to be just safe.
     if (sum <= 0)
     {

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include <errno.h>
 
 #include "entropy/entropy.h"
 #include "../tests/tests.h"
@@ -123,7 +124,7 @@ void print_entropy(enum Language lan, enum Mode mode, enum Implementation impl, 
         default:
             break;
     }
-    int32_t len = 20 - (strlen(lans) + strlen(modes) + strlen(impls));
+    uint32_t len = 20 - (strlen(lans) + strlen(modes) + strlen(impls));
     printf("%s/%s/%s Entropy:%*s%f\n", lans, modes, impls, len, "", entropy);
 }
 
@@ -319,7 +320,12 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'r':
+                errno = 0;
                 rand_len = strtoul(optarg, NULL, 10);
+                if(errno == ERANGE){
+                    printf("Please enter a number after -r. For example -r 1000 \n");
+                    exit(EXIT_FAILURE);
+                }
                 break;
             case 'g':
                 if (strcmp("rand", optarg) == 0) {
@@ -336,8 +342,13 @@ int main(int argc, char *argv[]) {
                 break;
             case 't':
                 time = true;
+                errno = 0;
                 if (optarg != 0) {
                     iterations = strtoul(optarg, NULL, 10);
+                }
+                if(errno == ERANGE){
+                    printf("Please enter a number after -t. For example -t500 \n");
+                    exit(EXIT_FAILURE);
                 }
                 break;
             case 'a':

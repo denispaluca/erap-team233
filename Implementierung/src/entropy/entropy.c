@@ -1,7 +1,6 @@
 #include "entropy.h"
 
-float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
-{
+float entropy_scalar(size_t len, const float *data, float (*log2_func)(float)) {
     float entropy = 0;
     float sum = 0;
 
@@ -18,8 +17,9 @@ float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
         }
 
         // needed for log2f
-        if (x == 0)
+        if (x == 0) {
             continue;
+        }
 
         // Kahans Algorithm
         y = x - c_sum;
@@ -39,11 +39,13 @@ float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
         entropy = t;
     }
 
-    if (fabsf(sum - 1) > __FLT_EPSILON__)
+    if (fabsf(sum - 1) > __FLT_EPSILON__) {
         return -1;
+    }
 
-    if (isnan(entropy))
+    if (isnan(entropy)) {
         return -1;
+    }
 
     // Changing the sign at the end.
     return -entropy;
@@ -65,8 +67,9 @@ double entropy_precise(size_t len, const float *data) {
         }
 
         // needed for log2f
-        if (x == 0)
+        if (x == 0) {
             continue;
+        }
 
 
         // Kahans Algorithm
@@ -77,24 +80,26 @@ double entropy_precise(size_t len, const float *data) {
         sum = t;
 
         // Kahans Algorithm
-		// Summing instead of subtracting.
-		tmp =  x * log2(x);
+        // Summing instead of subtracting.
+        tmp = x * log2(x);
 
-		y = tmp - c_entropy;
-		t = entropy + y;
-		c_entropy = (t - entropy) - y;
+        y = tmp - c_entropy;
+        t = entropy + y;
+        c_entropy = (t - entropy) - y;
 
-		entropy = t;
-	}
+        entropy = t;
+    }
 
-	if (fabs(sum - 1) > __FLT_EPSILON__)
-		return -1;
+    if (fabs(sum - 1) > __FLT_EPSILON__) {
+        return -1;
+    }
 
-	if (isnan(entropy))
-		return -1;
+    if (isnan(entropy)) {
+        return -1;
+    }
 
-	// Changing the sign at the end.
-	return -entropy;
+    // Changing the sign at the end.
+    return -entropy;
 }
 
 // PREREQUISITE:  data should allocated at least len-(4-len % 4) % 4 memory otherwise it is undefined behaviour.
@@ -120,18 +125,20 @@ float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128)) {
 
         check_mask = _mm_movemask_epi8((__m128i) mask);
 
-        if (check_mask != 0)
+        if (check_mask != 0) {
             return -1;
+        }
 
         mask = _mm_cmpnle_ps(x, one);
 
         check_mask = _mm_movemask_epi8((__m128i) mask);
 
-        if (check_mask != 0)
-			return -1;
-			
+        if (check_mask != 0) {
+            return -1;
+        }
 
-		// Kahans Algorithm
+
+        // Kahans Algorithm
         y = x - c_sum;
         t = sum + y;
         c_sum = (t - sum) - y;
@@ -139,7 +146,7 @@ float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128)) {
         sum = t;
 
         // Kahans Algorithm
-        //Summing instead of subtracting.
+        // Summing instead of subtracting.
         tmp = x * log2_func(x);
 
         y = tmp - c_entropy;

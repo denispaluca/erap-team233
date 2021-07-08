@@ -1,7 +1,6 @@
 #include "log2.h"
 
-static void reduce_float_simd(union num_s *data, __m128i *exponent)
-{
+static void reduce_float_simd(union num_s *data, __m128i *exponent) {
 
     /* 
     1.0f:       0 01111111 00000000000000000000000
@@ -22,7 +21,7 @@ static void reduce_float_simd(union num_s *data, __m128i *exponent)
     mask.fix = _mm_cmpeq_epi32(*exponent, _mm_setzero_si128());
     __m128i exp_fix = normalize_exp & mask.fix;
     mask.fix &= normalize_mask;
-    mask.fix ^= (const __m128i)one_packed;
+    mask.fix ^= (const __m128i) one_packed;
 
     data->flt *= mask.flt;
 
@@ -34,8 +33,7 @@ static void reduce_float_simd(union num_s *data, __m128i *exponent)
 }
 
 // SIMD
-__m128 log2_deg2_simd(__m128 x)
-{
+__m128 log2_deg2_simd(__m128 x) {
     union num_s data = {.flt = x};
     __m128i exponent;
 
@@ -50,8 +48,7 @@ __m128 log2_deg2_simd(__m128 x)
     return y * data.flt + y0;
 }
 
-__m128 log2_deg4_simd(__m128 x)
-{
+__m128 log2_deg4_simd(__m128 x) {
     union num_s data = {.flt = x};
     __m128i exponent;
 
@@ -70,8 +67,7 @@ __m128 log2_deg4_simd(__m128 x)
     return y * x2 + z;
 }
 
-__m128 log2_artanh_simd(__m128 x)
-{
+__m128 log2_artanh_simd(__m128 x) {
     union num_s data = {.flt = x};
     __m128i exponent;
 
@@ -91,9 +87,7 @@ __m128 log2_artanh_simd(__m128 x)
 }
 
 
-
-__m128 log2_lookup_simd(__m128 x)
-{
+__m128 log2_lookup_simd(__m128 x) {
     union num_s data = {.flt = x};
     __m128i exponent, index;
 
@@ -102,16 +96,15 @@ __m128 log2_lookup_simd(__m128 x)
     index = _mm_srli_epi32(data.fix & mantissa_mask, (23 - LOG_LOOKUP_TABLE_SIZE));
 
     __m128 y = _mm_set_ps(
-        log_lookup_table[((__v4si)index)[3]],
-        log_lookup_table[((__v4si)index)[2]],
-        log_lookup_table[((__v4si)index)[1]],
-        log_lookup_table[((__v4si)index)[0]]);
+            log_lookup_table[((__v4si) index)[3]],
+            log_lookup_table[((__v4si) index)[2]],
+            log_lookup_table[((__v4si) index)[1]],
+            log_lookup_table[((__v4si) index)[0]]);
 
     return y + _mm_cvtepi32_ps(exponent);
 }
 
-__m128 log2_glibc_simd(__m128 x)
-{
+__m128 log2_glibc_simd(__m128 x) {
     union num_s data = {.flt = x};
 
     __m128i tmp, i, top, k;
@@ -126,16 +119,16 @@ __m128 log2_glibc_simd(__m128 x)
     k = _mm_srai_epi32(tmp, 23);
 
     invc = _mm_set_ps(
-        glibc_inverse_c[((__v4si)i)[3]],
-        glibc_inverse_c[((__v4si)i)[2]],
-        glibc_inverse_c[((__v4si)i)[1]],
-        glibc_inverse_c[((__v4si)i)[0]]);
+            glibc_inverse_c[((__v4si) i)[3]],
+            glibc_inverse_c[((__v4si) i)[2]],
+            glibc_inverse_c[((__v4si) i)[1]],
+            glibc_inverse_c[((__v4si) i)[0]]);
 
     logc = _mm_set_ps(
-        glibc_logc[((__v4si)i)[3]],
-        glibc_logc[((__v4si)i)[2]],
-        glibc_logc[((__v4si)i)[1]],
-        glibc_logc[((__v4si)i)[0]]);
+            glibc_logc[((__v4si) i)[3]],
+            glibc_logc[((__v4si) i)[2]],
+            glibc_logc[((__v4si) i)[1]],
+            glibc_logc[((__v4si) i)[0]]);
 
     r = z.flt * invc - one_packed;
     y0 = logc + _mm_cvtepi32_ps(k);

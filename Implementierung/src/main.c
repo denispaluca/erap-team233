@@ -400,7 +400,7 @@ int main(int argc, char *argv[]) {
         printf("-----------------------------------------------------\n");
         printf("       Calculating entropy of %s.\n", argv[optind]);
         printf("-----------------------------------------------------\n\n");
-    } else if(rand_len != 0){
+    } else if (rand_len != 0) {
         handler.len = rand_len;
         if (uniform) {
             if (generator) {

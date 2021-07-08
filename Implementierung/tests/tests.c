@@ -1,14 +1,13 @@
 #include "../src/entropy/entropy.h"
 
 
-static double time_calc(size_t it, size_t n, const float *arr, float (*log2_func)(float), float (*entropy)(size_t, const float *, float (*)(float)))
-{
+static double time_calc(size_t it, size_t n, const float *arr, float (*log2_func)(float),
+                        float (*entropy)(size_t, const float *, float (*)(float))) {
 
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    for (size_t i = 0; i < it; i++)
-    {
+    for (size_t i = 0; i < it; i++) {
         entropy(n, arr, log2_func);
     }
 
@@ -18,14 +17,13 @@ static double time_calc(size_t it, size_t n, const float *arr, float (*log2_func
     return time_secs;
 }
 
-static double time_calc_simd(size_t it, size_t n, const float *arr, __m128 (*log2_func)(__m128), float (*entropy)(size_t, const float *, __m128 (*)(__m128)))
-{
+static double time_calc_simd(size_t it, size_t n, const float *arr, __m128 (*log2_func)(__m128),
+                             float (*entropy)(size_t, const float *, __m128 (*)(__m128))) {
 
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    for (size_t i = 0; i < it; i++)
-    {
+    for (size_t i = 0; i < it; i++) {
         entropy(n, arr, log2_func);
     }
 
@@ -35,47 +33,46 @@ static double time_calc_simd(size_t it, size_t n, const float *arr, __m128 (*log
     return time_secs;
 }
 
-static double accuracy_diff(size_t n, const float *arr, float (*log2_func)(float), float (*entropy)(size_t, const float *, float (*)(float)))
-{
+static double accuracy_diff(size_t n, const float *arr, float (*log2_func)(float),
+                            float (*entropy)(size_t, const float *, float (*)(float))) {
     double precise = entropy_precise(n, arr);
     float actual = entropy(n, arr, log2_func);
 
-    double diff = fabs(precise - (double)actual);
+    double diff = fabs(precise - (double) actual);
 
     return diff;
 }
 
-static double accuracy_diff_simd(size_t n, const float *arr, __m128 (*log2_func)(__m128), float (*entropy)(size_t, const float *, __m128 (*)(__m128)))
-{
+static double accuracy_diff_simd(size_t n, const float *arr, __m128 (*log2_func)(__m128),
+                                 float (*entropy)(size_t, const float *, __m128 (*)(__m128))) {
     double precise = entropy_precise(n, arr);
     float actual = entropy(n, arr, log2_func);
 
-    double diff = fabs(precise - (double)actual);
+    double diff = fabs(precise - (double) actual);
 
     return diff;
 }
 
-static const char* dir = "tests/testfiles/";
+static const char *dir = "tests/testfiles/";
 
 static const char *files_performance[] = {
-    "data_100_000_non-uni",
-    "data_100_000_uni",
-    "data_500_000_non-uni",
-    "data_1_000_000_non-uni",
-    "data_1_000_000_uni"
-    };
+        "data_100_000_non-uni",
+        "data_100_000_uni",
+        "data_500_000_non-uni",
+        "data_1_000_000_non-uni",
+        "data_1_000_000_uni"
+};
 static const char *files_accuracy[] = {
-    "data_500_000_non-uni",
-    "data_500_000_non-uni-2",
-    "data_500_000_non-uni-3",
-    "data_500_000_non-uni-4",
-    "data_500_000_non-uni-5"
-    };
+        "data_500_000_non-uni",
+        "data_500_000_non-uni-2",
+        "data_500_000_non-uni-3",
+        "data_500_000_non-uni-4",
+        "data_500_000_non-uni-5"
+};
 
-static const char* seperator = "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
+static const char *seperator = "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
-void test_performance(size_t it)
-{
+void test_performance(size_t it) {
 
     puts("\n");
     puts("Executing tests for Performance...(All results are in SECONDS)");
@@ -94,8 +91,7 @@ void test_performance(size_t it)
     );
     puts(seperator);
 
-    for (size_t i = 0; i < 5; i++)
-    {
+    for (size_t i = 0; i < 5; i++) {
         struct Handler file;
 
         char buffer[50];
@@ -157,16 +153,14 @@ void test_performance(size_t it)
     puts(seperator);
 
 
-  for (size_t i = 0; i < 5; i++)
-    {
+    for (size_t i = 0; i < 5; i++) {
         struct Handler file;
 
         char buffer[50];
         snprintf(buffer, sizeof(buffer), "%s%s", dir, files_performance[i]);
         file = handle_file(buffer);
 
-        if (file.data != NULL)
-        {
+        if (file.data != NULL) {
 
             printf("%-23s| ", files_performance[i]);
             double time;
@@ -208,19 +202,16 @@ void test_performance(size_t it)
 
 }
 
-void test_accuracy()
-{
+void test_accuracy() {
     double array[18];
 
-    for (size_t i = 0; i < 18; ++i)
-    {
+    for (size_t i = 0; i < 18; ++i) {
         array[i] = 0;
     }
 
     uint32_t success = 0;
 
-    for (size_t i = 0; i < 5; ++i)
-    {
+    for (size_t i = 0; i < 5; ++i) {
 
         struct Handler file;
 
@@ -270,8 +261,7 @@ void test_accuracy()
     );
     puts(seperator);
 
-    if (success != 0)
-    {
+    if (success != 0) {
         double abs_mistake;
         printf("%-23s| ", "Absolute Mistake");
 
@@ -302,9 +292,7 @@ void test_accuracy()
         abs_mistake = array[8] / success;
         printf("%-16f\n", abs_mistake);
 
-    }
-    else
-    {
+    } else {
         printf("No entropy was calculated make sure that test files exist. \n");
     }
 
@@ -325,8 +313,7 @@ void test_accuracy()
     );
     puts(seperator);
 
-    if (success != 0)
-    {
+    if (success != 0) {
         double abs_mistake;
         printf("%-23s| ", "Absolute Mistake");
 
@@ -357,9 +344,7 @@ void test_accuracy()
         abs_mistake = array[17] / success;
         printf("%-16f\n", abs_mistake);
 
-    }
-    else
-    {
+    } else {
         printf("No entropy was calculated make sure that test files exist. \n");
     }
 

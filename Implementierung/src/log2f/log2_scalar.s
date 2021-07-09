@@ -4,8 +4,7 @@
 .global log2_artanh_scalar_asm
 .global log2_lookup_scalar_asm
 
-
-// !!! USING CONSTANTS FROM log2.c !!!
+// !!! USING CONSTANTS FROM log2_consts.c !!!
 
 // Make sure LOG_LOOKUP_TABLE_SIZE in log2.h is the same
 .equ LOG_LOOKUP_TABLE_SIZE, 16

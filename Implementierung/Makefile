@@ -7,26 +7,25 @@ CFLAGS = -O3 -lm -no-pie -mtune=generic -msse4.2 -std=c11 -mno-80387 -mno-mmx -D
 VERBOSE_FLAGS = -g -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined  $(WARNING_FLAGS)
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -pedantic-errors -Wfatal-errors -Wcast-align -Wunused -Wshadow -Wcast-qual -Wno-missing-braces
 
-SRC_DIR = src
-
-FILES = $(shell find . -name "*.c" -o -name "*.S" -o -name "*.s")
+C_FILES = $(shell find . -name "*.c" -o -name "*.S" -o -name "*.s")
+H_FILES = $(shell find . -name "*.h") # also track changes in header files
 
 PROGRAM = entropy
 
-.PHONY: clean perf-cache perf-branch
+.PHONY: clean debug perf-cache perf-branch
 
 #default target is release mode
-$(PROGRAM): $(FILES)
-	@$(CC) $(FILES) $(CFLAGS) -o $(PROGRAM)
+$(PROGRAM): $(C_FILES) $(H_FILES)
+	@$(CC) $(C_FILES) $(CFLAGS) -o $(PROGRAM)
 
-debug: $(FILES)
-	@$(CC) $(FILES) $(CFLAGS) $(VERBOSE_FLAGS) -o $(PROGRAM)
+debug: $(C_FILES) $(H_FILES)
+	@$(CC) $(C_FILES) $(CFLAGS) $(VERBOSE_FLAGS) -o $(PROGRAM)
 
-# Need to specify program arguments via "make perf-cache|perf-branch args="<ARGS HERE>" "
-perf-cache: $(PROGRAM)
+# Need to specify program argumets via "make perf-cache|perf-branch args="<ARGS HERE>" "
+perf-cache: debug
 	perf stat -e cache-misses ./$(PROGRAM) $(args)
 
-perf-branch: $(PROGRAM)
+perf-branch: debug
 	perf stat -e branch-misses ./$(PROGRAM) $(args)
 
 clean:

@@ -104,7 +104,11 @@ __m128 log2_lookup_simd(__m128 x) {
     return y + _mm_cvtepi32_ps(exponent);
 }
 
-__m128 log2_glibc_simd(__m128 x) {
+/*
+Source: https://code.woboq.org/userspace/glibc/sysdeps/ieee754/flt-32/e_log2f.c.html
+*/
+__m128 log2_glibc_simd(__m128 x)
+{
     union num_s data = {.flt = x};
 
     __m128i tmp, i, top, k;

@@ -1,5 +1,4 @@
-#include
-"log2.h"
+#include "log2.h"
 
 // CONSTANTS
 

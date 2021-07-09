@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
 // Status -1 means error.
-struct Handler
-{
+struct Handler {
     size_t len;
     float *data;
     int32_t status;

@@ -8,17 +8,12 @@
 // Lookup table size
 #define LOG_LOOKUP_TABLE_SIZE 16
 
-// glibc implementation constants
-#define GLIBC_TABLE_BITS = 4
-#define GLIBC_POLY_ORDER = 4
 
-union num
-{
+union num {
     float flt;
     uint32_t fix;
 };
-union num_s
-{
+union num_s {
     __m128 flt;
     __m128i fix;
 };
@@ -66,24 +61,38 @@ extern const float log_lookup_table[];
 
 //===========C Functions==========
 float log2_deg2_scalar(float);
+
 float log2_deg4_scalar(float);
+
 float log2_artanh_scalar(float);
+
 __m128 log2_deg2_simd(__m128);
+
 __m128 log2_deg4_simd(__m128);
+
 __m128 log2_artanh_simd(__m128);
-void init_table(unsigned n, float *table);
+
 float log2_lookup_scalar(float x);
+
 __m128 log2_lookup_simd(__m128 x);
 
 //===========Asm Functions=========
 float log2_deg2_scalar_asm(float);
+
 float log2_deg4_scalar_asm(float);
+
 float log2_artanh_scalar_asm(float);
+
 __m128 log2_deg2_simd_asm(__m128);
+
 __m128 log2_deg4_simd_asm(__m128);
+
 __m128 log2_artanh_simd_asm(__m128);
+
 float log2_lookup_scalar_asm(float x);
+
 __m128 log2_lookup_simd_asm(__m128 x);
+
 __m128 log2_glibc_simd(__m128 x);
 
 #endif

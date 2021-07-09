@@ -1,174 +1,171 @@
 #include "entropy.h"
 
-float entropy_scalar(size_t len, const float *data, float (*log2_func)(float))
-{
-	float entropy = 0;
-	float sum = 0;
-	
-	float c_entropy = 0;
-	float c_sum = 0;
-	float y = 0, t = 0, tmp = 0;
+float entropy_scalar(size_t len, const float *data, float (*log2_func)(float)) {
+    float entropy = 0;
+    float sum = 0;
 
-	for (size_t i = 0; i < len; ++i)
-	{
+    float c_entropy = 0;
+    float c_sum = 0;
+    float y, t, tmp;
 
-		float x = data[i];
+    for (size_t i = 0; i < len; ++i) {
 
-		if (x < 0 || x > 1)
-		{
-			return -1;
-		}
+        float x = data[i];
 
-		// needed for log2f
-		if (x == 0)
-			continue;
+        if (x < 0 || x > 1) {
+            return -1;
+        }
 
-		// Kahans Algorithm
-		y = x - c_sum;
-		t = sum + y;
-		c_sum = (t - sum) - y;
+        // needed for log2f
+        if (x == 0) {
+            continue;
+        }
 
-		sum = t;
+        // Kahans Algorithm
+        y = x - c_sum;
+        t = sum + y;
+        c_sum = (t - sum) - y;
 
-		// Kahans Algorithm
-		// Summing instead of subtracting.
-		tmp =  x * log2_func(x);
+        sum = t;
 
-		y = tmp - c_entropy;
-		t = entropy + y;
-		c_entropy = (t - entropy) - y;
+        // Kahans Algorithm
+        // Summing instead of subtracting.
+        tmp = x * log2_func(x);
 
-		entropy = t;
-	}
+        y = tmp - c_entropy;
+        t = entropy + y;
+        c_entropy = (t - entropy) - y;
 
-	if (fabs(sum - 1) > __FLT_EPSILON__)
-		return -1;
+        entropy = t;
+    }
 
-	if (isnan(entropy))
-		return -1;
+    if (fabsf(sum - 1) > __FLT_EPSILON__) {
+        return -1;
+    }
 
-	// Changing the sign at the end.
-	return -entropy;
+    if (isnan(entropy)) {
+        return -1;
+    }
+
+    // Changing the sign at the end.
+    return -entropy;
 }
 
-double entropy_precise(size_t len, const float *data)
-{
-	double sum = 0;
-	double entropy = 0;
+double entropy_precise(size_t len, const float *data) {
+    double sum = 0;
+    double entropy = 0;
 
-	double c_entropy = 0;
-	double c_sum = 0;
-	double y = 0, t = 0, tmp = 0;
+    double c_entropy = 0;
+    double c_sum = 0;
+    double y, t, tmp;
 
-	for (size_t i = 0; i < len; ++i)
-	{
-		float x = data[i];
+    for (size_t i = 0; i < len; ++i) {
+        double x = (double) data[i];
 
-		if (x < 0 || x > 1)
-		{
-			return -1;
-		}
+        if (x < 0 || x > 1) {
+            return -1;
+        }
 
-		// needed for log2f
-		if (x == 0)
-			continue;
+        // needed for log2f
+        if (x == 0) {
+            continue;
+        }
 
 
-		// Kahans Algorithm
-		y = x - c_sum;
-		t = sum + y;
-		c_sum = (t - sum) - y;
+        // Kahans Algorithm
+        y = x - c_sum;
+        t = sum + y;
+        c_sum = (t - sum) - y;
 
-		sum = t;
+        sum = t;
 
-		// Kahans Algorithm
-		// Summing instead of subtracting.
-		tmp =  x * log2(x);
+        // Kahans Algorithm
+        // Summing instead of subtracting.
+        tmp = x * log2(x);
 
-		y = tmp - c_entropy;
-		t = entropy + y;
-		c_entropy = (t - entropy) - y;
+        y = tmp - c_entropy;
+        t = entropy + y;
+        c_entropy = (t - entropy) - y;
 
-		entropy = t;
-	}
+        entropy = t;
+    }
 
-	if (fabs(sum - 1) > __FLT_EPSILON__)
-		return -1;
+    if (fabs(sum - 1) > __FLT_EPSILON__) {
+        return -1;
+    }
 
-	if (isnan(entropy))
-		return -1;
+    if (isnan(entropy)) {
+        return -1;
+    }
 
-	// Changing the sign at the end.
-	return -entropy;
+    // Changing the sign at the end.
+    return -entropy;
 }
 
 // PREREQUISITE:  data should allocated at least len-(4-len % 4) % 4 memory otherwise it is undefined behaviour.
-float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128))
-{
-	__m128 one = _mm_set_ps1(1.0f);
-	__m128 zero = _mm_setzero_ps();
-	__m128 sum = _mm_setzero_ps();
-	__m128 x, mask;
-	uint32_t check_mask;
-	__m128 entropy = _mm_setzero_ps();
+float entropy_simd(size_t len, const float *data, __m128 (*log2_func)(__m128)) {
+    __m128 one = _mm_set_ps1(1.0f);
+    __m128 zero = _mm_setzero_ps();
+    __m128 sum = _mm_setzero_ps();
+    __m128 x, mask;
+    int32_t check_mask;
+    __m128 entropy = _mm_setzero_ps();
 
 
-	__m128 c_entropy = _mm_setzero_ps();
-	__m128 c_sum = _mm_setzero_ps();
-	__m128 y = _mm_setzero_ps();
-	__m128 t = _mm_setzero_ps();
-	__m128 tmp = _mm_setzero_ps();
+    __m128 c_entropy = _mm_setzero_ps();
+    __m128 c_sum = _mm_setzero_ps();
+    __m128 y, t, tmp;
 
-	//Calculating entropy
-	for (size_t i = 0; i < len; i += 4)
-	{
-		x = _mm_load_ps(data + i);
+    //Calculating entropy
+    for (size_t i = 0; i < len; i += 4) {
+        x = _mm_load_ps(data + i);
 
-		// Check if numbers between 0  and 1
-		mask = _mm_cmplt_ps(x, zero);
+        // Check if numbers between 0  and 1
+        mask = _mm_cmplt_ps(x, zero);
 
-		check_mask = _mm_movemask_epi8((__m128i)mask);
+        check_mask = _mm_movemask_epi8((__m128i) mask);
 
-		if (unlikely(check_mask != 0))
-			return -1;
+        if (check_mask != 0) {
+            return -1;
+        }
 
-		mask = _mm_cmpnle_ps(x, one);
+        mask = _mm_cmpnle_ps(x, one);
 
-		check_mask = _mm_movemask_epi8((__m128i)mask);
+        check_mask = _mm_movemask_epi8((__m128i) mask);
 
-		if (unlikely(check_mask != 0))
-			return -1;
-			
+        if (check_mask != 0) {
+            return -1;
+        }
 
-		// Kahans Algorithm
-		y = x - c_sum;
-		t = sum + y;
-		c_sum = (t - sum) - y;
 
-		sum = t;
+        // Kahans Algorithm
+        y = x - c_sum;
+        t = sum + y;
+        c_sum = (t - sum) - y;
 
-		// Kahans Algorithm
-		//Summing instead of subtracting.
-		tmp = x * log2_func(x);
+        sum = t;
 
-		y = tmp - c_entropy;
-		t = entropy + y;
-		c_entropy = (t - entropy) - y;
+        // Kahans Algorithm
+        // Summing instead of subtracting.
+        tmp = x * log2_func(x);
 
-		entropy = t;
-	}
+        y = tmp - c_entropy;
+        t = entropy + y;
+        c_entropy = (t - entropy) - y;
 
-	sum = _mm_hadd_ps(sum, sum);
-	sum = _mm_hadd_ps(sum, sum);
+        entropy = t;
+    }
 
-	if (fabs(sum[0] - 1) > __FLT_EPSILON__)
-	{
-		return -1;
-	}
+    sum = _mm_hadd_ps(sum, sum);
+    sum = _mm_hadd_ps(sum, sum);
 
-	entropy = _mm_hadd_ps(entropy, entropy);
-	entropy = _mm_hadd_ps(entropy, entropy);
+    if (fabsf(sum[0] - 1) > __FLT_EPSILON__) {
+        return -1;
+    }
 
-	// Changing the sign at the end.
-	return -entropy[0];
+    entropy = _mm_hadd_ps(entropy, entropy);
+    entropy = _mm_hadd_ps(entropy, entropy);
+
+    // Changing the sign at the end.
+    return -entropy[0];
 }

@@ -1,6 +1,6 @@
 import math
 
-n  = 16
+n = 16
 
 steps = 1 << n
 

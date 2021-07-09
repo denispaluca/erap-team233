@@ -9,8 +9,7 @@
 #include "entropy/entropy.h"
 #include "../tests/tests.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
     /*
     source: https://man7.org/linux/man-pages/man3/getopt.3.html
@@ -154,7 +153,7 @@ int main(int argc, char *argv[])
 
             case ':':
                 printf("Missing argument for option -%c\n", optopt);
-                __attribute__((fallthrough)); // Let fallthrough
+                        __attribute__((fallthrough)); // Let fallthrough
 
             default:
                 print_usage();
@@ -192,8 +191,7 @@ int main(int argc, char *argv[])
     if (argv[optind] != NULL) {
         handler = handle_file(argv[optind]);
 
-        if (handler.status == -1)
-        {
+        if (handler.status == -1) {
             exit(EXIT_FAILURE);
         }
 
@@ -228,8 +226,7 @@ int main(int argc, char *argv[])
     }
 
     double precise_entropy = 0.0;
-    if (accuracy)
-    {
+    if (accuracy) {
         precise_entropy = entropy_precise(handler.len, handler.data);
         printf("Precise Entropy:%*s%f\n", 15, "", precise_entropy);
         // struct timespec start, end;
@@ -239,8 +236,7 @@ int main(int argc, char *argv[])
         // printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
 
-    if (full)
-    {
+    if (full) {
         run_full(handler.len, handler.data, precise_entropy, accuracy, time, iterations);
     } else {
         printf("\n");

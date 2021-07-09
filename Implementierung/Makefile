@@ -21,7 +21,7 @@ $(PROGRAM): $(C_FILES) $(H_FILES)
 debug: $(C_FILES) $(H_FILES)
 	@$(CC) $(C_FILES) $(CFLAGS) $(VERBOSE_FLAGS) -o $(PROGRAM)
 
-# Need to specify program argumets via "make perf-cache|perf-branch args="<ARGS HERE>" "
+# Need to specify program arguments via "make perf-cache|perf-branch args="<ARGS HERE>" "
 perf-cache: debug
 	perf stat -e cache-misses ./$(PROGRAM) $(args)
 

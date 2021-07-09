@@ -15,20 +15,17 @@ struct Handler {
     int32_t status;
 };
 
-enum Language
-{
+enum Language {
     C,
     ASM
 };
 
-enum Mode
-{
+enum Mode {
     SCALAR,
     SIMD
 };
 
-enum Implementation
-{
+enum Implementation {
     DEG2,
     DEG4,
     ARTANH,
@@ -37,12 +34,18 @@ enum Implementation
 };
 
 struct Handler handle_file(const char *file_name);
+
 float calculate_entropy(size_t n, const float *data, enum Language lan, enum Mode mode, enum Implementation impl);
+
 void print_entropy(enum Language lan, enum Mode mode, enum Implementation impl, float entropy);
+
 void print_mistake(float entropy, double precise_entropy);
+
 void evaluate_args(size_t n, const float *data, enum Language lan, enum Mode mode,
                    enum Implementation impl, double precise_entropy, bool accuracy, bool time, size_t iterations);
+
 void run_full(size_t n, const float *data, double precise_entropy, bool accuracy, bool time, size_t iterations);
+
 void print_usage();
 
 #endif

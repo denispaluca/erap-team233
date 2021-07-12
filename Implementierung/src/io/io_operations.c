@@ -24,6 +24,13 @@ static size_t size_file(const char *file_name) {
 static float *read_file(size_t len, const char *file_name) {
     // allocate enough spaces to store every input.
     size_t align = len + (4 - len % 4) % 4;
+    // Checking overflow case, which is very very unlikely but still possible.
+    if(align == 0){
+        printf("Error occurred while trying to align the memory. \n");
+        printf("The reason is the size of file is either -3, -2 or -1 (in terms of size_t) \n");
+        return NULL;
+    }
+
     float *inputs = aligned_alloc(16, align * sizeof(float));
 
     if (inputs == NULL) {

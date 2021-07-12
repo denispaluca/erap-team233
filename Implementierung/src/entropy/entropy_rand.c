@@ -19,6 +19,12 @@ float *entropy_rand(size_t len) {
     srand(time(NULL));
 
     size_t align = len + (4 - len % 4) % 4;
+    // Checking overflow
+    if(align == 0){
+        printf("Error occurred while trying to align the memory. \n");
+        printf("The reason is the size of random is either -3, -2 or -1 (in terms of size_t) \n");
+        return NULL;
+    }
 
     int32_t *in_array = malloc(len * sizeof(int32_t));
 
@@ -86,6 +92,13 @@ float *entropy_urandom(size_t len) {
     }
 
     size_t align = len + (4 - len % 4) % 4;
+    // Checking overflow
+    if(align == 0){
+        printf("Error occurred while trying to align the memory. \n");
+        printf("The reason is the size of random is either -3, -2 or -1 (in terms of size_t) \n");
+        fclose(input_file);
+        return NULL;
+    }
 
     int32_t *in_array = malloc(len * sizeof(int32_t));
 
@@ -153,6 +166,12 @@ float *entropy_rand_non_uniform(size_t len) {
     srand(time(NULL));
 
     size_t align = len + (4 - len % 4) % 4;
+    // Checking overflow
+    if(align == 0){
+        printf("Error occurred while trying to align the memory. \n");
+        printf("The reason is the size of random is either -3, -2 or -1 (in terms of size_t) \n");
+        return NULL;
+    }
     float *prob_array = aligned_alloc(16, align * sizeof(float));
     if (prob_array == NULL) {
         printf("Could not allocated enough memory to store every input.\n");
@@ -201,6 +220,13 @@ float *entropy_urandom_non_uniform(size_t len) {
     }
 
     size_t align = len + (4 - len % 4) % 4;
+    // Checking overflow
+    if(align == 0){
+        printf("Error occurred while trying to align the memory. \n");
+        printf("The reason is the size of random is either -3, -2 or -1 (in terms of size_t) \n");
+        fclose(input_file);
+        return NULL;
+    }
 
     uint32_t *in_array = malloc(len * sizeof(uint32_t));
 

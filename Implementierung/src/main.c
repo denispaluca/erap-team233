@@ -91,10 +91,17 @@ int main(int argc, char *argv[]) {
             case 'r':
                 errno = 0;
                 rand_len = strtoul(optarg, NULL, 10);
+
                 if (errno == ERANGE) {
                     printf("Please enter a number after -r. For example -r 1000 \n");
                     exit(EXIT_FAILURE);
                 }
+                
+                if(rand_len > 4294967292){
+                    printf("You allocating too much mate (remember: negative numbers wrap around)\n");
+                    exit(EXIT_FAILURE);
+                }
+
                 break;
             case 'g':
                 if (strcmp("rand", optarg) == 0) {
@@ -205,16 +212,20 @@ int main(int argc, char *argv[]) {
                 handler.data = entropy_urandom_non_uniform(rand_len);
             }
         }
-        
 
-        if (handler.data == NULL) {
+        if (handler.data != NULL) {
+            printf("-----------------------------------------------------\n");
+            printf("       Calculating entropy of random data.\n");
+            printf("-----------------------------------------------------\n");
+        } else {
             printf("Error occured while generating random array.\n");
-            exit(EXIT_FAILURE);
         }
+    } else {
+        print_usage();
+    }
 
-        printf("-----------------------------------------------------\n");
-        printf("       Calculating entropy of random data.\n");
-        printf("-----------------------------------------------------\n");
+    if (handler.data == NULL) {
+        exit(EXIT_FAILURE);
     }
 
     double precise_entropy = 0.0;

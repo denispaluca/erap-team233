@@ -15,23 +15,6 @@ int main(int argc, char *argv[]) {
     source: https://man7.org/linux/man-pages/man3/getopt.3.html
     optind -> index of next element to be processed in argv
     nextchar -> if finds option character, returns it
-
-    no more option character, getopt returns -1
-    Then optind is the index in argv of the first argv-element that is not an option.
-
-    optstring is a string containing the legitimate option characters.
-    If such a character is followed by a colon, the option requires an argument, so getopt() places a pointer to the
-    following text in the same argv-element, or the text of the following argv-element, in optarg.
-    otherwise optarg is set to zero.
-
-    If an option was successfully found, then getopt() returns the option character.  If all command-line options have been parsed,
-    then getopt() returns -1.  If getopt() encounters an option character that was not in optstring, then '?' is returned.
-
-    If the first character of optstring is '-', then each nonoption argv-element is handled as if it were the argument
-    of an option with character code 1.
-
-    Long option names may be abbreviated if the abbreviation is unique or is an exact match for some defined option.
-    The last element of the array has to be filled with zeros.
     */
 
     const char *optstring = ":-l:m:i:r:t::ahfg:ub";
@@ -62,13 +45,12 @@ int main(int argc, char *argv[]) {
     size_t iterations = 1000;
     bool accuracy = false;
     bool full = false;
-    bool generator = false;
+    bool generator = false; //false for rand | true for urandom
     bool uniform = false;
     bool benchmark = false;
 
     // Fetching option arguments
     while ((opt = getopt_long(argc, argv, optstring, long_options, &optindex)) != -1) {
-
         switch (opt) {
             case 'l':
                 if (strcmp("c", optarg) == 0) {
@@ -149,11 +131,11 @@ int main(int argc, char *argv[]) {
                 break;
             case 'h':
                 print_usage();
-                return EXIT_SUCCESS;
+                exit(EXIT_SUCCESS);
 
             case ':':
                 printf("Missing argument for option -%c\n", optopt);
-                        __attribute__((fallthrough)); // Let fallthrough
+                __attribute__((fallthrough)); // Let fallthrough
 
             default:
                 print_usage();
@@ -179,19 +161,26 @@ int main(int argc, char *argv[]) {
         // After benchmarks no need to execute anything else
         exit(EXIT_SUCCESS);
     }
+
+
     if ((impl == LOG2F && lan == ASM) && !full) {
         printf("ASM|LOG2f is not implemented yet, please choose another implementation \n");
         exit(EXIT_FAILURE);
     }
+
+    //Reading the file
     struct Handler handler;
     handler.data = NULL;
     handler.len = 0;
     handler.status = -1;
 
-    if (argv[optind] != NULL) {
+
+    if (argv[optind] != NULL) { 
+        //File is provided as argument
         handler = handle_file(argv[optind]);
 
         if (handler.status == -1) {
+            //File could not be read
             exit(EXIT_FAILURE);
         }
 
@@ -199,41 +188,39 @@ int main(int argc, char *argv[]) {
         printf("       Calculating entropy of %s.\n", argv[optind]);
         printf("-----------------------------------------------------\n\n");
     } else if (rand_len != 0) {
+        //No file but random flag provided
         handler.len = rand_len;
+
+        //selecting random type and generator
         if (uniform) {
-            if (generator) {
+            if (!generator) {
                 handler.data = entropy_rand(rand_len);
             } else {
                 handler.data = entropy_urandom(rand_len);
             }
         } else {
-            if (generator) {
+            if (!generator) {
                 handler.data = entropy_rand_non_uniform(rand_len);
             } else {
                 handler.data = entropy_urandom_non_uniform(rand_len);
             }
         }
-        if (handler.data != NULL) {
-            printf("-----------------------------------------------------\n");
-            printf("       Calculating entropy of random data.\n");
-            printf("-----------------------------------------------------\n");
-        }
-    }
+        
 
-    if (handler.data == NULL) {
-        //printf("Error occured while reading/generating a file.\n");
-        exit(EXIT_FAILURE);
+        if (handler.data == NULL) {
+            printf("Error occured while generating random array.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("-----------------------------------------------------\n");
+        printf("       Calculating entropy of random data.\n");
+        printf("-----------------------------------------------------\n");
     }
 
     double precise_entropy = 0.0;
     if (accuracy) {
         precise_entropy = entropy_precise(handler.len, handler.data);
         printf("Precise Entropy:%*s%f\n", 15, "", precise_entropy);
-        // struct timespec start, end;
-        // clock_gettime(CLOCK_MONOTONIC, &start);
-        // clock_gettime(CLOCK_MONOTONIC, &end);
-        // double time_secs = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
-        // printf("Calculation took: %*s%f seconds\n", 13, "", time_secs);
     }
 
     if (full) {

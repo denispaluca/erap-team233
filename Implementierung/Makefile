@@ -1,6 +1,6 @@
 CC = gcc
 
-#		math library	           enable sse4.2 / C11       No x87 / No MMX  / CLOCK_MONOTIC  / target assembly 64 bit generic until sse4.2 without mmx and x87
+# math library / enable sse4.2 / C11 / CLOCK_MONOTIC  
 CFLAGS = -O3 -lm -no-pie -msse4.2 -std=c11 -D_POSIX_C_SOURCE=199309L
 # Math Library, without no-pie fails to use math library functions in assembly
 

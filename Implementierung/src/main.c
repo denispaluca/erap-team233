@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
                     exit(EXIT_FAILURE);
                 }
                 
-                if(rand_len > 4294967292){
+                if(rand_len > -4){
                     printf("You allocating too much mate (remember: negative numbers wrap around)\n");
                     exit(EXIT_FAILURE);
                 }
@@ -232,6 +232,10 @@ int main(int argc, char *argv[]) {
     if (accuracy) {
         precise_entropy = entropy_precise(handler.len, handler.data);
         printf("Precise Entropy:%*s%f\n", 15, "", precise_entropy);
+    }
+
+    if(time){
+        printf("Number of iterations: %*s %lu \n", 8, "", iterations);
     }
 
     if (full) {

@@ -281,5 +281,5 @@ void print_usage() {
            "\t To run all implementations and measure time and accuracy for given file \n"
            "\t ./entropy -t -a -f \"file_name\" \n"
            "\t To generate random file with length 1000 and with generator urandom(default is rand) and measure it's entropy \n"
-           "\t ./entropy -r 1000 -g urandom \n");
+           "\t ./entropy -r 1000 -g urandom \n\n\n");
 }

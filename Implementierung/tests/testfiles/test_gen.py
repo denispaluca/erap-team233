@@ -1,9 +1,7 @@
-from os import sep, system
 import numpy as np
 import sys
 
-np.set_printoptions(threshold = sys.maxsize)
-
+np.set_printoptions(threshold=sys.maxsize)
 
 f = open("data_500_000_non-uni-5", "w+")
 

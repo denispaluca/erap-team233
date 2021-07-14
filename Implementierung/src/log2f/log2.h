@@ -25,6 +25,8 @@ extern const float deg4_consts[];
 extern const float artanh_consts[];
 
 // SIMD
+// Using __m128i rather than float[] 
+// because it is automatically 16-byte aligned by gcc
 extern const __m128i reduce_mask;
 extern const __m128i mantissa_mask;
 extern const __m128i bias_packed;
@@ -59,7 +61,7 @@ extern const __m128 glibc_co3;
 
 extern const float log_lookup_table[];
 
-//===========C Functions==========
+// ===========C Functions==========
 float log2_deg2_scalar(float);
 
 float log2_deg4_scalar(float);
@@ -76,7 +78,7 @@ float log2_lookup_scalar(float x);
 
 __m128 log2_lookup_simd(__m128 x);
 
-//===========Asm Functions=========
+// ===========Asm Functions=========
 float log2_deg2_scalar_asm(float);
 
 float log2_deg4_scalar_asm(float);

@@ -1,14 +1,12 @@
 #include "log2.h"
 
-static void reduce_float_scalar(union num *data, int *exponent)
-{
+static void reduce_float_scalar(union num *data, int *exponent) {
 
     // Get exponent (omitting sign bit()
     *exponent = data->fix >> 23;
 
     // Special case for denormal floating numbers
-    if (*exponent == 0)
-    {
+    if (*exponent == 0) {
         data->flt *= 0x1P23f;               /* Normalize floating number */
         *exponent = (data->fix >> 23) - 23; /* Recalculate exponent considering exponent used for normalization*/
     }
@@ -20,8 +18,7 @@ static void reduce_float_scalar(union num *data, int *exponent)
 }
 
 // Normal
-float log2_deg2_scalar(float x)
-{
+float log2_deg2_scalar(float x) {
     union num data = {.flt = x};
     int32_t exponent = 0;
 
@@ -38,8 +35,7 @@ float log2_deg2_scalar(float x)
     return y * data.flt + y0;
 }
 
-float log2_deg4_scalar(float x)
-{
+float log2_deg4_scalar(float x) {
     union num data = {.flt = x};
     int32_t exponent = 0;
 
@@ -60,8 +56,7 @@ float log2_deg4_scalar(float x)
     return y * x2 + z;
 }
 
-float log2_artanh_scalar(float x)
-{
+float log2_artanh_scalar(float x) {
     union num data = {.flt = x};
     int32_t exponent = 0;
 
@@ -84,8 +79,7 @@ float log2_artanh_scalar(float x)
 }
 
 // With Lookup table
-float log2_lookup_scalar(float x)
-{
+float log2_lookup_scalar(float x) {
     union num data = {.flt = x};
     int32_t exponent = 0;
     int32_t index;

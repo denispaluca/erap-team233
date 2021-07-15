@@ -41,6 +41,6 @@ Die Logarithmusfunktion mit Lookup Tabelle ist etwas schneller mit Gleichverteil
     \label{fig:graph_speedup}
 \end{figure}
 
-Obwohl die Glibc-Implementierung der Logarithmusfunktion ebenfalls eine Lookup-Tabelle verwendet, erreichen wir einen Speedup von $3.5$. Der Grund dafür ist, dass, da die Lookup Tabelle eine Größe von 16 hat, fast alle Werte immer im Cache sind. Ein weiterer Grund ist, dass wir nicht auf Sonderfälle  NaN, $\pm$Inf, $\pm$0 und negative Zahlen überprüfen, was uns einige Branches erspart.
+Obwohl die Glibc-Implementierung der Logarithmusfunktion ebenfalls eine Lookup-Tabelle verwendet, erreichen wir einen Speedup von $3$. Der Grund dafür ist, dass, da die Lookup Tabelle eine Größe von 16 hat, fast alle Werte immer im Cache sind. Ein weiterer Grund ist, dass wir nicht auf Sonderfälle  NaN, $\pm$Inf, $\pm$0 und negative Zahlen überprüfen, was uns einige Branches erspart.
 
-Das durchschnittliche Speedup, das wir mittels unserer SIMD-Implementiereung außer Lookup-Tabelle ist $3.5$. Zusätzlich ist die Speedup bei der Lookup Tabelle mittels SIMD gegen Skalar fast 2 Mal wegen der notwendigen Speicherzugriffe.
+Das durchschnittliche Speedup, das wir mittels unserer SIMD-Implementiereung außer Lookup-Tabelle ist fast $4$. Zusätzlich ist die Speedup bei der Lookup Tabelle mittels SIMD gegen Skalar fast 3 mal wegen der notwendigen Speicherzugriffe.
